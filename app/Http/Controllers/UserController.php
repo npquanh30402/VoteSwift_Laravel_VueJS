@@ -61,15 +61,23 @@ class UserController extends Controller
 
         asort($timezones_with_offset);
 
-        $rooms = auth()->user()->rooms()->latest()->paginate(10);
+//        $rooms = auth()->user()->rooms()->latest()->paginate(10);
+//        $rooms->getCollection()->transform(function ($room) {
+//            $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
+//            $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
+//            return $room;
+//        });
 
-        $rooms->getCollection()->transform(function ($room) {
+        $rooms = auth()->user()->rooms()->get()->transform(function ($room) {
             $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
             $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
             return $room;
         });
 
-        return view('dashboard.user', compact('rooms', 'timezones_with_offset'));
+        return Inertia::render('Users/Dashboard', [
+            'rooms' => $rooms,
+            'timezones_with_offset' => $timezones_with_offset
+        ]);
     }
 
     public function logout(Request $request)

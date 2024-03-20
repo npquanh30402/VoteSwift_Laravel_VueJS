@@ -41,10 +41,10 @@ class VotingRoom extends Model
         })->get();
     }
 
-    protected function start_time(): Attribute
-    {
-        return Attribute::make(get: function ($value) {
-            return $value ? date('H:i', strtotime($value)) : "None";
-        });
-    }
+//    protected function start_time(): Attribute
+//    {
+//        return Attribute::make(get: function ($value) {
+//            return $value ? date('H:i', strtotime($value)) : "None";
+//        });
+//    }
 }

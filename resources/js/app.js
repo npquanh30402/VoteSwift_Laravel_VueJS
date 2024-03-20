@@ -5,7 +5,6 @@ import 'bootstrap-icons/font/bootstrap-icons.min.css'
 import {createApp, h} from "vue";
 import {createInertiaApp} from "@inertiajs/vue3";
 import {ZiggyVue} from "ziggy-js";
-import {route} from "ziggy-js";
 import MainLayout from "./Layouts/MainLayout.vue";
 
 var elem = document.getElementById("app");

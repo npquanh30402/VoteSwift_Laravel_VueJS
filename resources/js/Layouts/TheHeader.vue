@@ -42,25 +42,16 @@
                             </div>
                             <div class="vr text-white"></div>
                             <div v-if="user">
-                                <button type="button" class="btn btn-sm btn-warning"
-                                        data-bs-toggle="modal"
-                                        :data-bs-target="'#' + logoutModalId">
+                                <button type="button" class="btn btn-sm btn-warning" @click="showLogoutModal">
                                     <i class="bi bi-power"></i>
                                 </button>
                                 <teleport to="body">
-                                    <BaseModal
-                                        :modalId="logoutModalId"
-                                        title="Confirm Logout"
-                                    >
-                                        <div>Do you want to logout?</div>
+                                    <BaseModal title="Confirm Logout" id="logoutModal">
+                                        Do you want to logout?
                                         <template #footer>
-                                            <button class="btn btn-danger" data-bs-dismiss="modal">
-                                                <Link :href="route('logout', user.id)" method="POST"
-                                                      class="text-decoration-none text-white">
-                                                    YES
-                                                </Link>
-                                            </button>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No
+                                            </button>
+                                            <button type="button" class="btn btn-danger" @click="logout">Yes
                                             </button>
                                         </template>
                                     </BaseModal>
@@ -85,10 +76,11 @@
 </template>
 
 <script setup>
-import {Link} from "@inertiajs/vue3";
+import {Link, router} from "@inertiajs/vue3";
 import BaseModal from "../Components/BaseModal.vue";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
 import {route} from "ziggy-js";
+import * as bootstrap from "bootstrap";
 
 defineProps(
     {'user': Object}
@@ -100,5 +92,18 @@ function registerOrLoginShow() {
     registerOrLogin.value = !registerOrLogin.value;
 }
 
-const logoutModalId = 'logoutModal';
+let modal;
+
+onMounted(() => {
+    modal = new bootstrap.Modal(document.getElementById('logoutModal'));
+});
+
+const showLogoutModal = () => {
+    modal.show();
+};
+
+const logout = () => {
+    router.post(route("logout"));
+    modal.hide();
+};
 </script>
