@@ -63,10 +63,12 @@
                                 </teleport>
                             </div>
                             <div class="d-flex gap-3" v-else>
-                                <Link :href="route('login')" class="btn btn-sm btn-success">
+                                <Link :href="route('register')" @click="registerOrLoginShow" v-if="registerOrLogin"
+                                      class="btn btn-sm btn-success">
                                     <i class="bi bi-box-arrow-in-right"></i>
                                 </Link>
-                                <Link :href="route('register')" class="btn btn-sm btn-secondary">
+                                <Link :href="route('login')" @click="registerOrLoginShow" v-if="!registerOrLogin"
+                                      class="btn btn-sm btn-secondary">
                                     <i class="bi bi-door-open"></i>
                                 </Link>
                             </div>
@@ -81,10 +83,18 @@
 <script setup>
 import {Link} from "@inertiajs/vue3";
 import BaseModal from "../Components/BaseModal.vue";
+import {ref} from "vue";
+import {route} from "ziggy-js";
+
+const registerOrLogin = ref(false);
 
 defineProps(
     {'user': Object}
 );
+
+function registerOrLoginShow() {
+    registerOrLogin.value = !registerOrLogin.value;
+}
 
 const logoutModalId = 'logoutModal';
 </script>

@@ -9,6 +9,7 @@ use DateTime;
 use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -96,11 +97,11 @@ class UserController extends Controller
 
     public function getRegisterForm()
     {
-        return view('users.register');
+        return Inertia::render('Users/Register');
     }
 
     public function getLoginForm()
     {
-        return view('users.login');
+        return Inertia::render('Users/Login');
     }
 }

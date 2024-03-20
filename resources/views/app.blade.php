@@ -12,7 +12,6 @@
 </head>
 
 <body>
-{{--<div class="d-flex flex-column min-vh-100" id="app" data-page="{{ json_encode($page) }}"></div>--}}
 @inertia
 </body>
 
