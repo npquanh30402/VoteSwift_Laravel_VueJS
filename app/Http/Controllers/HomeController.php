@@ -34,13 +34,8 @@ class HomeController extends BaseController
             return $room;
         });
 
-//        $public_rooms = (new VotingRoom())->getPublicRooms()->transform(function ($room) {
-//            $room->room_name = Crypt::decryptString($room->room_name);
-//            $room->room_description = Crypt::decryptString($room->room_description);
-//
-//            return $room;
-//        });
-
-        return view('public-room', compact('public_rooms', 'paginator'));
+        return Inertia::render('Index/PublicRooms', [
+            'publicRooms' => $public_rooms,
+        ]);
     }
 }

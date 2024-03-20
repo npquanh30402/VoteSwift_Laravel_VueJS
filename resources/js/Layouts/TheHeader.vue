@@ -19,11 +19,11 @@
                     <div>
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="user">
                             <li class="nav-item">
-                                <Link class="nav-link active" aria-current="page" :href="route('dashboard.user')">Home
+                                <Link class="nav-link active" aria-current="page" href="">Home
                                 </Link>
                             </li>
                             <li class="nav-item">
-                                <Link class="nav-link active" aria-current="page" :ref="route('public.room')">Public
+                                <Link class="nav-link active" aria-current="page" :href="route('public.room')">Public
                                     Rooms
                                 </Link>
                             </li>

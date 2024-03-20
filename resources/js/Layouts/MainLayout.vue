@@ -3,6 +3,9 @@
     <div class="alert alert-success w-50 mx-auto mt-3" v-if="flashSuccess">
         {{ flashSuccess }}
     </div>
+    <div class="alert alert-danger w-50 mx-auto mt-3" v-else-if="flashError">
+        {{ flashError }}
+    </div>
     <slot></slot>
     <TheFooter></TheFooter>
 </template>
@@ -18,5 +21,6 @@ defineProps(['user']);
 const page = usePage();
 
 const flashSuccess = computed(() => page.props.flash.success);
+const flashError = computed(() => page.props.flash.error);
 
 </script>
