@@ -54,7 +54,11 @@
                                     >
                                         <div>Do you want to logout?</div>
                                         <template #footer>
-                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Yes
+                                            <button class="btn btn-danger" data-bs-dismiss="modal">
+                                                <Link :href="route('logout', user.id)" method="POST"
+                                                      class="text-decoration-none text-white">
+                                                    YES
+                                                </Link>
                                             </button>
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No
                                             </button>
@@ -64,11 +68,11 @@
                             </div>
                             <div class="d-flex gap-3" v-else>
                                 <Link :href="route('register')" @click="registerOrLoginShow" v-if="registerOrLogin"
-                                      class="btn btn-sm btn-success">
+                                      class="btn btn-sm btn-success" preserve-state preserve-scroll>
                                     <i class="bi bi-box-arrow-in-right"></i>
                                 </Link>
                                 <Link :href="route('login')" @click="registerOrLoginShow" v-if="!registerOrLogin"
-                                      class="btn btn-sm btn-secondary">
+                                      class="btn btn-sm btn-secondary" preserve-state preserve-scroll>
                                     <i class="bi bi-door-open"></i>
                                 </Link>
                             </div>
@@ -86,11 +90,11 @@ import BaseModal from "../Components/BaseModal.vue";
 import {ref} from "vue";
 import {route} from "ziggy-js";
 
-const registerOrLogin = ref(false);
-
 defineProps(
     {'user': Object}
 );
+
+const registerOrLogin = ref(false);
 
 function registerOrLoginShow() {
     registerOrLogin.value = !registerOrLogin.value;

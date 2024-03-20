@@ -19,20 +19,11 @@
     </div>
 </template>
 
-<script>
-export default {
-    name: 'BaseModal',
-    props: {
-        modalId: {
-            type: String,
-            required: true
-        },
-        title: {
-            type: String,
-            default: 'Modal Title'
-        },
-    },
-};
+<script setup>
+defineProps([
+    'modalId',
+    'title',
+])
 </script>
 
 <style scoped>
