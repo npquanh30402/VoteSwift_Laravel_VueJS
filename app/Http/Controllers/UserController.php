@@ -49,18 +49,6 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-        $timezones = DateTimeZone::listIdentifiers();
-        $timezones_with_offset = [];
-
-        foreach ($timezones as $timezone) {
-            $datetime = new DateTime('now', new DateTimeZone($timezone));
-            $offset = $datetime->getOffset() / 3600;
-            $offset_formatted = ($offset >= 0 ? '+' : '') . $offset;
-            $timezones_with_offset[$timezone] = $offset_formatted;
-        }
-
-        asort($timezones_with_offset);
-
 //        $rooms = auth()->user()->rooms()->latest()->paginate(10);
 //        $rooms->getCollection()->transform(function ($room) {
 //            $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
@@ -76,7 +64,6 @@ class UserController extends Controller
 
         return Inertia::render('Users/Dashboard', [
             'rooms' => $rooms,
-            'timezones_with_offset' => $timezones_with_offset
         ]);
     }
 

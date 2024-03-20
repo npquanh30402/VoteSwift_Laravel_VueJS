@@ -21,7 +21,7 @@
                 <td>{{ room.timezone }} ({{ gmtOffset(room.timezone) }})</td>
                 <td>
                     <div class="d-grid">
-                        <!--                        <Link :href="" class="btn btn-sm btn-primary">Details</Link>-->
+                        <Link :href="route('room.main', room.id)" class="btn btn-sm btn-primary">Details</Link>
                     </div>
                 </td>
                 <td>

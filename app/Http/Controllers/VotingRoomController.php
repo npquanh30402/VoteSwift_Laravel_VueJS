@@ -11,6 +11,7 @@ use DateTimeZone;
 use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class VotingRoomController extends Controller
 {
@@ -76,6 +77,25 @@ class VotingRoomController extends Controller
         $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
 
         return view('dashboard.voting', compact('room', 'settings', 'timezones_with_offset'));
+    }
+
+    public function create()
+    {
+        $timezones = DateTimeZone::listIdentifiers();
+        $timezones_with_offset = [];
+
+        foreach ($timezones as $timezone) {
+            $datetime = new DateTime('now', new DateTimeZone($timezone));
+            $offset = $datetime->getOffset() / 3600;
+            $offset_formatted = ($offset >= 0 ? '+' : '') . $offset;
+            $timezones_with_offset[$timezone] = $offset_formatted;
+        }
+
+        asort($timezones_with_offset);
+        
+        return Inertia::render('Voting/CreateRoom', [
+            'timezones_with_offset' => $timezones_with_offset
+        ]);
     }
 
     public function store(VotingRoomRequest $request)
