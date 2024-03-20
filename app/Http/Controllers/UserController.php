@@ -31,11 +31,9 @@ class UserController extends Controller
         return view('users.profile', compact('user', 'public_rooms'));
     }
 
-    public function showInformation()
+    public function showSettings()
     {
-        $user = auth()->user();
-
-        return view('users.information', compact('user'));
+        return Inertia::render('Users/UserSettings');
     }
 
     public function storeInformation(UserRequest $request)
