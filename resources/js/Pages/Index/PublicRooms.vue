@@ -17,7 +17,9 @@
                     <a href="" class="btn btn-primary">Enter</a>
                 </div>
                 <div class="card-footer text-body-secondary">
-                    {{ room.created_at }}
+                    {{
+                        intlFormatDistance(new Date(), new Date(room.created_at), {numeric: 'always'}, {localeMatcher: 'lookup'})
+                    }}
                 </div>
             </div>
         </div>
@@ -25,7 +27,7 @@
 </template>
 
 <script setup>
-import {DateTime} from "luxon";
+import {intlFormatDistance} from "date-fns";
 
 defineProps(['publicRooms'])
 
