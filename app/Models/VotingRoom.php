@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -40,11 +39,4 @@ class VotingRoom extends Model
             $query->where('public_visibility', true);
         })->get();
     }
-
-//    protected function start_time(): Attribute
-//    {
-//        return Attribute::make(get: function ($value) {
-//            return $value ? date('H:i', strtotime($value)) : "None";
-//        });
-//    }
 }

@@ -33,12 +33,12 @@
                     <div class="d-flex">
                         <div class="hstack gap-3">
                             <div class="me-3" v-if="user">
-                                <a :href="route('dashboard.user')" class="d-flex align-items-center">
+                                <Link :href="route('dashboard.user')" class="d-flex align-items-center">
                                     <img :src="user.avatar" class="rounded-circle"
                                          style="width: 3rem;"
                                          alt="Avatar"/>
                                     <span class="fs-4 mx-3 text-white">{{ user.username }}</span>
-                                </a>
+                                </Link>
                             </div>
                             <div class="vr text-white"></div>
                             <div v-if="user">

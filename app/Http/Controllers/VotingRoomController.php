@@ -92,7 +92,7 @@ class VotingRoomController extends Controller
         }
 
         asort($timezones_with_offset);
-        
+
         return Inertia::render('Voting/CreateRoom', [
             'timezones_with_offset' => $timezones_with_offset
         ]);
@@ -112,11 +112,12 @@ class VotingRoomController extends Controller
 
             $room->user_id = auth()->user()->id;
 
-            $startTime = Carbon::parse($request->start_time, $request->timezone);
-            $endTime = Carbon::parse($request->end_time, $request->timezone);
+            $startTime = Carbon::parse($request->start_time)->setTimezone($request->timezone);
+            $endTime = Carbon::parse($request->end_time)->setTimezone($request->timezone);
 
             $room->start_time = $startTime;
             $room->end_time = $endTime;
+            $room->timezone = $request->timezone;
             $room->save();
 
             $passwordRoom = null;
@@ -135,7 +136,7 @@ class VotingRoomController extends Controller
                 'allow_anonymous_voting' => $request->boolean('allow_anonymous_voting'),
             ]);
 
-            return back()->with('success', 'Voting room created successfully!');
+            return redirect()->route('dashboard.user')->with('success', 'Voting room created successfully!');
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
