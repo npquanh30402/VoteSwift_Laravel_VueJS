@@ -17,7 +17,7 @@ Route::group(['prefix' => '/user'], function () {
         Route::post('/logout', [UserController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard.user');
         Route::get('/user/settings', [UserController::class, 'showSettings'])->name('user.settings');
-        Route::put('/information', [UserController::class, 'storeInformation'])->name('store.information.user');
+        Route::put('/user/settings', [UserController::class, 'storeInformation'])->name('user.settings.update');
 
         Route::get('/profile/{user}', [UserController::class, 'profile'])->name('user.profile');
 

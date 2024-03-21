@@ -4,12 +4,12 @@
         <form class="col-md-6 shadow p-5 border rounded" @submit.prevent="register">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" value="" name="username" id="username" v-model="form.username">
+                <input type="text" class="form-control" name="username" id="username" v-model="form.username">
                 <p class="m-0 small text-danger">{{ form.errors.username }}</p>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
-                <input type="email" class="form-control" value="" name="email" id="email" v-model="form.email">
+                <input type="email" class="form-control" name="email" id="email" v-model="form.email">
                 <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
                 <p class="m-0 small text-danger">{{ form.errors.email }}</p>
             </div>

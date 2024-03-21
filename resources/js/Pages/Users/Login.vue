@@ -4,11 +4,11 @@
         <form class="col-md-6 shadow p-5 border rounded" @submit.prevent="login">
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" value="" name="username" id="username" v-model="form.username">
+                <input type="text" class="form-control" name="username" id="username" v-model="form.username">
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" value="" name="password" id="password"
+                <input type="password" class="form-control" name="password" id="password"
                        v-model="form.password">
             </div>
             <div class="mb-3 form-check">

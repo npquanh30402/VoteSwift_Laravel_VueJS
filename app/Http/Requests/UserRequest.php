@@ -26,7 +26,7 @@ class UserRequest extends FormRequest
             ];
         }
 
-        if ($this->route()->named('store.information.user')) {
+        if ($this->route()->named('user.settings.update')) {
             $rules = [
                 'avatar' => ['image', 'nullable'],
                 'first_name' => ['max:255'],
