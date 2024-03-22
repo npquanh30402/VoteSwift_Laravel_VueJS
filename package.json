@@ -24,6 +24,7 @@
         "markdown-it": "^14.1.0",
         "md-editor-v3": "^4.12.1",
         "vue": "^3.4.21",
+        "vue-easy-lightbox": "^1.19.0",
         "ziggy-js": "^2.0.5"
     },
     "type": "module"

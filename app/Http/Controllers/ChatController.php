@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ChatController extends Controller
@@ -80,20 +81,20 @@ class ChatController extends Controller
 
     public function messageReceived(Request $request, User $user)
     {
-//        dd($request->all(), $user->id);
         $message = new Message();
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $fileName = $request->user()->id . '_' . uniqid('', true) . '_' . $file->getClientOriginalName();
+            $file->storeAs('uploads/messages', $fileName, 'public');
+            $message->file = $fileName;
+            $message->encrypted_content = Crypt::encryptString(null);
+        } else {
+            $message->encrypted_content = Crypt::encryptString($request->message ? $request->message : null);
+        }
+
         $message->sender_id = auth()->user()->id;
         $message->receiver_id = $user->id;
-        $message->encrypted_content = Crypt::encryptString($request->message);
-//        $message->encrypted_content = $request->message;
-
-//        $fileName = "";
-//        if ($request->hasFile('file')) {
-//            $file = $request->file('file');
-//            $fileName = $request->user()->id . '_' . uniqid('', true) . '_' . $file->getClientOriginalName();
-//            $file->storeAs('uploads/messages', $fileName, 'public');
-//            $message->file = $fileName;
-//        }
 
         $message->save();
 
