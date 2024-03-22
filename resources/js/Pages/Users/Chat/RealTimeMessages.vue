@@ -49,7 +49,7 @@
                                 <div>
                                     <img class="img-fluid p-2 ms-3 mb-1" style="width: 10rem"
                                          :src="message.messageObj.file"
-                                         alt="file" v-if="message.messageObjfile" @click="goToProfile(message.user.id)">
+                                         alt="file" v-if="message.messageObj.file" @click="showSingle">
                                     <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;" v-else>
                                         {{ message.message }}</p>
                                     <p class="small ms-3 mb-3 rounded-3 text-muted">
