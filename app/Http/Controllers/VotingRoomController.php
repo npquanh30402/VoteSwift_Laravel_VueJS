@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VotingRoomRequest;
+use App\Models\User;
 use App\Models\VotingRoom;
 use App\Models\VotingRoomSetting;
 use Carbon\Carbon;
@@ -42,7 +43,8 @@ class VotingRoomController extends Controller
         return back()->with('success', 'Voting room deleted successfully!');
     }
 
-    public function showUpdateRoomForm(VotingRoom $room) {
+    public function showUpdateRoomForm(VotingRoom $room)
+    {
         $timezones_with_offset = $this->getTimezonesWithOffset();
 
         $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
@@ -105,10 +107,11 @@ class VotingRoomController extends Controller
         $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
         $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
 
-        Return Inertia::render('Voting/RoomDetails', compact('room', 'settings', 'timezones_with_offset'));
+        return Inertia::render('Voting/RoomDetails', compact('room', 'settings', 'timezones_with_offset'));
     }
 
-    private function getTimezonesWithOffset() {
+    private function getTimezonesWithOffset()
+    {
         $timezones = DateTimeZone::listIdentifiers();
         $timezones_with_offset = [];
 
@@ -127,14 +130,17 @@ class VotingRoomController extends Controller
     public function create()
     {
         $timezones_with_offset = $this->getTimezonesWithOffset();
+        $user_list = User::all()->pluck('username', 'id');
 
         return Inertia::render('Voting/CreateRoom', [
-            'timezones_with_offset' => $timezones_with_offset
+            'timezones_with_offset' => $timezones_with_offset,
+            'user_list' => $user_list
         ]);
     }
 
     public function store(VotingRoomRequest $request)
     {
+        dd($request->all());
         try {
             if (auth()->user()->rooms()->where('room_name', $request->room_name)->exists()) {
                 return back()->with('error', 'Voting room already exists!');

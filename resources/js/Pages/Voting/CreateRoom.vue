@@ -12,6 +12,42 @@
                         <label for="room_name">Room Name</label>
                     </div>
                 </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
+                        <div class="row justify-content-center align-items-center text-center">
+                            <div class="col-md-8">
+                                <input type="text" id="search" v-model="search" placeholder="Search User"
+                                       class="form-control form-control-lg">
+                            </div>
+                            <div class="col-md-3">
+                                <select v-model="search_user" id="invitation"
+                                        class="form-select form-select-lg form-label">
+                                    <option disabled>Pick user to send invitation</option>
+                                    <option v-if="search !== ''" v-for="user in filteredList" :value="user.id"
+                                            :key="user.id">
+                                        {{ user.id }} - {{ user.username }}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-1">
+                                <span @click="addToInvite"><i class="bi bi-plus-circle text-success"
+                                                              style="font-size: 2em;"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-if="user_invitation_list.length > 0" class="col-md-12">
+                    <div class="mb-3 row justify-content-center align-content-center text-center">
+                        <div style="height: 5rem">
+                            <ul>
+                                <li v-for="user in user_invitation_list" :key="user.id">{{ user.username }}
+                                    <button type="button" class="text-danger" @click="removeToInvite(user.id)"><i
+                                        class="bi bi-dash-circle"></i></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <div class="mb-3 row justify-content-center align-content-center text-center">
                         <div class="col-md-3 ">
@@ -144,10 +180,44 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import {MdEditor} from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
-import {useForm} from "@inertiajs/vue3";
+import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {computed, ref} from "vue";
 
-defineProps(['timezones_with_offset'])
+const props = defineProps(['timezones_with_offset', 'user_list'])
+
+const search = ref('');
+const search_user = ref('');
+const userListArray = Object.entries(props.user_list).map(([id, username]) => ({id, username}));
+
+const filteredList = computed(() => {
+    return userListArray.filter(item => {
+        return item.username.toLowerCase().includes(search.value.toLowerCase());
+    });
+})
+
+let user_invitation_list = ref([]);
+
+function addToInvite() {
+    const userIdToAdd = search_user.value;
+
+    const userExistsInInvitationList = user_invitation_list.value.some(user => user.id === userIdToAdd);
+
+    if (!userExistsInInvitationList) {
+        const userToAdd = userListArray.find(user => user.id === userIdToAdd);
+        if (userToAdd) {
+            user_invitation_list.value.push(userToAdd);
+        }
+    }
+}
+
+function removeToInvite(userId) {
+    const userIndexToRemove = userListArray.findIndex(user => user.id === userId);
+
+    if (userIndexToRemove !== -1) {
+        user_invitation_list.value.splice(userIndexToRemove, 1);
+    }
+}
 
 const form = useForm({
     room_name: '',
@@ -165,6 +235,9 @@ const form = useForm({
 });
 
 const submit = () => {
-    form.post(route('room.store'), form);
+    router.post(route('room.store'), {
+        ...form,
+        user_invitation_list: user_invitation_list.value
+    });
 }
 </script>
