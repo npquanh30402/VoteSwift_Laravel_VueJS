@@ -17,15 +17,17 @@ class MessageSent implements ShouldBroadcast
 
     public $user;
     public $messageObj;
-    public $message;
+    public $plainMessage;
     public $filePath;
 
-    public function __construct(User $user, $message, $filePath = null)
+    public function __construct(User $user, $message, $plainMessage, $filePath = null)
     {
         $this->user = $user;
+        $message->encrypted_content = Crypt::decryptString($message->encrypted_content);
         $this->messageObj = $message;
-        $this->message = Crypt::decryptString($message->encrypted_content);
         $this->filePath = $filePath;
+
+        $this->plainMessage = $plainMessage;
     }
 
     public function broadcastOn(): array

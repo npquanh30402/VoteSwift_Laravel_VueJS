@@ -1,6 +1,6 @@
 <template>
     <h1 class="display-6 text-center fw-bold">User Settings
-        <Link :href="route('user.profile', user.id)"
+        <Link :href="route('user.profile', authUser.id)"
               class="btn btn-sm btn-primary">To Profile
             Page
         </Link>
@@ -46,7 +46,7 @@
                         </div>
                         <div class="d-flex align-items-center">
                             <div class="form-group col-md-4 d-flex justify-content-center">
-                                <img :src="user.avatar"
+                                <img :src="authUser.avatar"
                                      class="rounded-circle img-fluid"
                                      style="width: 10rem;"
                                      alt="Avatar"/>
@@ -68,21 +68,18 @@
 <script setup>
 import UserSidebar from "@/Pages/Users/UserSidebar.vue";
 import {router, useForm, usePage} from "@inertiajs/vue3";
-import {computed} from "vue";
 import {route} from "ziggy-js";
 import {Link} from "@inertiajs/vue3";
 
-const page = usePage()
-
-const user = computed(() => page.props.user)
+const authUser = usePage().props.authUser;
 
 const form = useForm({
-    username: user.value.username,
-    email: user.value.email,
-    first_name: user.value.first_name,
-    last_name: user.value.last_name,
-    phone: user.value.phone,
-    address: user.value.address,
+    username: authUser.username,
+    email: authUser.email,
+    first_name: authUser.first_name,
+    last_name: authUser.last_name,
+    phone: authUser.phone,
+    address: authUser.address,
     avatar: null
 })
 

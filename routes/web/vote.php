@@ -11,8 +11,12 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
     Route::get('/room/{room}', [VotingRoomController::class, 'main'])->name('room.main')->can('view', 'room');
     Route::get('/rooms', [VotingRoomController::class, 'create'])->name('room.create');
     Route::post('/rooms', [VotingRoomController::class, 'store'])->name('room.store');
+    Route::get('/room/{room}/update', [VotingRoomController::class, 'showUpdateRoomForm'])->name('room.update.form');
     Route::put('/room/{room}', [VotingRoomController::class, 'update'])->name('room.update')->can('update', 'room');
     Route::delete('/room/{room}', [VotingRoomController::class, 'delete'])->name('room.delete')->can('delete', 'room');
+
+    Route::get('/public-room', [VotingRoomController::class, 'showPublicRoom'])->name('public.room');
+
 
     // Questions related-routes
     Route::get('/room/{room}/question', [QuestionController::class, 'main'])->name('question.main')->can('view', 'room');

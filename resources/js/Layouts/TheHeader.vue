@@ -17,7 +17,7 @@
                 </button>
                 <div class="collapse navbar-collapse hstack justify-content-between" id="navbarHeaderContent">
                     <div>
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="user">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="authUser">
                             <li class="nav-item">
                                 <Link class="nav-link active" aria-current="page" href="">Home
                                 </Link>
@@ -32,30 +32,19 @@
 
                     <div class="d-flex">
                         <div class="hstack gap-3">
-                            <div class="me-3" v-if="user">
+                            <div class="me-3" v-if="authUser">
                                 <Link :href="route('dashboard.user')" class="d-flex align-items-center">
-                                    <img :src="user.avatar" class="rounded-circle"
+                                    <img :src="authUser.avatar" class="rounded-circle"
                                          style="width: 3rem;"
                                          alt="Avatar"/>
-                                    <span class="fs-4 mx-3 text-white">{{ user.username }}</span>
+                                    <span class="fs-4 mx-3 text-white">{{ authUser.username }}</span>
                                 </Link>
                             </div>
                             <div class="vr text-white"></div>
-                            <div v-if="user">
-                                <button type="button" class="btn btn-sm btn-warning" @click="showLogoutModal">
+                            <div v-if="authUser">
+                                <Link :href="route('logout')" class="btn btn-sm btn-warning" as="button" method="POST">
                                     <i class="bi bi-power"></i>
-                                </button>
-                                <teleport to="body">
-                                    <BaseModal title="Confirm Logout" id="logoutModal">
-                                        Do you want to logout?
-                                        <template #footer>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No
-                                            </button>
-                                            <button type="button" class="btn btn-danger" @click="logout">Yes
-                                            </button>
-                                        </template>
-                                    </BaseModal>
-                                </teleport>
+                                </Link>
                             </div>
                             <div class="d-flex gap-3" v-else>
                                 <Link :href="route('register')" @click="registerOrLoginShow" v-if="registerOrLogin"
@@ -76,35 +65,14 @@
 </template>
 
 <script setup>
-import {Link, router} from "@inertiajs/vue3";
-import BaseModal from "../Components/BaseModal.vue";
-import {onMounted, ref} from "vue";
+import {Link, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import * as bootstrap from "bootstrap";
+import {ref} from "vue";
 
-defineProps(
-    {'user': Object}
-);
-
+const authUser = usePage().props.authUser;
 
 const registerOrLogin = ref(false);
-
 function registerOrLoginShow() {
     registerOrLogin.value = !registerOrLogin.value;
 }
-
-let modal;
-
-onMounted(() => {
-    modal = new bootstrap.Modal(document.getElementById('logoutModal'));
-});
-
-const showLogoutModal = () => {
-    modal.show();
-};
-
-const logout = () => {
-    router.post(route("logout"));
-    modal.hide();
-};
 </script>

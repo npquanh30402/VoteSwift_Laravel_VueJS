@@ -40,7 +40,14 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
-            'user' => auth()->user(),
+            'authUser' => auth()->user(),
+            'urlPrev' => function() {
+                if (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current()) {
+                    return url()->previous();
+                }
+
+                return 'empty';
+            },
         ]);
     }
 }

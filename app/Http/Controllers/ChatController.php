@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Inertia\Inertia;
 
 class ChatController extends Controller
 {
@@ -26,9 +27,12 @@ class ChatController extends Controller
 
         $decryptedMessages = $messages->map(function ($message) {
             return [
+                'id' => $message->id,
+                'sender_id' => $message->sender_id,
                 'avatar' => User::find($message->sender_id)->avatar,
                 'sender' => User::find($message->sender_id)->username,
                 'message' => Crypt::decryptString($message->encrypted_content),
+//                'message' => $message->encrypted_content,
                 'file' => $message->file,
                 'send_date' => $message->created_at
             ];
@@ -38,7 +42,8 @@ class ChatController extends Controller
         $acceptedFriendsTo = auth()->user()->acceptedFriendsTo()->get();
 
         $friends = $acceptedFriendsFrom->merge($acceptedFriendsTo);
-        return view('users.chat.main', compact('user', 'friends', 'decryptedMessages'));
+
+        return Inertia::render('Users/UserChat', compact('user', 'friends', 'decryptedMessages'));
     }
 
 //    public function messageReceived(Request $request, User $user)
@@ -75,24 +80,26 @@ class ChatController extends Controller
 
     public function messageReceived(Request $request, User $user)
     {
+//        dd($request->all(), $user->id);
         $message = new Message();
         $message->sender_id = auth()->user()->id;
         $message->receiver_id = $user->id;
         $message->encrypted_content = Crypt::encryptString($request->message);
+//        $message->encrypted_content = $request->message;
 
-        $fileName = "";
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $fileName = $request->user()->id . '_' . uniqid('', true) . '_' . $file->getClientOriginalName();
-            $file->storeAs('uploads/messages', $fileName, 'public');
-            $message->file = $fileName;
-        }
+//        $fileName = "";
+//        if ($request->hasFile('file')) {
+//            $file = $request->file('file');
+//            $fileName = $request->user()->id . '_' . uniqid('', true) . '_' . $file->getClientOriginalName();
+//            $file->storeAs('uploads/messages', $fileName, 'public');
+//            $message->file = $fileName;
+//        }
 
         $message->save();
 
-        $filePath = $request->hasFile('file') ? asset('storage/uploads/messages/' . $fileName) : null;
+//        $filePath = $request->hasFile('file') ? asset('storage/uploads/messages/' . $fileName) : null;
 
-        broadcast(new MessageSent($request->user(), $message, $filePath));
+        broadcast(new MessageSent($request->user(), $message, $request->message));
 
         return response()->json('Message has been broadcast', 200);
     }

@@ -8,6 +8,7 @@ use App\Services\QuestionService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Inertia\Inertia;
 
 class QuestionController extends Controller
 {
@@ -27,8 +28,8 @@ class QuestionController extends Controller
         });
 
         $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
-        
-        return view('voting.question.main', compact('room', 'questions'));
+
+        return Inertia::render('Voting/Question/Index', compact('room', 'questions'));
     }
 
     public function update(Question $question, Request $request)

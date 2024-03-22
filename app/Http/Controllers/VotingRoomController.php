@@ -10,11 +10,31 @@ use DateTime;
 use DateTimeZone;
 use Exception;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class VotingRoomController extends Controller
 {
+    public function showPublicRoom()
+    {
+        $paginator = DB::table('voting_rooms')
+            ->join('voting_room_settings', 'voting_room_settings.voting_room_id', '=', 'voting_rooms.id')
+            ->where('public_visibility', '=', 1)
+            ->paginate(9);
+
+        $public_rooms = $paginator->getCollection()->transform(function ($room) {
+            $room->room_name = Crypt::decryptString($room->room_name);
+            $room->room_description = Crypt::decryptString($room->room_description);
+
+            return $room;
+        });
+
+        return Inertia::render('Voting/PublicRooms', [
+            'publicRooms' => $public_rooms,
+        ]);
+    }
+
     public function delete(VotingRoom $room)
     {
         $room->delete();
@@ -22,19 +42,28 @@ class VotingRoomController extends Controller
         return back()->with('success', 'Voting room deleted successfully!');
     }
 
+    public function showUpdateRoomForm(VotingRoom $room) {
+        $timezones_with_offset = $this->getTimezonesWithOffset();
+
+        $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
+        $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
+
+        return Inertia::render('Voting/UpdateRoom', compact('room', 'timezones_with_offset'));
+    }
+
     public function update(VotingRoomRequest $request, VotingRoom $room)
     {
+        dd($request->all(), $room);
         $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
         $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
         $room->timezone = $request->timezone;
 
-        $startTime = Carbon::parse($request->start_time, $request->timezone);
-        $endTime = Carbon::parse($request->end_time, $request->timezone);
+        $startTime = Carbon::parse($request->start_time)->setTimezone($request->timezone);
+        $endTime = Carbon::parse($request->end_time)->setTimezone($request->timezone);
 
         $room->start_time = $startTime;
         $room->end_time = $endTime;
-
-        $currentTime = Carbon::now($request->timezone);
+        $room->timezone = $request->timezone;
 
         $room->save();
 
@@ -76,11 +105,10 @@ class VotingRoomController extends Controller
         $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
         $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
 
-        return view('dashboard.voting', compact('room', 'settings', 'timezones_with_offset'));
+        Return Inertia::render('Voting/RoomDetails', compact('room', 'settings', 'timezones_with_offset'));
     }
 
-    public function create()
-    {
+    private function getTimezonesWithOffset() {
         $timezones = DateTimeZone::listIdentifiers();
         $timezones_with_offset = [];
 
@@ -92,6 +120,13 @@ class VotingRoomController extends Controller
         }
 
         asort($timezones_with_offset);
+
+        return $timezones_with_offset;
+    }
+
+    public function create()
+    {
+        $timezones_with_offset = $this->getTimezonesWithOffset();
 
         return Inertia::render('Voting/CreateRoom', [
             'timezones_with_offset' => $timezones_with_offset
@@ -140,11 +175,5 @@ class VotingRoomController extends Controller
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }
-    }
-
-
-    public function getVotingRoomForm()
-    {
-        return view('voting.create-room');
     }
 }

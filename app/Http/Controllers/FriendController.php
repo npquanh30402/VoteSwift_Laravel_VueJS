@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Services\FriendService;
+use Inertia\Inertia;
 
 class FriendController extends Controller
 {
@@ -18,7 +19,7 @@ class FriendController extends Controller
     {
         $userData = $this->friendService->getFriends(auth()->user());
 
-        return view('users.friends', compact('userData'));
+        return Inertia::render('Users/FriendList', compact('userData'));
     }
 
     public function unfriend(User $friend)
@@ -52,7 +53,7 @@ class FriendController extends Controller
     public function sendFriendRequest(User $recipient)
     {
         $data = $this->friendService->sendFriendRequest(auth()->user(), $recipient);
-        
+
         return back()->with($data['type'], $data['message']);
     }
 }

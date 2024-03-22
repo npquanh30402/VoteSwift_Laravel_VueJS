@@ -18,7 +18,7 @@
                 </div>
                 <div class="card-footer text-body-secondary">
                     {{
-                        intlFormatDistance(new Date(), new Date(room.created_at), {numeric: 'always'}, {localeMatcher: 'lookup'})
+                        formatDate(room.created_at)
                     }}
                 </div>
             </div>
@@ -30,5 +30,9 @@
 import {intlFormatDistance} from "date-fns";
 
 defineProps(['publicRooms'])
+
+function formatDate(date) {
+    return intlFormatDistance(new Date(), new Date(date), {numeric: 'always'}, {localeMatcher: 'lookup'})
+}
 
 </script>
