@@ -14,10 +14,10 @@
                             <div class="d-flex flex-row justify-content-start" v-if="!isYou(message.sender_id)">
                                 <img :src="message.avatar" :alt="'avatar_' + message.id"
                                      class="img-fluid rounded-circle" style="width: 45px; height: 100%;"
-                                     @click="showSingle">
+                                     @click="goToProfile(message.sender_id)">
                                 <div>
                                     <img class="img-fluid p-2 ms-3 mb-1" style="width: 10rem" :src="message.file"
-                                         alt="file" v-if="message.file">
+                                         alt="file" v-if="message.file" @click="showSingle">
                                     <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;" v-else>
                                         {{ message.message }}</p>
                                     <p class="small ms-3 mb-3 rounded-3 text-muted">{{
@@ -35,19 +35,21 @@
                                     <p class="small me-3 mb-3 rounded-3 text-muted d-flex justify-content-end">
                                         {{ formatHour(message.send_date) }}</p>
                                 </div>
-                                <img :src="message.avatar" :alt="'avatar_' + message.id"
-                                     class="img-fluid rounded-circle" style="width: 45px; height: 100%;">
+                                <img :src="message.avatar"
+                                     :alt="'avatar_' + message.id"
+                                     class="img-fluid rounded-circle"
+                                     style="width: 45px; height: 100%;" @click="goToProfile(message.sender_id)">
                             </div>
                         </div>
                         <div v-for="(message, index) in messages" :key="'realtime_' + index">
                             <div class="d-flex flex-row justify-content-start" v-if="!isYou(message.user.id)">
                                 <img :src="message.user.avatar" :alt="'avatar_' + message.user.id"
                                      class="img-fluid rounded-circle" style="width: 45px; height: 100%;"
-                                     @click="showSingle">
+                                     @click="goToProfile(message.sender_id)">
                                 <div>
                                     <img class="img-fluid p-2 ms-3 mb-1" style="width: 10rem"
                                          :src="message.messageObj.file"
-                                         alt="file" v-if="message.messageObjfile">
+                                         alt="file" v-if="message.messageObjfile" @click="goToProfile(message.user.id)">
                                     <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;" v-else>
                                         {{ message.message }}</p>
                                     <p class="small ms-3 mb-3 rounded-3 text-muted">
@@ -66,7 +68,8 @@
                                         {{ formatHour(message.messageObj.created_at) }}</p>
                                 </div>
                                 <img :src="message.user.avatar" :alt="'avatar_' + message.user.id"
-                                     class="img-fluid rounded-circle" style="width: 45px; height: 100%;">
+                                     class="img-fluid rounded-circle" style="width: 45px; height: 100%;"
+                                     @click="goToProfile(message.user.id)">
                             </div>
                         </div>
 
@@ -105,9 +108,10 @@
 
 <script setup>
 import {computed, ref} from 'vue';
-import {usePage} from "@inertiajs/vue3";
+import {router, usePage} from "@inertiajs/vue3";
 import date from 'date-and-time';
 import VueEasyLightbox from 'vue-easy-lightbox'
+import {route} from "ziggy-js";
 
 const props = defineProps(['messages', 'new-message', 'databaseMessages'])
 
@@ -120,6 +124,10 @@ const emit = defineEmits(['send-message'])
 
 const isYou = (msgUserId) => {
     return msgUserId === authUser.value.id
+}
+
+function goToProfile(userId) {
+    router.get(route('user.profile', userId))
 }
 
 
@@ -165,6 +173,10 @@ const onHide = () => {
 </script>
 
 <style scoped>
+img {
+    cursor: pointer;
+}
+
 #chat2 .form-control {
     border-color: transparent;
 }
