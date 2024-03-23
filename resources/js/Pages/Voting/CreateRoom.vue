@@ -99,7 +99,7 @@
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label for="room_description" class="mb-2">Room Description:</label>
-                        <MdEditor v-model="form.room_description"
+                        <MdEditor v-model="form.room_description" @onUploadImg="onUploadImg"
                                   language="en-US"/>
                     </div>
                 </div>
@@ -266,6 +266,32 @@ function handleFileChange(event) {
 function removeFile(index) {
     console.log(index, form.files)
     form.files.splice(index, 1);
+}
+
+const onUploadImg = async (files, callback) => {
+    const res = await Promise.all(
+        files.map((file) => {
+            return new Promise((rev, rej) => {
+                const form = new FormData();
+                form.append('image', file);
+
+                axios
+                    .post(route('api.image.upload'), form, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then((res) => rev(res))
+                    .catch((error) => rej(error));
+            });
+        })
+    );
+
+    console.log('Upload responses:', res); // Log the responses for debugging
+
+    const urls = res.map((item) => item.data.image); // Access the 'image' property from the response data
+    console.log('Image URLs:', urls); // Log the extracted URLs
+    callback(res.map((item) => item.data.image));
 }
 
 const submit = () => {
