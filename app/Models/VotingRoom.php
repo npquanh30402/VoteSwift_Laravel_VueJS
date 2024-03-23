@@ -33,6 +33,11 @@ class VotingRoom extends Model
         return $this->hasOne(VotingRoomSetting::class, 'voting_room_id', 'id');
     }
 
+    public function files()
+    {
+        return $this->hasMany(VotingRoomFiles::class, 'voting_room_id', 'id');
+    }
+
     public function getPublicRooms()
     {
         return $this->with('settings')->whereHas('settings', function ($query) {

@@ -83,6 +83,21 @@
                 </div>
                 <div class="col-md-12">
                     <div class="mb-3">
+                        <label for="files" class="form-label">Files <span
+                            class="text-muted">(Can select multiple files)</span></label>
+                        <input class="form-control" type="file" id="files" @change="handleFileChange" multiple>
+                        <div>
+                            <ul id="file-list" class="list-group mt-3">
+                                <li class="list-group-item border-success" v-for="(file, index) in form.files"
+                                    :key="Math.random() + file.name" @click="removeFile(index)">
+                                    {{ file.name }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="mb-3">
                         <label for="room_description" class="mb-2">Room Description:</label>
                         <MdEditor v-model="form.room_description"
                                   language="en-US"/>
@@ -240,8 +255,18 @@ const form = useForm({
     require_password: '',
     allow_voting: true,
     allow_skipping: false,
-    allow_anonymous_voting: false
+    allow_anonymous_voting: false,
+    files: []
 });
+
+function handleFileChange(event) {
+    form.files = Array.from(event.target.files);
+}
+
+function removeFile(index) {
+    console.log(index, form.files)
+    form.files.splice(index, 1);
+}
 
 const submit = () => {
     router.post(route('room.store'), {
@@ -251,3 +276,11 @@ const submit = () => {
     });
 }
 </script>
+
+<style>
+#file-list li:hover {
+    cursor: pointer;
+    background: red;
+    color: white;
+}
+</style>

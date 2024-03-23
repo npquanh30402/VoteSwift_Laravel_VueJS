@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class VotingRoomController extends Controller
@@ -165,8 +166,26 @@ class VotingRoomController extends Controller
             $room->start_time = $startTime;
             $room->end_time = $endTime;
             $room->timezone = $request->timezone;
+
             $room->save();
 
+            if (!empty($request->files)) {
+                $fileBag = $request->files;
+                $files = $fileBag->get('files', []);
+                foreach ($files as $file) {
+                    $filePath = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+                    Storage::disk('public')->putFileAs('uploads/rooms', $file, $filePath);
+
+                    $oriFileName = $file->getClientOriginalName();
+
+                    $room->files()->create([
+                        'voting_room_id' => $room->id,
+                        'file_name' => $oriFileName,
+                        'file_path' => $filePath,
+                    ]);
+                }
+            }
+            
             $passwordRoom = null;
             if (!empty($request->require_password)) {
                 $passwordRoom = Hash::make($request->require_password);
