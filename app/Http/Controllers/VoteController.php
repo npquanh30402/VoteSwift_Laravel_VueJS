@@ -51,7 +51,9 @@ class VoteController extends Controller
             ];
         }
 
-        return view('voting.user-history', compact('votingHistory', 'organizedData', 'room_info'));
+//        dd($votingHistory, $organizedData, $room_info);
+
+        return Inertia::render('Users/VotingHistory', compact('votingHistory', 'organizedData', 'room_info'));
     }
 
     public function result(VotingRoom $room)

@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->id();
             $table->string('question_title');
             $table->string('question_description');
+            $table->string('question_image')->nullable();
             $table->unsignedBigInteger('voting_room_id');
             $table->foreign('voting_room_id')->references('id')->on('voting_rooms')->cascadeOnDelete();
             $table->timestamps();

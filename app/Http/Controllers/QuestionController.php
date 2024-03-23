@@ -54,6 +54,7 @@ class QuestionController extends Controller
 
     public function store(VotingRoom $room, Request $request)
     {
+//        dd($request->all());
         try {
             $this->questionService->createQuestion($room, $request);
             return back()->with('success', 'Question added successfully');

@@ -94,12 +94,14 @@
                         <button type="submit" class="ms-3 btn btn-primary" href="#"><i class="bi bi-send"></i></button>
                     </form>
                 </div>
-                <vue-easy-lightbox
-                    :visible="visibleRef"
-                    :imgs="imgsRef"
-                    :index="indexRef"
-                    @hide="onHide"
-                ></vue-easy-lightbox>
+                <teleport to="body">
+                    <vue-easy-lightbox
+                        :visible="visibleRef"
+                        :imgs="imgsRef"
+                        :index="indexRef"
+                        @hide="onHide"
+                    ></vue-easy-lightbox>
+                </teleport>
             </div>
         </div>
 
