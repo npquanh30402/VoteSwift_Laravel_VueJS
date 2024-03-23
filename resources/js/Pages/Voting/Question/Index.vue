@@ -16,11 +16,12 @@
                     </div>
                     <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
                     <div class="card-body">
+                        <p>Total Questions: {{ questions.length }}</p>
                         <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
                         <div class="mt-3 d-flex flex-column gap-3">
-                            <div v-for="question in questions" :key="question.id" class="card">
+                            <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="card">
                                 <div class="card-header fw-bold d-flex align-items-center gap-2">
-                                    {{ question.question_title }}
+                                    #{{ index + 1 }}: {{ question.question_title }}
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <p class="card-text text-truncate">{{ question.question_description }}</p>
@@ -30,8 +31,8 @@
                                             <button class="btn btn-secondary"
                                                     @click="openModal(modals.questionDetailsModal, question)">Details
                                             </button>
-                                            <button class="btn btn-warning"
-                                                    @click="openModal(modals.questionDetailsModal, question)">Edit
+                                            <button class="btn btn-danger"
+                                                    @click="openModal(modals.deleteQuestionModal, question)">Delete
                                             </button>
                                         </div>
                                     </div>
@@ -39,25 +40,38 @@
                             </div>
                         </div>
                     </div>
+                    <div class="d-flex justify-content-end">
+                        <vue-awesome-paginate
+                            :total-items="questions.length"
+                            :items-per-page="5"
+                            :max-pages-shown="5"
+                            v-model="currentPage"
+                            :on-click="onClickHandler"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <QuestionDetails :question="modalQuestion"
                      id="questionDetailsModal"></QuestionDetails>
+    <DeleteQuestion :question="modalQuestion" id="deleteQuestionModal"></DeleteQuestion>
 </template>
 
 <script setup>
 import {router, usePage} from "@inertiajs/vue3";
 import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import AddQuestion from "@/Pages/Voting/Question/AddQuestion.vue";
-import {onMounted, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref} from "vue";
 import * as bootstrap from 'bootstrap'
 import QuestionDetails from "@/Pages/Voting/Question/QuestionDetails.vue";
+import {VueAwesomePaginate} from "vue-awesome-paginate";
+import DeleteQuestion from "@/Pages/Voting/Question/DeleteQuestion.vue";
 
 const modals = reactive({
     addQuestionModal: 'addQuestionModal',
-    questionDetailsModal: 'questionDetailsModal'
+    questionDetailsModal: 'questionDetailsModal',
+    deleteQuestionModal: 'deleteQuestionModal'
 })
 
 let modalQuestion = ref(null);
@@ -65,6 +79,7 @@ let modalQuestion = ref(null);
 onMounted(() => {
     modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
     modals.questionDetailsModal = new bootstrap.Modal(document.getElementById(modals.questionDetailsModal));
+    modals.deleteQuestionModal = new bootstrap.Modal(document.getElementById(modals.deleteQuestionModal));
 })
 
 const props = defineProps(['room', 'questions'])
@@ -80,4 +95,15 @@ const back = () => {
         router.visit(urlPrev)
     }
 }
+
+const onClickHandler = (page) => {
+    currentPage.value = page
+};
+
+const currentPage = ref(1);
+const paginatedQuestions = computed(() => {
+    const startIndex = (currentPage.value - 1) * 5;
+    const endIndex = startIndex + 5;
+    return props.questions.slice(startIndex, endIndex);
+});
 </script>

@@ -125,6 +125,12 @@ const submit = () => {
         _method: 'put',
         ...form,
     });
+
+    editMode.value = {
+        title: false,
+        description: false,
+        image: false
+    }
 }
 
 </script>
