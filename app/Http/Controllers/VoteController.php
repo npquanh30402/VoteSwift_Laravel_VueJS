@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
 class VoteController extends Controller
 {
@@ -147,7 +148,7 @@ class VoteController extends Controller
 
     public function passwordForm(VotingRoom $room)
     {
-        return view('voting.vote.password-form', compact('room'));
+        return Inertia::render('Voting/PasswordEntry', compact('room'));
     }
 
     public function passwordEntry(Request $request, VotingRoom $room)
@@ -199,7 +200,7 @@ class VoteController extends Controller
 
         $isMultipleChoice = $room->settings->allow_multiple_votes;
 
-        return view('voting.vote.main', compact('room', 'questions', 'isMultipleChoice', 'hasVoted', 'isResultHidden', 'hasEnded'));
+        return Inertia::render('Voting/VotePage', compact('room', 'questions', 'isMultipleChoice', 'hasVoted', 'isResultHidden', 'hasEnded'));
     }
 
     public function store(Request $request)

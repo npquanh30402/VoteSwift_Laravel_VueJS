@@ -14,7 +14,7 @@
                 <div class="card-body">
                     <h5 class="card-title">{{ room.name }}</h5>
                     <p class="card-text text-truncate">{{ room.room_description }}</p>
-                    <a href="" class="btn btn-primary">Enter</a>
+                    <Link :href="route('vote.main', room.id)" class="btn btn-primary">Enter</Link>
                 </div>
                 <div class="card-footer text-body-secondary">
                     {{
@@ -27,7 +27,9 @@
 </template>
 
 <script setup>
+import {Link} from "@inertiajs/vue3";
 import {intlFormatDistance} from "date-fns";
+import {route} from "ziggy-js";
 
 defineProps(['publicRooms'])
 

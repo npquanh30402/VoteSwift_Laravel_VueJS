@@ -49,13 +49,14 @@ class VotingRoomController extends Controller
 
         $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
         $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
+        $room_settings = $room->settings;
 
-        return Inertia::render('Voting/UpdateRoom', compact('room', 'timezones_with_offset'));
+        return Inertia::render('Voting/UpdateRoom', compact('room', 'room_settings', 'timezones_with_offset'));
     }
 
     public function update(VotingRoomRequest $request, VotingRoom $room)
     {
-        dd($request->all(), $room);
+//        dd($request->all(), $room);
         $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
         $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
         $room->timezone = $request->timezone;
@@ -82,6 +83,11 @@ class VotingRoomController extends Controller
 
         if (!empty($request->require_password)) {
             $settings->password = bcrypt($request->require_password);
+            $settings->save();
+        }
+
+        if ($request->disable_password) {
+            $settings->password = null;
             $settings->save();
         }
 
@@ -140,7 +146,7 @@ class VotingRoomController extends Controller
 
     public function store(VotingRoomRequest $request)
     {
-        dd($request->all());
+//        dd($request->all());
         try {
             if (auth()->user()->rooms()->where('room_name', $request->room_name)->exists()) {
                 return back()->with('error', 'Voting room already exists!');

@@ -31,6 +31,19 @@
                 </td>
             </tr>
         </table>
+        <!--        <DataTable :data="data" class="display table table-striped">-->
+        <!--            <thead>-->
+        <!--            <tr>-->
+        <!--                <th>ID</th>-->
+        <!--                <th>Room Name</th>-->
+        <!--                <th>Start Time</th>-->
+        <!--                <th>End Time</th>-->
+        <!--                <th>Timezone</th>-->
+        <!--                &lt;!&ndash;                <th>Details</th>&ndash;&gt;-->
+        <!--                &lt;!&ndash;                <th>Delete</th>&ndash;&gt;-->
+        <!--            </tr>-->
+        <!--            </thead>-->
+        <!--        </DataTable>-->
 
         <teleport to="body">
             <BaseModal title="Confirm Delete" id="deleteModal">
@@ -51,8 +64,21 @@ import {route} from "ziggy-js";
 import {onMounted, ref} from "vue";
 import * as bootstrap from 'bootstrap'
 import BaseModal from "@/Components/BaseModal.vue";
+import DataTable from 'datatables.net-vue3'
+import DataTablesLib from 'datatables.net';
 
-defineProps(["rooms"]);
+DataTable.use(DataTablesLib);
+
+const props = defineProps(["rooms"]);
+
+console.log(props.rooms);
+
+const keys = Object.keys(props.rooms[0]).filter(key => key !== 'created_at' && key !== 'updated_at' && key !== 'user_id' && key !== 'room_description');
+
+const data = props.rooms.map(row => keys.map(key => row[key]));
+
+console.log(data);
+
 
 const gmtOffset = (timezone) => {
     const now = DateTime.now().setZone(timezone);

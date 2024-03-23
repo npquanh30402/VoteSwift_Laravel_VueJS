@@ -84,12 +84,19 @@
                         <label for="results_visibility">Results Visibility</label>
                     </div>
                 </div>
-                <div class="col-md-12">
-                    <div class="mb-3 form-floating">
-                        <input type="password" id="require_password" name="require_password"
-                               class="form-control form-control-sm" placeholder="Password"
-                               v-model="form.require_password">
-                        <label for="require_password">Password</label>
+                <div class="col-md-12 row align-items-center justify-content-center">
+                    <div class="mb-3 col-md-9">
+                        <div class="form-floating">
+                            <input type="password" id="require_password" name="require_password"
+                                   class="form-control form-control-sm" placeholder="Password"
+                                   v-model="form.require_password" :disabled="disable_password">
+                            <label for="require_password">Password</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3 form-check">
+                        <label for="disable_password">Disable Password</label>
+                        <input type="checkbox" id="disable_password" class="form-check-input"
+                               name="disable_password" v-model="disable_password">
                     </div>
                 </div>
 
@@ -140,8 +147,11 @@ import {MdEditor} from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {ref} from "vue";
 
-const props = defineProps(['timezones_with_offset', 'room'])
+const props = defineProps(['timezones_with_offset', 'room', 'room_settings'])
+
+const disable_password = ref(!(props.room_settings.password !== null && props.room_settings.password !== ''));
 
 const form = useForm({
     room_name: props.room?.room_name,
@@ -149,19 +159,20 @@ const form = useForm({
     end_time: props.room?.end_time,
     timezone: props.room?.timezone,
     room_description: props.room?.room_description,
-    allow_multiple_votes: props.room?.allow_multiple_votes,
-    public_visibility: props.room?.public_visibility,
-    results_visibility: props.room?.results_visibility,
-    require_password: props.room?.require_password,
-    allow_voting: props.room?.allow_voting,
-    allow_skipping: props.room?.allow_skipping,
-    allow_anonymous_voting: props.room?.allow_anonymous_voting
+    allow_multiple_votes: props.room_settings?.allow_multiple_votes === 1,
+    public_visibility: props.room_settings?.public_visibility === 1,
+    results_visibility: props.room_settings?.results_visibility,
+    require_password: props.room_settings?.password,
+    allow_voting: props.room_settings?.allow_voting === 1,
+    allow_skipping: props.room_settings?.allow_skipping === 1,
+    allow_anonymous_voting: props.room_settings?.allow_anonymous_voting === 1
 });
 
 const submit = () => {
     router.post(route('room.update', props.room.id), {
         _method: 'put',
         ...form,
+        disable_password: disable_password.value
     })
 }
 </script>
