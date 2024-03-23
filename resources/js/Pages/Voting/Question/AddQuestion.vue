@@ -18,18 +18,26 @@
                 </div>
             </div>
             <div class="col-md-4 vstack">
-                <div class="form-group">
+                <div class="form-group mb-4">
                     <label class="form-label" for="question_image">Image:</label>
                     <input type="file" class="form-control" id="question_image" name="question_image"
                            @change="handleFileChange">
                     <p class="m-0 small text-danger"></p>
                 </div>
-                <!--                <div class="form-group">-->
-                <!--                    <img src=""-->
-                <!--                         class="img-fluid"-->
-                <!--                         style="width: 10rem;"-->
-                <!--                         alt="Avatar"/>-->
-                <!--                </div>-->
+                <div class="form-group mb-4 text-center">
+                    <img :src="imgSrc"
+                         class="img-fluid"
+                         style="cursor: pointer"
+                         alt="Image" @click="showSingle"/>
+                    <teleport to="body">
+                        <vue-easy-lightbox
+                            :visible="visibleRef"
+                            :imgs="imgsRef"
+                            :index="indexRef"
+                            @hide="onHide"
+                        ></vue-easy-lightbox>
+                    </teleport>
+                </div>
             </div>
         </form>
     </BaseModal>
@@ -39,8 +47,29 @@
 import BaseModal from "@/Components/BaseModal.vue";
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {ref} from "vue";
+import VueEasyLightbox from "vue-easy-lightbox";
 
 const props = defineProps(['room'])
+
+const imgSrc = ref(null);
+
+const visibleRef = ref(false)
+const indexRef = ref(0)
+const imgsRef = ref([])
+
+const onShow = () => {
+    visibleRef.value = true
+}
+
+const showSingle = (e) => {
+    imgsRef.value = e.target.src
+    onShow()
+}
+
+const onHide = () => {
+    visibleRef.value = false
+}
 
 const form = useForm({
     question_title: '',
@@ -49,8 +78,16 @@ const form = useForm({
 });
 
 function handleFileChange(event) {
-    form.question_image = event.target.files[0];
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    form.question_image = file;
+    imgSrc.value = URL.createObjectURL(file);
 }
+
 
 const submit = () => {
     router.post(route('question.store', props.room.id), {
