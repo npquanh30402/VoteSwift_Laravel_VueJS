@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -18,6 +19,16 @@ use Inertia\Inertia;
 
 class VotingRoomController extends Controller
 {
+    public function showAttachment(VotingRoom $room)
+    {
+        $attachments = $room->attachments()->get();
+
+        $room->room_name = Crypt::decryptString($room->room_name);
+        $room->room_description = Crypt::decryptString($room->room_description);
+
+        return Inertia::render('Voting/VotingRoom/AttachmentPage', compact('attachments', 'room'));
+    }
+
     public function showPublicRoom()
     {
         $orgPublicRooms = DB::table('voting_rooms')
@@ -177,7 +188,7 @@ class VotingRoomController extends Controller
 
                     $oriFileName = $file->getClientOriginalName();
 
-                    $room->files()->create([
+                    $room->attachments()->create([
                         'voting_room_id' => $room->id,
                         'file_name' => $oriFileName,
                         'file_path' => $filePath,

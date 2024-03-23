@@ -33,7 +33,7 @@ class VotingRoom extends Model
         return $this->hasOne(VotingRoomSetting::class, 'voting_room_id', 'id');
     }
 
-    public function files()
+    public function attachments()
     {
         return $this->hasMany(VotingRoomFiles::class, 'voting_room_id', 'id');
     }
