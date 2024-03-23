@@ -184,6 +184,11 @@ class VoteController extends Controller
             $request->session()->now('error', 'You have already voted for this voting room.');
         }
 
+        $now = Carbon::now()->setTimezone($room->timezone);
+        if ($room->start_time < $now) {
+            $request->session()->now('error', 'Voting has not started.');
+        }
+
         $isResultHidden = $room->settings->results_visibility === 'after_voting' || $user->id === $room->user_id;
 
         $endTime = Carbon::parse($room->end_time, $room->timezone);

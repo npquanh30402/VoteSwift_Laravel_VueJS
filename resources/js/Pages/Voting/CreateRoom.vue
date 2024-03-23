@@ -120,12 +120,19 @@
                     </div>
                 </div>
 
-                <div class="col-md-12">
-                    <div class="mb-3 form-floating">
-                        <input type="password" id="require_password" name="require_password"
-                               class="form-control form-control-sm" placeholder="Password"
-                               v-model="form.require_password">
-                        <label for="require_password">Password</label>
+                <div class="col-md-12 row align-items-center justify-content-center">
+                    <div class="mb-3 col-md-9">
+                        <div class="form-floating">
+                            <input type="password" id="require_password" name="require_password"
+                                   class="form-control form-control-sm" placeholder="Password"
+                                   v-model="form.require_password" :disabled="disable_password">
+                            <label for="require_password">Password</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3 form-check">
+                        <label for="disable_password">Disable Password</label>
+                        <input type="checkbox" id="disable_password" class="form-check-input"
+                               name="disable_password" v-model="disable_password">
                     </div>
                 </div>
 
@@ -186,6 +193,8 @@ import {computed, ref} from "vue";
 
 const props = defineProps(['timezones_with_offset', 'user_list'])
 
+const disable_password = ref(true);
+
 const search = ref('');
 const search_user = ref('');
 const userListArray = Object.entries(props.user_list).map(([id, username]) => ({id, username}));
@@ -237,6 +246,7 @@ const form = useForm({
 const submit = () => {
     router.post(route('room.store'), {
         ...form,
+        require_password: disable_password.value ? '' : form.require_password,
         user_invitation_list: user_invitation_list.value
     });
 }

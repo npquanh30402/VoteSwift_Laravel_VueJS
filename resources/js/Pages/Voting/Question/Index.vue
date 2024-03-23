@@ -18,24 +18,17 @@
                     <div class="card-body">
                         <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
                         <div class="mt-3 d-flex flex-column gap-3">
-                            <div v-for="question in questions" class="card">
+                            <div v-for="question in questions" :key="question.id" class="card">
                                 <div class="card-header fw-bold d-flex align-items-center gap-2">
                                     {{ question.question_title }}
-                                    <a href=""
-                                       class="text-success">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                             fill="currentColor" class="bi bi-arrow-up-right-square"
-                                             viewBox="0 0 16 16">
-                                            <path fill-rule="evenodd"
-                                                  d="M15 2a1 1 0 0 0-1-1H2a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1zM0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm5.854 8.803a.5.5 0 1 1-.708-.707L9.243 6H6.475a.5.5 0 1 1 0-1h3.975a.5.5 0 0 1 .5.5v3.975a.5.5 0 1 1-1 0V6.707z"/>
-                                        </svg>
-                                    </a>
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <p class="card-text text-truncate">{{ question.question_description }}</p>
                                     <div class="d-flex justify-content-between">
                                         <a href="#" class="btn btn-primary">Add Candidates</a>
-                                        <a href="#" class="btn btn-secondary">See more...</a>
+                                        <button href="#" class="btn btn-secondary"
+                                                @click="openModal(modals.questionDetailsModal, question)">Details
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -45,26 +38,34 @@
             </div>
         </div>
     </div>
+    <QuestionDetails :question="modalQuestion"
+                     id="questionDetailsModal"></QuestionDetails>
 </template>
 
 <script setup>
 import {router, usePage} from "@inertiajs/vue3";
 import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import AddQuestion from "@/Pages/Voting/Question/AddQuestion.vue";
-import {onMounted, reactive} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import * as bootstrap from 'bootstrap'
+import QuestionDetails from "@/Pages/Voting/Question/QuestionDetails.vue";
 
 const modals = reactive({
-    addQuestionModal: 'addQuestionModal'
+    addQuestionModal: 'addQuestionModal',
+    questionDetailsModal: 'questionDetailsModal'
 })
+
+let modalQuestion = ref(null);
 
 onMounted(() => {
     modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
+    modals.questionDetailsModal = new bootstrap.Modal(document.getElementById(modals.questionDetailsModal));
 })
 
 const props = defineProps(['room', 'questions'])
 
-function openModal(modal) {
+function openModal(modal, question = null) {
+    modalQuestion.value = question
     modal.show()
 }
 

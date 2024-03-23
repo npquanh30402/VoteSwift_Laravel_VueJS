@@ -23,6 +23,7 @@ class QuestionService
             if ($request->hasFile('question_image')) {
                 $fileName = $room->id . '-' . uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
                 $request->question_image->storeAs('uploads/questions', $fileName, 'public');
+                $question->question_image = $fileName;
             }
 
             $question->voting_room_id = $room->id;
