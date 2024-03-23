@@ -6,7 +6,7 @@
 
     </div>
     <div class="row row-cols-3 gy-4 mb-4">
-        <div class="d-flex align-items-stretch" v-for="(room, index) in publicRooms">
+        <div class="d-flex align-items-stretch" v-for="(room, index) in paginatedRooms">
             <div class="card text-center">
                 <div class="card-header">
                     Room #{{ index + 1 }}
@@ -24,17 +24,70 @@
             </div>
         </div>
     </div>
+    <div class="d-flex justify-content-center my-3">
+        <vue-awesome-paginate
+            :total-items="publicRooms.length"
+            :items-per-page="5"
+            :max-pages-shown="5"
+            v-model="currentPage"
+            :on-click="onClickHandler"
+        />
+    </div>
 </template>
 
 <script setup>
 import {Link} from "@inertiajs/vue3";
 import {intlFormatDistance} from "date-fns";
 import {route} from "ziggy-js";
+import {VueAwesomePaginate} from "vue-awesome-paginate";
+import {computed, ref} from "vue";
 
-defineProps(['publicRooms'])
+const props = defineProps(['publicRooms'])
 
 function formatDate(date) {
     return intlFormatDistance(new Date(), new Date(date), {numeric: 'always'}, {localeMatcher: 'lookup'})
 }
 
+const onClickHandler = (page) => {
+    currentPage.value = page
+};
+
+const currentPage = ref(1);
+const paginatedRooms = computed(() => {
+    const startIndex = (currentPage.value - 1) * 9;
+    const endIndex = startIndex + 9;
+    return props.publicRooms.slice(startIndex, endIndex);
+});
+
 </script>
+
+<style>
+.pagination-container {
+    display: flex;
+    column-gap: 10px;
+}
+
+.paginate-buttons {
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: rgb(242, 242, 242);
+    border: 1px solid rgb(217, 217, 217);
+    color: black;
+}
+
+.paginate-buttons:hover {
+    background-color: #d8d8d8;
+}
+
+.active-page {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: white;
+}
+
+.active-page:hover {
+    background-color: #2988c8;
+}
+</style>
