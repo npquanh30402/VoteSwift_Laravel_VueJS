@@ -20,12 +20,11 @@ class VotingRoomController extends Controller
 {
     public function showPublicRoom()
     {
-        $paginator = DB::table('voting_rooms')
+        $orgPublicRooms = DB::table('voting_rooms')
             ->join('voting_room_settings', 'voting_room_settings.voting_room_id', '=', 'voting_rooms.id')
-            ->where('public_visibility', '=', 1)
-            ->paginate(9);
+            ->where('public_visibility', '=', 1)->get();
 
-        $public_rooms = $paginator->getCollection()->transform(function ($room) {
+        $public_rooms = $orgPublicRooms->transform(function ($room) {
             $room->room_name = Crypt::decryptString($room->room_name);
             $room->room_description = Crypt::decryptString($room->room_description);
 
@@ -185,7 +184,7 @@ class VotingRoomController extends Controller
                     ]);
                 }
             }
-            
+
             $passwordRoom = null;
             if (!empty($request->require_password)) {
                 $passwordRoom = Hash::make($request->require_password);
