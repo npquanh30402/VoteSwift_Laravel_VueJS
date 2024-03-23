@@ -8,6 +8,8 @@
         </Link>
         <Link :href="route('room.update.form', room.id)" class="list-group-item list-group-item-action">Change Settings
         </Link>
+        <Link href="route('room.update.form', room.id)" class="list-group-item list-group-item-action">Attachments
+        </Link>
     </div>
 </template>
 

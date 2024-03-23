@@ -26,9 +26,14 @@
                                     <p class="card-text text-truncate">{{ question.question_description }}</p>
                                     <div class="d-flex justify-content-between">
                                         <a href="#" class="btn btn-primary">Add Candidates</a>
-                                        <button href="#" class="btn btn-secondary"
-                                                @click="openModal(modals.questionDetailsModal, question)">Details
-                                        </button>
+                                        <div class="hstack gap-3">
+                                            <button class="btn btn-secondary"
+                                                    @click="openModal(modals.questionDetailsModal, question)">Details
+                                            </button>
+                                            <button class="btn btn-warning"
+                                                    @click="openModal(modals.questionDetailsModal, question)">Edit
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
