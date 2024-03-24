@@ -42,6 +42,7 @@
         "vue": "^3.4.21",
         "vue-awesome-paginate": "^1.1.46",
         "vue-easy-lightbox": "^1.19.0",
+        "vue-pdf-embed": "^2.0.3",
         "ziggy-js": "^2.0.5"
     },
     "type": "module"

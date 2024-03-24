@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <div class="text-end" v-if="editMode.title || editMode.description || editMode.image">
-                    <button type="submit" class="btn btn-warning">Update</button>
+                    <button type="submit" class="btn btn-warning" data-bs-dismiss="modal">Update</button>
                 </div>
             </div>
             <div class="col-md-4">
