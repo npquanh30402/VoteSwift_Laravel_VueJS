@@ -48,7 +48,7 @@
                 <div class="col-md-12">
                     <div class="mb-3">
                         <label for="room_description" class="mb-2">Room Description:</label>
-                        <MdEditor v-model="form.room_description"
+                        <MdEditor v-model="form.room_description" @onUploadImg="onUploadImg"
                                   language="en-US"/>
                     </div>
                 </div>
@@ -167,6 +167,27 @@ const form = useForm({
     allow_skipping: props.room_settings?.allow_skipping === 1,
     allow_anonymous_voting: props.room_settings?.allow_anonymous_voting === 1
 });
+
+const onUploadImg = async (files, callback) => {
+    const res = await Promise.all(
+        files.map((file) => {
+            return new Promise((rev, rej) => {
+                const form = new FormData();
+                form.append('image', file);
+
+                axios
+                    .post(route('api.image.upload'), form, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then((res) => rev(res))
+                    .catch((error) => rej(error));
+            });
+        })
+    );
+    callback(res.map((item) => item.data.image));
+}
 
 const submit = () => {
     router.post(route('room.update', props.room.id), {

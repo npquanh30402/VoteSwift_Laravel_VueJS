@@ -286,11 +286,6 @@ const onUploadImg = async (files, callback) => {
             });
         })
     );
-
-    console.log('Upload responses:', res); // Log the responses for debugging
-
-    const urls = res.map((item) => item.data.image); // Access the 'image' property from the response data
-    console.log('Image URLs:', urls); // Log the extracted URLs
     callback(res.map((item) => item.data.image));
 }
 
