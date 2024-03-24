@@ -26,8 +26,9 @@
                     </div>
                     <div class="col-sm-4">
                         <div class="card">
-                            <div class="card-header text-bg-dark">
-                                Upload Attachments
+                            <div class="card-header text-bg-dark d-flex justify-content-between">
+                                <span>Uploaded Attachments</span>
+                                <i class="bi bi-arrow-clockwise icon" @click="refresh"></i>
                             </div>
                             <div class="card-body">
                                 <div
@@ -83,6 +84,7 @@ import "@uppy/file-input";
 import {onBeforeUnmount, ref} from "vue";
 import {route} from "ziggy-js";
 import VueEasyLightbox from "vue-easy-lightbox";
+import {router} from "@inertiajs/vue3";
 
 const props = defineProps(['room', 'attachments'])
 
@@ -147,6 +149,10 @@ uppy.use(ImageEditor, {
 onBeforeUnmount(() => {
     uppy.close();
 });
+
+function refresh() {
+    router.reload();
+}
 </script>
 
 <style scoped>
