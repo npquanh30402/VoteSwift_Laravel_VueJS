@@ -9,36 +9,35 @@
                 </div>
                 <div class="mb-3">
                     <label for="candidate_description" class="form-label">Candidate Description</label>
-                    <textarea v-model="form.candidate_description"
-                              class="form-control"
-                              style="height: 10rem"></textarea>
+                    <MdEditor v-model="form.candidate_description" @onUploadImg="onUploadImg"
+                              language="en-US"></MdEditor>
                 </div>
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
                 </div>
             </div>
-            <!--            <div class="col-md-4 vstack">-->
-            <!--                <div class="form-group mb-4">-->
-            <!--                    <label class="form-label" for="candidate_image">Image:</label>-->
-            <!--                    <input type="file" class="form-control" id="candidate_image" name="candidate_image"-->
-            <!--                           @change="handleFileChange">-->
-            <!--                    <p class="m-0 small text-danger"></p>-->
-            <!--                </div>-->
-            <!--                <div class="form-group mb-4 text-center">-->
-            <!--                    <img :src="imgSrc"-->
-            <!--                         class="img-fluid"-->
-            <!--                         style="cursor: pointer"-->
-            <!--                         alt="Image" @click="showSingle"/>-->
-            <!--                    <teleport to="body">-->
-            <!--                        <vue-easy-lightbox-->
-            <!--                            :visible="visibleRef"-->
-            <!--                            :imgs="imgsRef"-->
-            <!--                            :index="indexRef"-->
-            <!--                            @hide="onHide"-->
-            <!--                        ></vue-easy-lightbox>-->
-            <!--                    </teleport>-->
-            <!--                </div>-->
-            <!--            </div>-->
+                        <div class="col-md-4 vstack">
+                            <div class="form-group mb-4">
+                                <label class="form-label" for="candidate_image">Image:</label>
+                                <input type="file" class="form-control" id="candidate_image" name="candidate_image"
+                                       @change="handleFileChange">
+                                <p class="m-0 small text-danger"></p>
+                            </div>
+                            <div class="form-group mb-4 text-center">
+                                <img :src="imgSrc"
+                                     class="img-fluid"
+                                     style="cursor: pointer"
+                                     alt="Image" @click="showSingle"/>
+                                <teleport to="body">
+                                    <vue-easy-lightbox
+                                        :visible="visibleRef"
+                                        :imgs="imgsRef"
+                                        :index="indexRef"
+                                        @hide="onHide"
+                                    ></vue-easy-lightbox>
+                                </teleport>
+                            </div>
+                        </div>
         </form>
     </BaseModal>
 </template>
@@ -49,6 +48,7 @@ import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {ref} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
+import {MdEditor} from "md-editor-v3";
 
 const props = defineProps(['question'])
 
@@ -74,7 +74,7 @@ const onHide = () => {
 const form = useForm({
     candidate_title: '',
     candidate_description: '',
-    // candidate_image: null,
+    candidate_image: null,
 });
 
 function handleFileChange(event) {
@@ -86,6 +86,27 @@ function handleFileChange(event) {
 
     form.candidate_image = file;
     imgSrc.value = URL.createObjectURL(file);
+}
+
+const onUploadImg = async (files, callback) => {
+    const res = await Promise.all(
+        files.map((file) => {
+            return new Promise((rev, rej) => {
+                const form = new FormData();
+                form.append('image', file);
+
+                axios
+                    .post(route('api.image.upload'), form, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then((res) => rev(res))
+                    .catch((error) => rej(error));
+            });
+        })
+    );
+    callback(res.map((item) => item.data.image));
 }
 
 

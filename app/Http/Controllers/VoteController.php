@@ -174,25 +174,25 @@ class VoteController extends Controller
     {
         $user = Auth::user();
 
-        if (!$room->settings->allow_voting) {
-            return redirect()->route('homepage')->with('error', 'Voting is currently disabled.');
-        }
-
-        $hasVoted = $user->hasVotedForVotingRoom($room->id);
-
-        if ($hasVoted) {
-            $request->session()->now('error', 'You have already voted for this voting room.');
-        }
-
-        $now = Carbon::now()->setTimezone($room->timezone);
-        if ($room->start_time < $now) {
-            $request->session()->now('error', 'Voting has not started.');
-        }
-
-        $isResultHidden = $room->settings->results_visibility === 'after_voting' || $user->id === $room->user_id;
-
-        $endTime = Carbon::parse($room->end_time, $room->timezone);
-        $hasEnded = $endTime->isPast();
+//        if (!$room->settings->allow_voting) {
+//            return redirect()->route('homepage')->with('error', 'Voting is currently disabled.');
+//        }
+//
+//        $hasVoted = $user->hasVotedForVotingRoom($room->id);
+//
+//        if ($hasVoted) {
+//            $request->session()->now('error', 'You have already voted for this voting room.');
+//        }
+//
+//        $now = Carbon::now()->setTimezone($room->timezone);
+//        if ($room->start_time < $now) {
+//            $request->session()->now('error', 'Voting has not started.');
+//        }
+//
+//        $isResultHidden = $room->settings->results_visibility === 'after_voting' || $user->id === $room->user_id;
+//
+//        $endTime = Carbon::parse($room->end_time, $room->timezone);
+//        $hasEnded = $endTime->isPast();
 
         $questions = $room->questions()->with('candidates')->get()->map(function ($question) {
             $question->question_title = Crypt::decryptString($question->question_title);
@@ -205,9 +205,10 @@ class VoteController extends Controller
             return $question;
         });
 
-        $isMultipleChoice = $room->settings->allow_multiple_votes;
+//        $isMultipleChoice = $room->settings->allow_multiple_votes;
 
-        return Inertia::render('Voting/VotePage', compact('room', 'questions', 'isMultipleChoice', 'hasVoted', 'isResultHidden', 'hasEnded'));
+//        return Inertia::render('Voting/VotePage', compact('room', 'questions', 'isMultipleChoice', 'hasVoted', 'isResultHidden', 'hasEnded'));
+        return Inertia::render('Voting/VotePage', compact('questions'));
     }
 
     public function store(Request $request)

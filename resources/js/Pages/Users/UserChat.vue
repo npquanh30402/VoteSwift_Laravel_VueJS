@@ -101,16 +101,22 @@ const messages = ref([]);
 const newMessage = ref('');
 
 // Real-time updates with Echo
+const handleHere = (users) => {
+    onlineUsers.value = users.map(user => user);
+};
+
+const handleJoining = (user) => {
+    onlineUsers.value.push(user);
+};
+
+const handleLeaving = (user) => {
+    onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
+};
+
 Echo.join('chat')
-    .here((users) => {
-        onlineUsers.value = users.map(user => user);
-    })
-    .joining((user) => {
-        onlineUsers.value.push(user);
-    })
-    .leaving((user) => {
-        onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
-    });
+    .here(handleHere)
+    .joining(handleJoining)
+    .leaving(handleLeaving);
 
 const sendMessage = (msg, file = null) => {
     const formData = new FormData();
@@ -135,9 +141,12 @@ const handleReceivedMessage = (e) => {
     // console.log({user: e.user, messageObj: e.messageObj, message: e.plainMessage});
 };
 
-Echo.private('chat.' + authUser.value.id)
+const chatAuthChannel = 'chat.' + authUser.value.id;
+const chatRecipientChannel = 'chat.' + recipientId;
+
+Echo.private(chatAuthChannel)
     .listen('MessageSent', handleReceivedMessage);
 
-Echo.private('chat.' + recipientId)
+Echo.private(chatRecipientChannel)
     .listen('MessageSent', handleReceivedMessage);
 </script>

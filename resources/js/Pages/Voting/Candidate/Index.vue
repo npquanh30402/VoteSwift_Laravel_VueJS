@@ -24,7 +24,9 @@
                                     #{{ index + 1 }}: {{ candidate.candidate_title }}
                                 </div>
                                 <div class="card-body d-flex flex-column">
-                                    <p class="card-text text-truncate">{{ candidate.candidate_description }}</p>
+                                    <div class="truncate-text text-truncate">
+                                        <MdPreview :editorId="'candidate' + candidate.id" :modelValue="candidate.candidate_description" />
+                                    </div>
                                     <div class="d-flex justify-content-end">
                                         <div class="hstack gap-3">
                                             <button class="btn btn-secondary"
@@ -71,6 +73,7 @@ import {Link} from "@inertiajs/vue3";
 import AddCandidate from "@/Pages/Voting/Candidate/AddCandidate.vue";
 import DeleteCandidate from "@/Pages/Voting/Candidate/DeleteCandidate.vue";
 import CandidateDetails from "@/Pages/Voting/Candidate/CandidateDetails.vue";
+import {MdPreview} from "md-editor-v3";
 
 const modals = reactive({
     addCandidateModal: 'addCandidateModal',

@@ -30,8 +30,6 @@ class CandidateController extends Controller
         $question->question_title = Crypt::decryptString($question->question_title);
 
         return Inertia::render('Voting/Candidate/Index', compact('question', 'candidates'));
-
-        return view('voting.candidate.main', compact('question', 'candidates'));
     }
 
     public function store(Question $question, Request $request)

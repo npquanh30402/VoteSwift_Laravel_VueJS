@@ -8,6 +8,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateService
 {
@@ -19,6 +20,12 @@ class CandidateService
             $candidate->candidate_title = Crypt::encryptString(strip_tags($request->candidate_title));
             $candidate->candidate_description = Crypt::encryptString(strip_tags($request->candidate_description));
             $candidate->question_id = $question->id;
+
+            if ($request->hasFile('candidate_image')) {
+                $fileName = $question->id . '-' . uniqid('', true) . '.' . $request->candidate_image->getClientOriginalExtension();
+                $request->candidate_image->storeAs('uploads/candidates', $fileName, 'public');
+                $question->candidate_image = $fileName;
+            }
 
             $candidate->save();
 
@@ -33,6 +40,18 @@ class CandidateService
         try {
             $candidate->candidate_title = Crypt::encryptString(strip_tags($request->candidate_title));
             $candidate->candidate_description = Crypt::encryptString(strip_tags($request->candidate_description));
+
+            $oldImage = $candidate->candidate_image;
+            if ($request->hasFile('candidate_image')) {
+
+                $fileName = $candidate->question_id . '-' . uniqid('', true) . '.' . $request->candidate_image->getClientOriginalExtension();
+                $request->candidate_image->storeAs('uploads/candidates', $fileName, 'public');
+                $candidate->candidate_image = $fileName;
+            }
+
+            if ($oldImage !== $candidate->candidate_image) {
+                Storage::delete(str_replace('/storage/', 'public/', $oldImage));
+            }
 
             $candidate->save();
 
