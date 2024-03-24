@@ -8,33 +8,30 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-md-2">
-                <BallotSidebar :room="room"></BallotSidebar>
+                <!--                <BallotSidebar :room="room"></BallotSidebar>-->
             </div>
             <div class="col-md-9">
                 <div class="card shadow-sm border-0 mb-3 overflow-auto">
-                    <div class="card-header text-bg-dark text-center">Add Question
+                    <div class="card-header text-bg-dark text-center">Add Candidate
                     </div>
-                    <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
+                    <AddCandidate id="addCandidateModal" :question="question"></AddCandidate>
                     <div class="card-body">
-                        <p>Total Questions: {{ questions.length }}</p>
-                        <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
+                        <p>Total Candidates: {{ candidates.length }}</p>
+                        <button class="btn btn-primary" @click="openModal(modals.addCandidateModal)">Add</button>
                         <div class="mt-3 d-flex flex-column gap-3">
-                            <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="card">
+                            <div v-for="(candidate, index) in paginatedCandidates" :key="candidate.id" class="card">
                                 <div class="card-header fw-bold d-flex align-items-center gap-2">
-                                    #{{ index + 1 }}: {{ question.question_title }}
+                                    #{{ index + 1 }}: {{ candidate.candidate_title }}
                                 </div>
                                 <div class="card-body d-flex flex-column">
-                                    <p class="card-text text-truncate">{{ question.question_description }}</p>
-                                    <div class="d-flex justify-content-between">
-                                        <Link :href="route('candidate.main', question.id)" class="btn btn-primary">
-                                            Candidates
-                                        </Link>
+                                    <p class="card-text text-truncate">{{ candidate.candidate_description }}</p>
+                                    <div class="d-flex justify-content-end">
                                         <div class="hstack gap-3">
                                             <button class="btn btn-secondary"
-                                                    @click="openModal(modals.questionDetailsModal, question)">Details
+                                                    @click="openModal(modals.candidateDetailsModal, candidate)">Details
                                             </button>
                                             <button class="btn btn-danger"
-                                                    @click="openModal(modals.deleteQuestionModal, question)">Delete
+                                                    @click="openModal(modals.deleteCandidateModal, candidate)">Delete
                                             </button>
                                         </div>
                                     </div>
@@ -44,7 +41,7 @@
                     </div>
                     <div class="d-flex justify-content-end">
                         <vue-awesome-paginate
-                            :total-items="questions.length"
+                            :total-items="candidates.length"
                             :items-per-page="5"
                             :max-pages-shown="5"
                             v-model="currentPage"
@@ -55,9 +52,9 @@
             </div>
         </div>
     </div>
-    <QuestionDetails :question="modalQuestion"
-                     id="questionDetailsModal"></QuestionDetails>
-    <DeleteQuestion :question="modalQuestion" id="deleteQuestionModal"></DeleteQuestion>
+    <CandidateDetails :candidate="modalCandidate"
+                      id="candidateDetailsModal"></CandidateDetails>
+    <DeleteCandidate :candidate="modalCandidate" id="deleteCandidateModal"></DeleteCandidate>
 </template>
 
 <script setup>
@@ -71,25 +68,28 @@ import {VueAwesomePaginate} from "vue-awesome-paginate";
 import DeleteQuestion from "@/Pages/Voting/Question/DeleteQuestion.vue";
 import {route} from "ziggy-js";
 import {Link} from "@inertiajs/vue3";
+import AddCandidate from "@/Pages/Voting/Candidate/AddCandidate.vue";
+import DeleteCandidate from "@/Pages/Voting/Candidate/DeleteCandidate.vue";
+import CandidateDetails from "@/Pages/Voting/Candidate/CandidateDetails.vue";
 
 const modals = reactive({
-    addQuestionModal: 'addQuestionModal',
-    questionDetailsModal: 'questionDetailsModal',
-    deleteQuestionModal: 'deleteQuestionModal'
+    addCandidateModal: 'addCandidateModal',
+    candidateDetailsModal: 'candidateDetailsModal',
+    deleteCandidateModal: 'deleteCandidateModal'
 })
 
-let modalQuestion = ref(null);
+let modalCandidate = ref(null);
 
 onMounted(() => {
-    modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
-    modals.questionDetailsModal = new bootstrap.Modal(document.getElementById(modals.questionDetailsModal));
-    modals.deleteQuestionModal = new bootstrap.Modal(document.getElementById(modals.deleteQuestionModal));
+    modals.addCandidateModal = new bootstrap.Modal(document.getElementById(modals.addCandidateModal));
+    modals.candidateDetailsModal = new bootstrap.Modal(document.getElementById(modals.candidateDetailsModal));
+    modals.deleteCandidateModal = new bootstrap.Modal(document.getElementById(modals.deleteCandidateModal));
 })
 
-const props = defineProps(['room', 'questions'])
+const props = defineProps(['candidates', 'question'])
 
-function openModal(modal, question = null) {
-    modalQuestion.value = question
+function openModal(modal, candidate = null) {
+    modalCandidate.value = candidate
     modal.show()
 }
 
@@ -105,9 +105,9 @@ const onClickHandler = (page) => {
 };
 
 const currentPage = ref(1);
-const paginatedQuestions = computed(() => {
+const paginatedCandidates = computed(() => {
     const startIndex = (currentPage.value - 1) * 5;
     const endIndex = startIndex + 5;
-    return props.questions.slice(startIndex, endIndex);
+    return props.candidates.slice(startIndex, endIndex);
 });
 </script>

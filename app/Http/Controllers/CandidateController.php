@@ -8,6 +8,7 @@ use App\Services\CandidateService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Inertia\Inertia;
 
 class CandidateController extends Controller
 {
@@ -27,6 +28,8 @@ class CandidateController extends Controller
         });
 
         $question->question_title = Crypt::decryptString($question->question_title);
+
+        return Inertia::render('Voting/Candidate/Index', compact('question', 'candidates'));
 
         return view('voting.candidate.main', compact('question', 'candidates'));
     }
