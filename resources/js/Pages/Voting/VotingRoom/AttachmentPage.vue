@@ -80,7 +80,6 @@ import Uppy from "@uppy/core";
 import Webcam from "@uppy/webcam";
 import XHRUpload from "@uppy/xhr-upload";
 import ImageEditor from "@uppy/image-editor";
-import "@uppy/file-input";
 import {onBeforeUnmount, ref} from "vue";
 import {route} from "ziggy-js";
 import VueEasyLightbox from "vue-easy-lightbox";

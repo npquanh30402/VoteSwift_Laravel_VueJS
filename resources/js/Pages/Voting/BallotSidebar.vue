@@ -4,6 +4,8 @@
         <Link :href="route('room.create')" class="list-group-item list-group-item-action">Create
             Room
         </Link>
+        <Link :href="route('room.description', room.id)" class="list-group-item list-group-item-action">Room Description
+        </Link>
         <Link :href="route('question.main', room.id)" class="list-group-item list-group-item-action">Add Question
         </Link>
         <Link :href="route('room.update.form', room.id)" class="list-group-item list-group-item-action">Change Settings

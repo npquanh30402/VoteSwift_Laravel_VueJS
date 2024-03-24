@@ -19,6 +19,8 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
     Route::get('/room/{room}/attachment', [VotingRoomController::class, 'showAttachment'])->name('room.attachment');
 
+    Route::get('/room/{room}/description', [VotingRoomController::class, 'showDescription'])->name('room.description');
+
 
     // Questions related-routes
     Route::get('/room/{room}/question', [QuestionController::class, 'main'])->name('question.main')->can('view', 'room');

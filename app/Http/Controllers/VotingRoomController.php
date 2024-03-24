@@ -19,6 +19,12 @@ use Inertia\Inertia;
 
 class VotingRoomController extends Controller
 {
+    public function showDescription(VotingRoom $room) {
+        $room->room_name = Crypt::decryptString($room->room_name);
+        $room->room_description = Crypt::decryptString($room->room_description);
+
+        return Inertia::render('Voting/VotingRoom/DescriptionPage', compact('room'));
+    }
     public function showAttachment(VotingRoom $room)
     {
         $attachments = $room->attachments()->get();
