@@ -9,9 +9,8 @@
                 </div>
                 <div class="mb-3">
                     <label for="question_description" class="form-label">Question Description</label>
-                    <textarea v-model="form.question_description"
-                              class="form-control"
-                              style="height: 10rem"></textarea>
+                    <MdEditor v-model="form.question_description" @onUploadImg="onUploadImg"
+                              language="en-US"></MdEditor>
                 </div>
                 <div class="text-end">
                     <button type="submit" class="btn btn-primary">Add</button>
@@ -49,6 +48,7 @@ import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {ref} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
+import {MdEditor} from "md-editor-v3";
 
 const props = defineProps(['room'])
 
@@ -86,6 +86,27 @@ function handleFileChange(event) {
 
     form.question_image = file;
     imgSrc.value = URL.createObjectURL(file);
+}
+
+const onUploadImg = async (files, callback) => {
+    const res = await Promise.all(
+        files.map((file) => {
+            return new Promise((rev, rej) => {
+                const form = new FormData();
+                form.append('image', file);
+
+                axios
+                    .post(route('api.image.upload'), form, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then((res) => rev(res))
+                    .catch((error) => rej(error));
+            });
+        })
+    );
+    callback(res.map((item) => item.data.image));
 }
 
 

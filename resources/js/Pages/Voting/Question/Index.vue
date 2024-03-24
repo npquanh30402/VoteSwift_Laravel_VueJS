@@ -24,7 +24,9 @@
                                     #{{ index + 1 }}: {{ question.question_title }}
                                 </div>
                                 <div class="card-body d-flex flex-column">
-                                    <p class="card-text text-truncate">{{ question.question_description }}</p>
+                                    <div class="truncate-text">
+                                        <MdPreview :editorId="'question' + question.id" :modelValue="question.question_description" />
+                                    </div>
                                     <div class="d-flex justify-content-between">
                                         <Link :href="route('candidate.main', question.id)" class="btn btn-primary">
                                             Candidates
@@ -71,6 +73,7 @@ import {VueAwesomePaginate} from "vue-awesome-paginate";
 import DeleteQuestion from "@/Pages/Voting/Question/DeleteQuestion.vue";
 import {route} from "ziggy-js";
 import {Link} from "@inertiajs/vue3";
+import {MdPreview} from "md-editor-v3";
 
 const modals = reactive({
     addQuestionModal: 'addQuestionModal',

@@ -84,10 +84,21 @@ const data = reactive({
     // candidate_image: props.question?.candidate_image,
 });
 
-watch(() => props.question, (newQuestion) => {
+const form = useForm({
+    candidate_title: data.candidate_title,
+    candidate_description: data.candidate_description,
+    // candidate_image: data.candidate_image,
+});
+
+watch(() => props.candidate, (newQuestion) => {
     data.candidate_title = newQuestion?.candidate_title;
     data.candidate_description = newQuestion?.candidate_description;
     // data.candidate_image = newQuestion?.candidate_image;
+
+    if (form) {
+        form.candidate_title = data.candidate_title;
+        form.candidate_description = data.candidate_description;
+    }
 }, {
     deep: true,
     immediate: true,
@@ -113,12 +124,6 @@ const editMode = ref({
 const toggleEditMode = (field) => {
     editMode.value[field] = !editMode.value[field];
 };
-
-const form = useForm({
-    candidate_title: data.candidate_title,
-    candidate_description: data.candidate_description,
-    // candidate_image: data.candidate_image,
-});
 
 const submit = () => {
     router.post(route('candidate.update', props.candidate.id), {

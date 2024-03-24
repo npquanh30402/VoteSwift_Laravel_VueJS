@@ -34,4 +34,11 @@ const flashError = computed(() => usePage().props.flash.error);
 .fade-leave-to {
     opacity: 0;
 }
+
+ .truncate-text {
+     overflow: hidden;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     height: 10rem;
+ }
 </style>

@@ -13,9 +13,8 @@
                 <div class="mb-3">
                     <div style="position: relative;">
                         <label for="question_description" class="form-label">Question Description</label>
-                        <textarea v-model="form.question_description"
-                                  class="form-control"
-                                  style="height: 10rem" :disabled="!editMode.description"></textarea>
+                        <MdEditor v-model="form.question_description" @onUploadImg="onUploadImg"
+                                  language="en-US" :disabled="!editMode.description"></MdEditor>
                         <i @click="toggleEditMode('description')" class="bi bi-pencil" style="top: 25%"></i>
                     </div>
                 </div>
@@ -58,6 +57,7 @@ import {reactive, ref, watch} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {MdEditor} from "md-editor-v3";
 
 const props = defineProps(['question'])
 
@@ -84,10 +84,22 @@ const data = reactive({
     question_image: props.question?.question_image,
 });
 
+const form = useForm({
+    question_title: data.question_title,
+    question_description: data.question_description,
+    question_image: data.question_image,
+});
+
 watch(() => props.question, (newQuestion) => {
     data.question_title = newQuestion?.question_title;
     data.question_description = newQuestion?.question_description;
     data.question_image = newQuestion?.question_image;
+
+    if (form) {
+        form.question_title = data.question_title;
+        form.question_description = data.question_description;
+        form.question_image = data.question_image;
+    }
 }, {
     deep: true,
     immediate: true,
@@ -114,11 +126,26 @@ const toggleEditMode = (field) => {
     editMode.value[field] = !editMode.value[field];
 };
 
-const form = useForm({
-    question_title: data.question_title,
-    question_description: data.question_description,
-    question_image: data.question_image,
-});
+const onUploadImg = async (files, callback) => {
+    const res = await Promise.all(
+        files.map((file) => {
+            return new Promise((rev, rej) => {
+                const form = new FormData();
+                form.append('image', file);
+
+                axios
+                    .post(route('api.image.upload'), form, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    })
+                    .then((res) => rev(res))
+                    .catch((error) => rej(error));
+            });
+        })
+    );
+    callback(res.map((item) => item.data.image));
+}
 
 const submit = () => {
     router.post(route('question.update', props.question.id), {
