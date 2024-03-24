@@ -208,7 +208,11 @@ class VoteController extends Controller
 //        $isMultipleChoice = $room->settings->allow_multiple_votes;
 
 //        return Inertia::render('Voting/VotePage', compact('room', 'questions', 'isMultipleChoice', 'hasVoted', 'isResultHidden', 'hasEnded'));
-        return Inertia::render('Voting/VotePage', compact('questions'));
+//        dd($room);
+        $room->room_name = Crypt::decryptString($room->room_name);
+        $room->room_description = Crypt::decryptString($room->room_description);
+
+        return Inertia::render('Voting/Vote/Index', compact('questions', 'room'));
     }
 
     public function store(Request $request)

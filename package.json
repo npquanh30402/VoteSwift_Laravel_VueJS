@@ -21,6 +21,7 @@
         "@uppy/webcam": "^3.3.6",
         "@uppy/xhr-upload": "^3.6.4",
         "@vuepic/vue-datepicker": "^8.3.1",
+        "animate.css": "^4.1.1",
         "bootstrap": "^5.3.3",
         "bootstrap-icons": "^1.11.3",
         "datatables.net-vue3": "^3.0.1",

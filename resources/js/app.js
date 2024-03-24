@@ -11,6 +11,8 @@ import {createApp, h} from "vue";
 import {createInertiaApp} from "@inertiajs/vue3";
 import {ZiggyVue} from "ziggy-js";
 import MainLayout from "./Layouts/MainLayout.vue";
+import 'animate.css';
+
 
 var elem = document.getElementById("app");
 elem.className += "d-flex flex-column min-vh-100";
