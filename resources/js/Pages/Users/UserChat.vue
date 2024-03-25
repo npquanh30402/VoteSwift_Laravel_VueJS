@@ -126,8 +126,6 @@ const sendMessage = (msg, file = null) => {
         formData.append('file', file);
     }
 
-    console.log(formData, msg, file);
-
     window.axios.post(route('chat.message', recipientId), formData, {
         headers: {
             'Content-Type': 'multipart/form-data'

@@ -10,7 +10,7 @@ import {
     Colors
 } from 'chart.js'
 import {Bar} from 'vue-chartjs'
-import {reactive} from "vue";
+import {computed, reactive, watch, watchEffect} from "vue";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors)
 
@@ -20,6 +20,11 @@ const data = reactive({
     labels: props.labels,
     datasets: [{data: props.datasets}],
 })
+
+const chartData = computed(() => ({
+    labels: props.labels,
+    datasets: [{data: props.datasets}]
+}));
 
 const options = {
     responsive: true,
@@ -47,6 +52,6 @@ const options = {
 
 <template>
     <div>
-        <Bar :data="data" :options="options"/>
+        <Bar :data="chartData" :options="options"/>
     </div>
 </template>

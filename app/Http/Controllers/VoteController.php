@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ResultUpdate;
 use App\Models\Candidate;
 use App\Models\Question;
 use App\Models\User;
@@ -171,24 +172,8 @@ class VoteController extends Controller
         return Inertia::render('Voting/Vote/Index', compact('questions', 'room'));
     }
 
-    public function store(Request $request)
+    public function store(VotingRoom $room, Request $request)
     {
-//        dd($request->all());
-//        $formData = $request->all();
-//
-//        foreach ($formData as $key => $value) {
-//            if (strpos($key, 'question_') === 0) {
-//
-//                if (is_array($value)) {
-//                    foreach ($value as $candidateId) {
-//                        $this->createVote($candidateId);
-//                    }
-//                } else {
-//                    $this->createVote($value);
-//                }
-//            }
-//        }
-
         $selectedOptions = $request->selectedOptions;
 
         foreach ($selectedOptions as $questionId => $candidateIds) {
@@ -198,6 +183,10 @@ class VoteController extends Controller
                 }
             }
         }
+        
+        $nestedResults = Vote::getQuestionResults($room->questions);
+
+        broadcast(new ResultUpdate($nestedResults));
 
         return redirect()->route('homepage')->with('success', 'Thank you for voting!');
     }
