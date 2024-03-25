@@ -25,7 +25,8 @@
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <div class="truncate-text">
-                                        <MdPreview :editorId="'question' + question.id" :modelValue="question.question_description" />
+                                        <MdPreview :editorId="'question' + question.id"
+                                                   :modelValue="question.question_description"/>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <Link :href="route('candidate.main', question.id)" class="btn btn-primary">
@@ -89,12 +90,13 @@ onMounted(() => {
     modals.deleteQuestionModal = new bootstrap.Modal(document.getElementById(modals.deleteQuestionModal));
 })
 
-const props = defineProps(['room', 'questions'])
-
 function openModal(modal, question = null) {
     modalQuestion.value = question
     modal.show()
 }
+
+const props = defineProps(['room', 'questions'])
+
 
 let urlPrev = usePage().props.urlPrev;
 const back = () => {

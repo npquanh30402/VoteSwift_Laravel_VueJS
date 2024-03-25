@@ -14,11 +14,11 @@ import {computed} from "vue";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors)
 
-const props = defineProps(['labels', 'datasets', 'title'])
+const props = defineProps(['labels', 'datasets'])
 
 const chartData = computed(() => ({
     labels: props.labels,
-    datasets: [{label: props.title, data: props.datasets}]
+    datasets: [{data: props.datasets}]
 }));
 
 const options = {
@@ -41,7 +41,7 @@ const options = {
         'rgb(153, 102, 255)',
         'rgb(201, 203, 207)'
     ],
-    borderWidth: 1
+    borderWidth: 1,
 }
 </script>
 

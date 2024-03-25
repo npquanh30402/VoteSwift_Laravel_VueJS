@@ -4,22 +4,24 @@
             <h1 class="display-6 text-center fw-bold">Result: {{ room.room_name }}</h1>
         </div>
     </div>
-    <div class="w-50">
-        <LineChart :labels="rec_voteCountsInTimeInterval[0]"
-                   :datasets="rec_voteCountsInTimeInterval[1]"/>
-    </div>
     <div class="my-3">
         <div class="row justify-content-center">
             <div class="col-md-2">
                 <BallotSidebar :room="room"></BallotSidebar>
             </div>
             <div class="col-md-9">
-                <div class="mb-3">
-                    <button type="button" class="btn btn-primary position-relative" disabled>
-                        Realtime
-                        <span
-                            class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle animate__animated animate__flash animate__infinite animate__slow"></span>
-                    </button>
+                <div class="mb-3 d-flex gap-3">
+                    <div>
+                        <button type="button" class="btn btn-primary position-relative" disabled>
+                            Realtime
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle animate__animated animate__flash animate__infinite animate__slow"></span>
+                        </button>
+                    </div>
+                    <div>
+                        <button class="btn btn-secondary" @click="openModal(modals.moreChartsModal)">More Charts
+                        </button>
+                    </div>
                 </div>
                 <div class="vstack gap-4">
                     <div class="card shadow shadow-sm container-fluid p-3" v-for="(result, index) in rec_nestedResults"
@@ -40,7 +42,7 @@
                                 </div>
                             </div>
                             <div class="col-md-5">
-                                <BarChart :labels="trimCandidates(result.candidates, 10)" :title="result.question_title"
+                                <BarChart :labels="trimCandidates(result.candidates, 10)"
                                           :datasets="result.vote_counts"></BarChart>
                             </div>
                         </div>
@@ -49,21 +51,37 @@
             </div>
         </div>
     </div>
+    <BaseModal :id="modals.moreChartsModal" title="More Charts">
+        <LineChart :labels="rec_voteCountsInTimeInterval[0]"
+                   :datasets="rec_voteCountsInTimeInterval[1]"/>
+    </BaseModal>
 </template>
 
 <script setup>
 import BarChart from "@/Components/BarChart.vue";
-import {ref} from "vue";
+import {onMounted, reactive, ref} from "vue";
 import {Link} from "@inertiajs/vue3";
 import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import LineChart from "@/Components/LineChart.vue";
+import * as bootstrap from "bootstrap";
+import BaseModal from "@/Components/BaseModal.vue";
 
 const props = defineProps(['nestedResults', 'room', 'voteCountsInTimeInterval']);
 
 const rec_nestedResults = ref(props.nestedResults)
 const rec_voteCountsInTimeInterval = ref(props.voteCountsInTimeInterval)
 
-console.log(props.nestedResults)
+const modals = reactive({
+    moreChartsModal: 'moreChartsModal'
+})
+
+onMounted(() => {
+    modals.moreChartsModal = new bootstrap.Modal(document.getElementById(modals.moreChartsModal));
+})
+
+function openModal(modal) {
+    modal.show()
+}
 
 Echo.private('result-update').listen('ResultUpdate', (e) => {
     rec_nestedResults.value = e.nestedResults;
@@ -72,16 +90,6 @@ Echo.private('result-update').listen('ResultUpdate', (e) => {
 
 function trimCandidates(candidates, length) {
     return candidates.map(candidate => candidate.length > length ? candidate.substring(0, length) : candidate);
-}
-
-function findMaxIndex(arr) {
-    let maxIndex = 0;
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] > arr[maxIndex]) {
-            maxIndex = i;
-        }
-    }
-    return maxIndex;
 }
 
 function findMaxIndices(arr) {
