@@ -8,10 +8,14 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ChatController extends Controller
 {
+    private static $forbiddenCharacters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '='];
+    private static $replacementCharacter = '_';
+
     public function main(User $user)
     {
         if ($user->id == auth()->id()) {
@@ -47,38 +51,6 @@ class ChatController extends Controller
         return Inertia::render('Users/UserChat', compact('user', 'friends', 'decryptedMessages'));
     }
 
-//    public function messageReceived(Request $request, User $user)
-//    {
-//        $message = new Message();
-//        if ($request->message != null) {
-//            $encryptedContent = Crypt::encryptString($request->message);
-//
-//            $message->sender_id = auth()->user()->id;
-//            $message->receiver_id = $user->id;
-//            $message->encrypted_content = $encryptedContent;
-//            $message->save();
-//        }
-//
-//        $imagePath = null;
-////        if ($request->hasFile('image')) {
-////            $image = $request->file('image');
-////            $imagePath = 'data:image/' . $image->getClientOriginalExtension() . ';base64,' . base64_encode(file_get_contents($image));
-////        }
-//
-//        if ($request->hasFile('image')) {
-//            $image = $request->file('image');
-//            $fileName = uniqid('', true) . '.' . $image->getClientOriginalExtension();
-//            $image->storeAs('images/messages', $fileName, 'public');
-//            $message->image = $fileName;
-//            $message->save();
-//            $imagePath = asset('storage/images/messages/' . $fileName);
-//        }
-//
-//        broadcast(new MessageSent($request->user(), $request->message, $imagePath));
-//
-//        return response()->json('Message has been broadcast', 200);
-//    }
-
     public function messageReceived(Request $request, User $user)
     {
         $message = new Message();
@@ -86,7 +58,15 @@ class ChatController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $fileName = $request->user()->id . '_' . uniqid('', true) . '_' . $file->getClientOriginalName();
+
+            foreach (ChatController::$forbiddenCharacters as $char) {
+                $fileName = str_replace($char, ChatController::$replacementCharacter, $fileName);
+            }
+
+            $fileName = Str::of($fileName)->replace(' ', ChatController::$replacementCharacter);
+
             $file->storeAs('uploads/messages', $fileName, 'public');
+
             $message->file = $fileName;
             $message->encrypted_content = Crypt::encryptString(null);
         } else {
@@ -97,8 +77,6 @@ class ChatController extends Controller
         $message->receiver_id = $user->id;
 
         $message->save();
-
-//        $filePath = $request->hasFile('file') ? asset('storage/uploads/messages/' . $fileName) : null;
 
         broadcast(new MessageSent($request->user(), $message, $request->message));
 

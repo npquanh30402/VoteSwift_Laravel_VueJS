@@ -8,7 +8,7 @@
                     <div class="card-header d-flex justify-content-between align-items-center p-3 text-bg-dark">
                         <h5 class="mb-0">Chat</h5>
                     </div>
-                    <div class="card-body overflow-auto" data-mdb-perfect-scrollbar="true"
+                    <div class="card-body overflow-auto" ref="chatContainer" data-mdb-perfect-scrollbar="true"
                          style="position: relative; height: 400px">
                         <div v-for="(message, index) in databaseMessages" :key="'realtime_' + index">
                             <div class="d-flex flex-row justify-content-start" v-if="!isYou(message.sender_id)">
@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue';
+import {computed, onMounted, onUpdated, ref} from 'vue';
 import {router, usePage} from "@inertiajs/vue3";
 import date from 'date-and-time';
 import VueEasyLightbox from 'vue-easy-lightbox'
@@ -121,6 +121,7 @@ const authUser = computed(() => usePage().props.authUser);
 
 const messages = ref(props['messages']);
 const newMessage = ref(props["new-message"]);
+const chatContainer = ref(null);
 
 const emit = defineEmits(['send-message'])
 
@@ -132,6 +133,8 @@ function goToProfile(userId) {
     router.get(route('user.profile', userId))
 }
 
+let imageFiles = ref([]);
+let otherFiles = ref([]);
 
 function formatHour(dt) {
     const fdt = new Date(dt);
@@ -147,18 +150,11 @@ const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
 
     sendMessage(uploadedFile);
-
-    console.log('from rtmessage', uploadedFile);
 };
 
 const visibleRef = ref(false)
-const indexRef = ref(0) // default 0
+const indexRef = ref(0)
 const imgsRef = ref([])
-
-// Img Url , string or Array of string
-// ImgObj { src: '', title: '', alt: '' }
-// 'src' is required
-// allow mixing
 
 const onShow = () => {
     visibleRef.value = true
@@ -172,6 +168,18 @@ const showSingle = (e) => {
 const onHide = () => {
     visibleRef.value = false
 }
+
+const scrollToBottom = () => {
+    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+}
+
+onUpdated(() => {
+    scrollToBottom();
+})
+
+onMounted(() => {
+    scrollToBottom()
+})
 </script>
 
 <style scoped>

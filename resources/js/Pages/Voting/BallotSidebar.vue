@@ -10,7 +10,15 @@
         </Link>
         <Link :href="route('room.update.form', room.id)" class="list-group-item list-group-item-action">Change Settings
         </Link>
+        <Link class="list-group-item list-group-item-action">Type
+        </Link>
         <Link :href="route('room.attachment', room.id)" class="list-group-item list-group-item-action">Attachments
+        </Link>
+        <Link class="list-group-item list-group-item-action">Chat Feature
+        </Link>
+        <Link class="list-group-item list-group-item-action">Published
+        </Link>
+        <Link class="list-group-item list-group-item-action">Results
         </Link>
     </div>
 </template>

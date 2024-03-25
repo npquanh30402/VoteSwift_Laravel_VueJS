@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class VotingRoom extends Model
 {
@@ -38,10 +39,17 @@ class VotingRoom extends Model
         return $this->hasMany(VotingRoomFiles::class, 'voting_room_id', 'id');
     }
 
-    public function getPublicRooms()
+    public static function getPublicRooms()
     {
-        return $this->with('settings')->whereHas('settings', function ($query) {
-            $query->where('public_visibility', true);
-        })->get();
+        return DB::table('voting_rooms')
+            ->join('voting_room_settings', 'voting_room_settings.voting_room_id', '=', 'voting_rooms.id')
+            ->where('public_visibility', 1)->get();
     }
+
+//    public static function getPublicRooms()
+//    {
+//        return $this->with('settings')->whereHas('settings', function ($query) {
+//            $query->where('public_visibility', true);
+//        })->get();
+//    }
 }
