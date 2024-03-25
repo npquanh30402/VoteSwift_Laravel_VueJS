@@ -23,6 +23,9 @@ class UserService
 
             if (isset($requestData['avatar'])) {
                 $fileName = $user->id . '-' . uniqid('', true) . '.' . $requestData['avatar']->getClientOriginalExtension();
+
+                $fileName = HelperService::sanitizeFileName($fileName);
+
                 $requestData['avatar']->storeAs('images/avatars', $fileName, 'public');
                 $user->avatar = $fileName;
             }

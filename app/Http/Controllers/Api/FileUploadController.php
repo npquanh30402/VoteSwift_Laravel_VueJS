@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\VotingRoom;
+use App\Services\HelperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,6 +15,9 @@ class FileUploadController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file;
             $fileName = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+
+            $fileName = HelperService::sanitizeFileName($fileName);
+
             $file->storeAs('uploads/rooms', $fileName, 'public');
 
             $oriFileName = $file->getClientOriginalName();

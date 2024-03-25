@@ -6,6 +6,7 @@ use App\Http\Requests\VotingRoomRequest;
 use App\Models\User;
 use App\Models\VotingRoom;
 use App\Models\VotingRoomSetting;
+use App\Services\HelperService;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
@@ -191,6 +192,9 @@ class VotingRoomController extends Controller
                 $files = $fileBag->get('files', []);
                 foreach ($files as $file) {
                     $filePath = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+
+                    $filePath = HelperService::sanitizeFileName($filePath);
+
                     Storage::disk('public')->putFileAs('uploads/rooms', $file, $filePath);
 
                     $oriFileName = $file->getClientOriginalName();

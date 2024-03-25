@@ -23,6 +23,9 @@ class CandidateService
 
             if ($request->hasFile('candidate_image')) {
                 $fileName = $question->id . '-' . uniqid('', true) . '.' . $request->candidate_image->getClientOriginalExtension();
+
+                $fileName = HelperService::sanitizeFileName($fileName);
+
                 $request->candidate_image->storeAs('uploads/candidates', $fileName, 'public');
                 $question->candidate_image = $fileName;
             }
@@ -43,8 +46,10 @@ class CandidateService
 
             $oldImage = $candidate->candidate_image;
             if ($request->hasFile('candidate_image')) {
-
                 $fileName = $candidate->question_id . '-' . uniqid('', true) . '.' . $request->candidate_image->getClientOriginalExtension();
+
+                $fileName = HelperService::sanitizeFileName($fileName);
+                
                 $request->candidate_image->storeAs('uploads/candidates', $fileName, 'public');
                 $candidate->candidate_image = $fileName;
             }

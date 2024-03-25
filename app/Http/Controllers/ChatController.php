@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\MessageSent;
 use App\Models\Message;
 use App\Models\User;
+use App\Services\HelperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
@@ -13,9 +14,6 @@ use Inertia\Inertia;
 
 class ChatController extends Controller
 {
-    private static $forbiddenCharacters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '='];
-    private static $replacementCharacter = '_';
-
     public function main(User $user)
     {
         if ($user->id == auth()->id()) {
@@ -59,11 +57,7 @@ class ChatController extends Controller
             $file = $request->file('file');
             $fileName = $request->user()->id . '_' . uniqid('', true) . '_' . $file->getClientOriginalName();
 
-            foreach (ChatController::$forbiddenCharacters as $char) {
-                $fileName = str_replace($char, ChatController::$replacementCharacter, $fileName);
-            }
-
-            $fileName = Str::of($fileName)->replace(' ', ChatController::$replacementCharacter);
+            $fileName = HelperService::sanitizeFileName($fileName);
 
             $file->storeAs('uploads/messages', $fileName, 'public');
 

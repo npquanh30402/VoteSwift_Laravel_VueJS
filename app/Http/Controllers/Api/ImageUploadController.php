@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\VotingRoom;
+use App\Services\HelperService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,6 +25,9 @@ class ImageUploadController extends Controller
     {
         if ($request->hasFile('image')) {
             $fileName = uniqid('', true) . '.' . $request->image->getClientOriginalExtension();
+
+            $fileName = HelperService::sanitizeFileName($fileName);
+            
             $request->image->storeAs('uploads/images', $fileName, 'public');
 
             $imageUrl = '/storage/uploads/images/' . $fileName;
