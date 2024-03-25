@@ -90,6 +90,7 @@ class Vote extends Model
 
         $timeRange = $startTime->copy()->range($endTime, $timeInterval, $timeUnit);
 
+        $times = [];
         $voteCounts = [];
 
         foreach ($timeRange as $dateTime) {
