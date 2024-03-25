@@ -8,9 +8,9 @@
                     <div class="form-check ms-4">
                         <input class="form-check-input fs-3"
                                type="radio"
-                               :checked="findMaxIndex(result.vote_counts) === candidateIndex" disabled>
+                               :checked="isWinner(result.vote_counts, candidateIndex)" disabled>
                         <label class="form-check-label fs-4 text-truncate w-75"
-                               :class="findMaxIndex(result.vote_counts) === candidateIndex ? 'text-success fw-bold' : 'text-muted'">
+                               :class="isWinner(result.vote_counts, candidateIndex) ? 'text-success fw-bold' : 'text-muted'">
                             {{ candidate }}
                         </label>
                         <p class="text-truncate text-muted fs-6 w-75">{{ candidate.candidate_description }}</p>
@@ -53,4 +53,23 @@ function findMaxIndex(arr) {
     }
     return maxIndex;
 }
+
+function findMaxIndices(arr) {
+    let maxIndices = [];
+    let maxVal = arr.reduce((max, val) => Math.max(max, val), Number.MIN_VALUE);
+
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] === maxVal) {
+            maxIndices.push(i);
+        }
+    }
+
+    return maxIndices;
+}
+
+function isWinner(voteCounts, candidateIndex) {
+    const maxIndices = findMaxIndices(voteCounts);
+    return maxIndices.includes(candidateIndex);
+}
+
 </script>
