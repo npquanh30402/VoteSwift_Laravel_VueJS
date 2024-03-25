@@ -52,6 +52,7 @@
         </div>
     </div>
     <BaseModal :id="modals.moreChartsModal" title="More Charts">
+        <!--        <VueDatePicker v-model="date" :enable-time-picker="false" range multi-calendars/>-->
         <LineChart :labels="rec_voteCountsInTimeInterval[0]"
                    :datasets="rec_voteCountsInTimeInterval[1]"/>
     </BaseModal>
@@ -60,13 +61,22 @@
 <script setup>
 import BarChart from "@/Components/BarChart.vue";
 import {onMounted, reactive, ref} from "vue";
-import {Link} from "@inertiajs/vue3";
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import LineChart from "@/Components/LineChart.vue";
 import * as bootstrap from "bootstrap";
 import BaseModal from "@/Components/BaseModal.vue";
 
 const props = defineProps(['nestedResults', 'room', 'voteCountsInTimeInterval']);
+
+const date = ref();
+
+onMounted(() => {
+    const startDate = new Date(props.room.start_time);
+    const endDate = new Date(props.room.end_time);
+    date.value = [startDate, endDate];
+})
 
 const rec_nestedResults = ref(props.nestedResults)
 const rec_voteCountsInTimeInterval = ref(props.voteCountsInTimeInterval)

@@ -1,5 +1,5 @@
 <template>
-    <button class="btn btn-primary" type="button" @click="openSidebar(bsOffcanvas)">Enable body scrolling
+    <button class="btn btn-info vertical-button" type="button" @click="openSidebar(bsOffcanvas)">Sidebar
     </button>
     <BaseOffcanvas id="sidebar"></BaseOffcanvas>
 
@@ -16,7 +16,6 @@
 </template>
 
 <script setup>
-import {MdPreview} from "md-editor-v3";
 import BaseOffcanvas from "@/Components/BaseOffcanvas.vue";
 import {onMounted, ref} from "vue";
 import * as bootstrap from 'bootstrap'
@@ -49,3 +48,14 @@ function openSidebar(modal) {
     modal.show();
 }
 </script>
+
+<style scoped>
+.vertical-button {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    opacity: 0.8;
+}
+</style>
