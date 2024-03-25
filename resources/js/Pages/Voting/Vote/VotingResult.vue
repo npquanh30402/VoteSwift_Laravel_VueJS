@@ -1,25 +1,50 @@
 <template>
-    <div class="card shadow shadow-sm container-fluid" v-for="(result, index) in rec_nestedResults"
-         :key="index">
-        <div class="row justify-content-center align-items-center">
-            <div class="col-md-8">
-                <h3 class="fw-semibold">Question {{ index + 1 }}: {{ result.question_title }}</h3>
-                <div v-for="(candidate, candidateIndex) in result.candidates">
-                    <div class="form-check ms-4">
-                        <input class="form-check-input fs-3"
-                               type="radio"
-                               :checked="isWinner(result.vote_counts, candidateIndex)" disabled>
-                        <label class="form-check-label fs-4 text-truncate w-75"
-                               :class="isWinner(result.vote_counts, candidateIndex) ? 'text-success fw-bold' : 'text-muted'">
-                            {{ candidate }}
-                        </label>
-                        <p class="text-truncate text-muted fs-6 w-75">{{ candidate.candidate_description }}</p>
+    <div class="row mb-5">
+        <div class="col">
+            <h1 class="display-6 text-center fw-bold">Result: {{ room.room_name }}</h1>
+        </div>
+    </div>
+    <div class="my-3">
+        <div class="row justify-content-center">
+            <div class="col-md-2">
+                <BallotSidebar :room="room"></BallotSidebar>
+            </div>
+            <div class="col-md-9">
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary position-relative" disabled>
+                        Realtime
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle animate__animated animate__flash animate__infinite animate__slow"></span>
+                    </button>
+                </div>
+                <div class="vstack gap-4">
+                    <div class="card shadow shadow-sm container-fluid" v-for="(result, index) in rec_nestedResults"
+                         :key="index">
+                        <div class="row justify-content-center align-items-center">
+                            <div class="col-md-8">
+                                <h3 class="fw-semibold">Question {{ index + 1 }}: {{ result.question_title }}</h3>
+                                <div v-for="(candidate, candidateIndex) in result.candidates">
+                                    <div class="form-check ms-4">
+                                        <input class="form-check-input fs-3"
+                                               type="radio"
+                                               :checked="isWinner(result.vote_counts, candidateIndex)" disabled>
+                                        <label class="form-check-label fs-4 text-truncate w-75"
+                                               :class="isWinner(result.vote_counts, candidateIndex) ? 'text-success fw-bold' : 'text-muted'">
+                                            {{ candidate }}
+                                        </label>
+                                        <p class="text-truncate text-muted fs-6 w-75">{{
+                                                candidate.candidate_description
+                                            }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <BarChart :labels="trimCandidates(result.candidates, 10)" :title="result.question_title"
+                                          :datasets="result.vote_counts"></BarChart>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <BarChart :labels="trimCandidates(result.candidates, 10)" :title="result.question_title"
-                          :datasets="result.vote_counts"></BarChart>
             </div>
         </div>
     </div>
@@ -28,8 +53,10 @@
 <script setup>
 import BarChart from "@/Components/BarChart.vue";
 import {ref} from "vue";
+import {Link} from "@inertiajs/vue3";
+import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 
-const props = defineProps(['nestedResults'])
+const props = defineProps(['nestedResults', 'room']);
 
 const rec_nestedResults = ref(props.nestedResults)
 
