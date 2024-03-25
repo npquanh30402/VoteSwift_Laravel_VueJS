@@ -2,7 +2,7 @@
     <form @submit.prevent="submitVotes" class="vstack gap-5 align-items-center">
         <BaseCard class="w-75 shadow shadow-sm" v-for="(question, index) in questions" :key="question.id">
             <template #title>
-                <p>Question {{ index + 1 }}: {{ question.question_title }}</p>
+                <h3 class="fw-semibold">Question {{ index + 1 }}: {{ question.question_title }}</h3>
             </template>
             <template #description>
                 <p class="text-truncate" style="width: 90%">{{ question.question_description }}</p>

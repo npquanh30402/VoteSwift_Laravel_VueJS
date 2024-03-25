@@ -1,8 +1,25 @@
 <template>
-    <div class="row row-cols-3">
-        <div class="card shadow shadow-sm" v-for="(result, index) in rec_nestedResults" :key="index">
-            <div>
-                <BarChart :labels="trimCandidates(result.candidates, 10)" :datasets="result.vote_counts"></BarChart>
+    <div class="card shadow shadow-sm container-fluid" v-for="(result, index) in rec_nestedResults"
+         :key="index">
+        <div class="row justify-content-center align-items-center">
+            <div class="col-md-8">
+                <h3 class="fw-semibold">Question {{ index + 1 }}: {{ result.question_title }}</h3>
+                <div v-for="(candidate, candidateIndex) in result.candidates">
+                    <div class="form-check ms-4">
+                        <input class="form-check-input fs-3"
+                               type="radio"
+                               :checked="findMaxIndex(result.vote_counts) === candidateIndex" disabled>
+                        <label class="form-check-label fs-4 text-truncate w-75"
+                               :class="findMaxIndex(result.vote_counts) === candidateIndex ? 'text-success fw-bold' : 'text-muted'">
+                            {{ candidate }}
+                        </label>
+                        <p class="text-truncate text-muted fs-6 w-75">{{ candidate.candidate_description }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <BarChart :labels="trimCandidates(result.candidates, 10)" :title="result.question_title"
+                          :datasets="result.vote_counts"></BarChart>
             </div>
         </div>
     </div>
@@ -25,5 +42,15 @@ Echo.private('result-update').listen('ResultUpdate', (e) => {
 
 function trimCandidates(candidates, length) {
     return candidates.map(candidate => candidate.length > length ? candidate.substring(0, length) : candidate);
+}
+
+function findMaxIndex(arr) {
+    let maxIndex = 0;
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i] > arr[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+    return maxIndex;
 }
 </script>

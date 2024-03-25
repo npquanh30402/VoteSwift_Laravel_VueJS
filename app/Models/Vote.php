@@ -21,8 +21,6 @@ class Vote extends Model
         $nestedResults = [];
 
         foreach ($questions as $question) {
-            $questionDescription = Crypt::decryptString($question->question_description);
-
             $results = DB::table('votes')
                 ->join('candidates', 'votes.candidate_id', '=', 'candidates.id')
                 ->where('candidates.question_id', $question->id)
@@ -36,8 +34,8 @@ class Vote extends Model
             });
 
             $questionArray = [
-                'question_title' => $question->question_title,
-                'question_description' => $questionDescription,
+                'question_title' => Crypt::decryptString($question->question_title),
+                'question_description' => Crypt::decryptString($question->question_description),
                 'candidates' => $candidates->pluck('candidate_title')->toArray(),
                 'vote_counts' => $candidates->pluck('vote_count')->toArray(),
             ];

@@ -63,10 +63,6 @@ class VoteController extends Controller
         $room->room_name = Crypt::decryptString($room->room_name);
         $questions = $room->questions;
 
-        foreach ($questions as $question) {
-            $question->question_title = Crypt::decryptString($question->question_title);
-        }
-
         $nestedResults = Vote::getQuestionResults($questions);
 
         $user_has_voted_ids = Vote::collectUserVoteIds($questions, $room);
@@ -183,7 +179,7 @@ class VoteController extends Controller
                 }
             }
         }
-        
+
         $nestedResults = Vote::getQuestionResults($room->questions);
 
         broadcast(new ResultUpdate($nestedResults));

@@ -14,16 +14,11 @@ import {computed, reactive, watch, watchEffect} from "vue";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors)
 
-const props = defineProps(['labels', 'datasets'])
-
-const data = reactive({
-    labels: props.labels,
-    datasets: [{data: props.datasets}],
-})
+const props = defineProps(['labels', 'datasets', 'title'])
 
 const chartData = computed(() => ({
     labels: props.labels,
-    datasets: [{data: props.datasets}]
+    datasets: [{label: props.title, data: props.datasets}]
 }));
 
 const options = {
