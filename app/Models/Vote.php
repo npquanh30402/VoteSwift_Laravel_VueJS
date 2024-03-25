@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
@@ -80,5 +81,30 @@ class Vote extends Model
             ->where('candidates.question_id', $question->id)
             ->select('candidates.id as candidate_id', 'candidates.candidate_title')
             ->get();
+    }
+
+    public static function calculateVoteCountsInTimeInterval(VotingRoom $room, $timeInterval = '1', $timeUnit = 'day')
+    {
+        $startTime = Carbon::parse($room->start_time);
+        $endTime = Carbon::parse($room->end_time);
+
+        $timeRange = $startTime->copy()->range($endTime, $timeInterval, $timeUnit);
+
+        $voteCounts = [];
+
+        foreach ($timeRange as $dateTime) {
+            $startOfInterval = $dateTime;
+            $endOfInterval = $dateTime->copy()->add($timeUnit, $timeInterval);
+
+            $voteCount = Vote::whereBetween('created_at', [$startOfInterval, $endOfInterval])->count();
+
+            if ($voteCount === 0) {
+                continue;
+            }
+
+            $voteCounts[$startOfInterval->format('M d')] = $voteCount;
+        }
+
+        return $voteCounts;
     }
 }

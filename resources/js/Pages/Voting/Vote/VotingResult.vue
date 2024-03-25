@@ -18,29 +18,29 @@
                     </button>
                 </div>
                 <div class="vstack gap-4">
-                    <div class="card shadow shadow-sm container-fluid" v-for="(result, index) in rec_nestedResults"
+                    <div class="card shadow shadow-sm container-fluid p-3" v-for="(result, index) in rec_nestedResults"
                          :key="index">
                         <div class="row justify-content-center align-items-center">
-                            <div class="col-md-8">
+                            <div class="col-md-7">
                                 <h3 class="fw-semibold">Question {{ index + 1 }}: {{ result.question_title }}</h3>
                                 <div v-for="(candidate, candidateIndex) in result.candidates">
-                                    <div class="form-check ms-4">
-                                        <input class="form-check-input fs-3"
+                                    <div class="form-check ms-4 mb-2">
+                                        <input class="form-check-input fs-5"
                                                type="radio"
                                                :checked="isWinner(result.vote_counts, candidateIndex)" disabled>
-                                        <label class="form-check-label fs-4 text-truncate w-75"
+                                        <label class="form-check-label fs-5 text-truncate w-75"
                                                :class="isWinner(result.vote_counts, candidateIndex) ? 'text-success fw-bold' : 'text-muted'">
                                             {{ candidate }}
                                         </label>
-                                        <p class="text-truncate text-muted fs-6 w-75">{{
-                                                candidate.candidate_description
-                                            }}</p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <BarChart :labels="trimCandidates(result.candidates, 10)" :title="result.question_title"
                                           :datasets="result.vote_counts"></BarChart>
+                                <LineChart :labels="trimCandidates(result.candidates, 10)"
+                                           :title="result.question_title"
+                                           :datasets="result.vote_counts"></LineChart>
                             </div>
                         </div>
                     </div>
@@ -55,6 +55,7 @@ import BarChart from "@/Components/BarChart.vue";
 import {ref} from "vue";
 import {Link} from "@inertiajs/vue3";
 import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
+import LineChart from "@/Components/LineChart.vue";
 
 const props = defineProps(['nestedResults', 'room']);
 

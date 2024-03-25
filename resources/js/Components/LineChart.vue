@@ -7,12 +7,14 @@ import {
     BarElement,
     CategoryScale,
     LinearScale,
-    Colors
+    Colors,
+    PointElement,
+    LineElement
 } from 'chart.js'
-import {Bar} from 'vue-chartjs'
+import {Line} from 'vue-chartjs'
 import {computed} from "vue";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors)
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors, PointElement, LineElement)
 
 const props = defineProps(['labels', 'datasets', 'title'])
 
@@ -47,6 +49,6 @@ const options = {
 
 <template>
     <div>
-        <Bar :data="chartData" :options="options"/>
+        <Line :data="chartData" :options="options"/>
     </div>
 </template>
