@@ -16,11 +16,11 @@ import {computed} from "vue";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, Colors, PointElement, LineElement)
 
-const props = defineProps(['labels', 'datasets', 'title'])
+const props = defineProps(['labels', 'datasets'])
 
 const chartData = computed(() => ({
     labels: props.labels,
-    datasets: [{label: props.title, data: props.datasets}]
+    datasets: [{data: props.datasets}]
 }));
 
 const options = {

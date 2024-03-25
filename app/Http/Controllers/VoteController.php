@@ -99,7 +99,11 @@ class VoteController extends Controller
 
 //        dd($room, $nestedResults, $user_has_voted_ids, $user_choices);
 
-        return Inertia::render('Voting/Vote/VotingResult', compact('room', 'nestedResults', 'user_has_voted_ids', 'user_choices'));
+        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
+
+//        dd($voteCountsInTimeInterval);
+
+        return Inertia::render('Voting/Vote/VotingResult', compact('room', 'nestedResults', 'user_has_voted_ids', 'user_choices', 'voteCountsInTimeInterval'));
     }
 
 
@@ -183,8 +187,9 @@ class VoteController extends Controller
         }
 
         $nestedResults = Vote::getQuestionResults($room->questions);
+        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
 
-        broadcast(new ResultUpdate($nestedResults));
+        broadcast(new ResultUpdate($nestedResults, $voteCountsInTimeInterval));
 
         return redirect()->route('homepage')->with('success', 'Thank you for voting!');
     }

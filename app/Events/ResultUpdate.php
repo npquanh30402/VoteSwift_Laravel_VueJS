@@ -16,13 +16,15 @@ class ResultUpdate implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $nestedResults;
+    public $voteCountsInTimeInterval;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($nestedResults)
+    public function __construct($nestedResults, $voteCountsInTimeInterval)
     {
         $this->nestedResults = $nestedResults;
+        $this->voteCountsInTimeInterval = $voteCountsInTimeInterval;
     }
 
     /**

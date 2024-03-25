@@ -4,6 +4,10 @@
             <h1 class="display-6 text-center fw-bold">Result: {{ room.room_name }}</h1>
         </div>
     </div>
+    <div class="w-50">
+        <LineChart :labels="rec_voteCountsInTimeInterval[0]"
+                   :datasets="rec_voteCountsInTimeInterval[1]"/>
+    </div>
     <div class="my-3">
         <div class="row justify-content-center">
             <div class="col-md-2">
@@ -38,9 +42,6 @@
                             <div class="col-md-5">
                                 <BarChart :labels="trimCandidates(result.candidates, 10)" :title="result.question_title"
                                           :datasets="result.vote_counts"></BarChart>
-                                <LineChart :labels="trimCandidates(result.candidates, 10)"
-                                           :title="result.question_title"
-                                           :datasets="result.vote_counts"></LineChart>
                             </div>
                         </div>
                     </div>
@@ -57,15 +58,16 @@ import {Link} from "@inertiajs/vue3";
 import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import LineChart from "@/Components/LineChart.vue";
 
-const props = defineProps(['nestedResults', 'room']);
+const props = defineProps(['nestedResults', 'room', 'voteCountsInTimeInterval']);
 
 const rec_nestedResults = ref(props.nestedResults)
+const rec_voteCountsInTimeInterval = ref(props.voteCountsInTimeInterval)
 
 console.log(props.nestedResults)
 
 Echo.private('result-update').listen('ResultUpdate', (e) => {
     rec_nestedResults.value = e.nestedResults;
-    console.log(rec_nestedResults.value);
+    rec_voteCountsInTimeInterval.value = e.voteCountsInTimeInterval;
 })
 
 function trimCandidates(candidates, length) {

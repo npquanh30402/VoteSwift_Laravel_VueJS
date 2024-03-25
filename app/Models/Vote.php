@@ -102,9 +102,10 @@ class Vote extends Model
                 continue;
             }
 
-            $voteCounts[$startOfInterval->format('M d')] = $voteCount;
+            $times[] = $startOfInterval->format('M d');
+            $voteCounts[] = $voteCount;
         }
 
-        return $voteCounts;
+        return [$times, $voteCounts];
     }
 }
