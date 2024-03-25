@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Candidate;
+use App\Models\Question;
 use App\Models\User;
 use App\Models\Vote;
 use App\Models\VotingRoom;
@@ -217,17 +218,28 @@ class VoteController extends Controller
 
     public function store(Request $request)
     {
-        $formData = $request->all();
+//        dd($request->all());
+//        $formData = $request->all();
+//
+//        foreach ($formData as $key => $value) {
+//            if (strpos($key, 'question_') === 0) {
+//
+//                if (is_array($value)) {
+//                    foreach ($value as $candidateId) {
+//                        $this->createVote($candidateId);
+//                    }
+//                } else {
+//                    $this->createVote($value);
+//                }
+//            }
+//        }
 
-        foreach ($formData as $key => $value) {
-            if (strpos($key, 'question_') === 0) {
+        $selectedOptions = $request->selectedOptions;
 
-                if (is_array($value)) {
-                    foreach ($value as $candidateId) {
-                        $this->createVote($candidateId);
-                    }
-                } else {
-                    $this->createVote($value);
+        foreach ($selectedOptions as $questionId => $candidateIds) {
+            if (!empty($candidateIds)) {
+                foreach ($candidateIds as $candidateId) {
+                    $this->createVote($candidateId);
                 }
             }
         }
