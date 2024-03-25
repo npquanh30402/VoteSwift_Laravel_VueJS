@@ -27,7 +27,7 @@
 <script setup>
 import BaseCard from "@/Components/BaseCard.vue";
 import {onMounted, ref} from "vue";
-import {router, useForm} from "@inertiajs/vue3";
+import {router} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 
 const props = defineProps(['questions', 'room'])

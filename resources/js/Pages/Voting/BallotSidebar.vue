@@ -18,7 +18,7 @@
         </Link>
         <Link class="list-group-item list-group-item-action">Published
         </Link>
-        <Link class="list-group-item list-group-item-action">Results
+        <Link :href="route('vote.result', room.id)" class="list-group-item list-group-item-action">Results
         </Link>
     </div>
 </template>

@@ -62,54 +62,13 @@ class VoteController extends Controller
         $room->room_name = Crypt::decryptString($room->room_name);
         $questions = $room->questions;
 
-        $nestedResults = [];
-
         foreach ($questions as $question) {
-            $questionTitle = Crypt::decryptString($question->question_title);
-            $questionDescription = Crypt::decryptString($question->question_description);
-
-            $results = DB::table('votes')
-                ->join('candidates', 'votes.candidate_id', '=', 'candidates.id')
-                ->where('candidates.question_id', $question->id)
-                ->select('candidates.candidate_title', DB::raw('COUNT(*) as vote_count'))
-                ->groupBy('candidates.id', 'candidates.candidate_title')
-                ->get();
-
-            $candidates = $results->map(function ($result) {
-                $result->candidate_title = Crypt::decryptString($result->candidate_title);
-                return $result;
-            });
-
-            $questionArray = [
-                'question_title' => $questionTitle,
-                'question_description' => $questionDescription,
-                'candidates' => $candidates->pluck('candidate_title')->toArray(),
-                'vote_counts' => $candidates->pluck('vote_count')->toArray(),
-            ];
-
-            $nestedResults[] = $questionArray;
+            $question->question_title = Crypt::decryptString($question->question_title);
         }
 
-        $user_has_voted_ids = collect();
+        $nestedResults = Vote::getQuestionResults($questions);
 
-        if (!$room->settings->allow_anonymous_voting) {
-            $user_ids = [];
-
-            foreach ($questions as $question) {
-                $result_users = DB::table('votes')
-                    ->join('candidates', 'votes.candidate_id', '=', 'candidates.id')
-                    ->where('candidates.question_id', $question->id)
-                    ->select('votes.user_id')
-                    ->groupBy('votes.user_id')
-                    ->get();
-
-                foreach ($result_users as $result_user) {
-                    $user_ids[] = User::find($result_user->user_id);
-                }
-            }
-
-            $user_has_voted_ids = collect($user_ids)->unique();
-        }
+        $user_has_voted_ids = Vote::collectUserVoteIds($questions, $room);
 
         $user = Auth::user();
         $user_choices = [];
@@ -118,25 +77,18 @@ class VoteController extends Controller
             $userVotes = [];
 
             if ($user) {
-                $votes = DB::table('votes')
-                    ->join('candidates', 'votes.candidate_id', '=', 'candidates.id')
-                    ->where('votes.user_id', $user->id)
-                    ->where('candidates.question_id', $question->id)
-                    ->select('candidates.id as candidate_id', 'candidates.candidate_title')
-                    ->get();
+                $votes = Vote::getUserVotes($user, $question);
 
                 foreach ($votes as $vote) {
                     $candidateTitle = Crypt::decryptString($vote->candidate_title);
-
                     $candidate = Candidate::find($vote->candidate_id);
+
                     if ($candidate) {
                         $candidate->candidate_title = $candidateTitle;
                         $userVotes[] = $candidate;
                     }
                 }
             }
-
-            $question->question_title = Crypt::decryptString($question->question_title);
 
             $user_choices[] = [
                 'question' => $question,
@@ -146,8 +98,11 @@ class VoteController extends Controller
 
         $user_choices = collect($user_choices);
 
-        return view('voting.vote.result', compact('room', 'nestedResults', 'user_has_voted_ids', 'user_choices'));
+//        dd($room, $nestedResults, $user_has_voted_ids, $user_choices);
+
+        return Inertia::render('Voting/Vote/VotingResult', compact('room', 'nestedResults', 'user_has_voted_ids', 'user_choices'));
     }
+
 
     public function passwordForm(VotingRoom $room)
     {

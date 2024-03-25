@@ -39,7 +39,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
     Route::post('/room/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
     Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('voting_room_password');
     Route::post('/room/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
-    Route::get('/room/{room}/vote/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
+    Route::get('/room/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
 
     Route::get('/history', [VoteController::class, 'userHistory'])->name('user.history');
 });
