@@ -65,9 +65,7 @@ import {ref} from "vue";
 
 const authUser = usePage().props.authUser;
 const authUserSettings = usePage().props.authUserSettings;
-const props = defineProps(['music'])
-
-console.log(props.music)
+const music = usePage().props.music;
 
 const isMusicPlayerEnable = ref(authUserSettings?.music_player_enabled === 1);
 
