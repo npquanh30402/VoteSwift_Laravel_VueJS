@@ -14,10 +14,6 @@
               :class="settingsTab">
             Settings
         </Link>
-        <Link :href="route('user.settings')" class="list-group-item list-group-item-action"
-              :class="settingsTab">
-            Settings
-        </Link>
         <Link :href="route('user.music.settings')" class="list-group-item list-group-item-action">Music Player
         </Link>
     </div>

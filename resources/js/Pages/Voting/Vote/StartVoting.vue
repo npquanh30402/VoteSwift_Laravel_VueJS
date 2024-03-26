@@ -20,7 +20,9 @@
             </div>
         </BaseCard>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <div class="text-center my-5">
+            <button type="submit" class="btn-lg btn btn-primary">Submit</button>
+        </div>
     </form>
 </template>
 
