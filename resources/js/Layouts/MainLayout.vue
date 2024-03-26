@@ -1,5 +1,5 @@
 <template>
-    <TheHeader></TheHeader>
+    <TheHeader :authUser="authUser" :authUserSettings="authUserSettings"></TheHeader>
     <div class="alert alert-success w-50 mx-auto mt-3" v-if="flashSuccess">
         {{ flashSuccess }}
     </div>
@@ -20,6 +20,8 @@ import TheHeader from "./TheHeader.vue";
 import {usePage} from "@inertiajs/vue3";
 import {computed} from "vue";
 
+const authUser = usePage().props.authUser;
+const authUserSettings = usePage().props.authUserSettings;
 const flashSuccess = computed(() => usePage().props.flash.success);
 const flashError = computed(() => usePage().props.flash.error);
 </script>
@@ -35,10 +37,10 @@ const flashError = computed(() => usePage().props.flash.error);
     opacity: 0;
 }
 
- .truncate-text {
-     overflow: hidden;
-     white-space: nowrap;
-     text-overflow: ellipsis;
-     height: 10rem;
- }
+.truncate-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    height: 10rem;
+}
 </style>

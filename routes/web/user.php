@@ -16,8 +16,12 @@ Route::group(['prefix' => '/user'], function () {
     Route::group(['middleware' => 'auth'], function () {
         Route::post('/logout', [UserController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard.user');
-        Route::get('/user/settings', [UserController::class, 'showSettings'])->name('user.settings');
-        Route::put('/user/settings', [UserController::class, 'storeInformation'])->name('user.settings.update');
+        Route::get('/settings', [UserController::class, 'showSettings'])->name('user.settings');
+        Route::put('/settings', [UserController::class, 'storeInformation'])->name('user.settings.update');
+
+        Route::get('/music-settings', [UserController::class, 'showMusicPlayerSettings'])->name('user.music.settings');
+        Route::post('/music-settings', [UserController::class, 'updateMusicPlayerSettings'])->name('user.music.settings.update');
+        Route::post('/music-settings/upload', [UserController::class, 'uploadMusic'])->name('user.music.settings.upload');
 
         Route::get('/profile/{user}', [UserController::class, 'profile'])->name('user.profile');
 

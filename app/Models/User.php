@@ -30,6 +30,16 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    public function music()
+    {
+        return $this->hasMany(Music::class, 'user_id', 'id');
+    }
+
+    public function settings()
+    {
+        return $this->hasOne(UserSetting::class, 'user_id', 'id');
+    }
+
     public function rooms()
     {
         return $this->hasMany(VotingRoom::class, 'user_id', 'id');

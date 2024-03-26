@@ -32,7 +32,8 @@
 
                     <div class="d-flex">
                         <div class="hstack gap-3">
-                            <div class="me-3" v-if="authUser">
+                            <div class="me-3 hstack" v-if="authUser">
+                                <MusicPlayer class="me-5" v-if="isMusicPlayerEnable"></MusicPlayer>
                                 <Link :href="route('dashboard.user')" class="d-flex align-items-center">
                                     <img :src="authUser.avatar" class="rounded-circle"
                                          style="width: 3rem;"
@@ -68,10 +69,14 @@
 import {Link, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {ref} from "vue";
+import MusicPlayer from "@/Components/MusicPlayer.vue";
 
-const authUser = usePage().props.authUser;
+const props = defineProps(['authUser', 'authUserSettings'])
+
+const isMusicPlayerEnable = ref(props.authUserSettings.music_player_enabled === 1);
 
 const registerOrLogin = ref(false);
+
 function registerOrLoginShow() {
     registerOrLogin.value = !registerOrLogin.value;
 }

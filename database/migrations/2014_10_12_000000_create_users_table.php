@@ -18,6 +18,11 @@ return new class extends Migration {
             $table->string('password');
             $table->string('first_name')->nullable();
             $table->string('last_name')->nullable();
+            $table->date('birth_date')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('country')->nullable();
+            $table->string('city')->nullable();
+            $table->string('zip_code')->nullable();
             $table->string('phone')->nullable();
             $table->string('address')->nullable();
             $table->string('avatar')->nullable();

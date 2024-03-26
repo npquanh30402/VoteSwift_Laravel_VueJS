@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -41,7 +42,9 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'authUser' => auth()->user(),
-            'urlPrev' => function() {
+            'authUserSettings' => Auth::user()->settings ?? null,
+            'music' => Auth::user()->music ?? null,
+            'urlPrev' => function () {
                 if (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current()) {
                     return url()->previous();
                 }

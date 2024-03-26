@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\User;
+use App\Models\UserSetting;
+use App\Services\HelperService;
 use App\Services\UserService;
 use DateTime;
 use DateTimeZone;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Inertia\Inertia;
 
@@ -18,6 +21,51 @@ class UserController extends Controller
     public function __construct(UserService $userService)
     {
         $this->userService = $userService;
+    }
+
+    public function showMusicPlayerSettings()
+    {
+        $music = Auth::user()->music;
+
+        return Inertia::render('Users/MusicPlayerSettings', compact('music'));
+    }
+
+    public function updateMusicPlayerSettings(Request $request)
+    {
+        $authUser = Auth::user();
+
+        if (!$authUser->settings) {
+            $authUser->settings = new UserSetting();
+        }
+
+        $authUser->settings->user_id = $authUser->id;
+        $authUser->settings->music_player_enabled = $request->isMusicPlayerEnable;
+
+        $authUser->settings->save();
+    }
+
+    public function uploadMusic(Request $request)
+    {
+        $authUser = Auth::user();
+
+        if ($request->hasFile('music')) {
+            $music = $request->music;
+            $fileName = $authUser->id . '-' . uniqid('', true) . '.' . $music->getClientOriginalExtension();
+
+            $fileName = HelperService::sanitizeFileName($fileName);
+
+            $oriFileName = $music->getClientOriginalName();
+
+            $request->music->storeAs('uploads/music', $fileName, 'public');
+
+            $authUser->music()->create([
+                'user_id' => $authUser->id,
+                'title' => $oriFileName,
+                'url' => $fileName,
+            ]);
+        }
+
+        return back()->with('success', 'Upload music successfully!');
     }
 
     public function profile(User $user)

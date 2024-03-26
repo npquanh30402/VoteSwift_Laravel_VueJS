@@ -12,6 +12,7 @@ import {createInertiaApp} from "@inertiajs/vue3";
 import {ZiggyVue} from "ziggy-js";
 import MainLayout from "./Layouts/MainLayout.vue";
 import 'animate.css';
+import AudioPlayer from '@liripeng/vue-audio-player'
 
 
 var elem = document.getElementById("app");
@@ -31,6 +32,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(VueAwesomePaginate)
+            .use(AudioPlayer)
             .mount(el);
     },
 });
