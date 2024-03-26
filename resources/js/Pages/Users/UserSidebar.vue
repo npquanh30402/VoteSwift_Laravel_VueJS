@@ -1,21 +1,24 @@
 <template>
     <div class="list-group shadow-sm small mb-3">
         <div class="list-group-item text-bg-dark">Voting Actions</div>
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('RoomList')">Room List
+        </button>
         <Link :href="route('room.create')" class="list-group-item list-group-item-action" :class="createRoomTab">Create
             Room
         </Link>
     </div>
     <div class="list-group shadow-sm small mb-3">
         <div class="list-group-item text-bg-dark">User Actions</div>
-        <Link :href="route('user.friends')" class="list-group-item list-group-item-action">Friend
+        <button class="list-group-item list-group-item-action" @click="switchTab('FriendList')">Friend
             List
-        </Link>
-        <Link :href="route('user.settings')" class="list-group-item list-group-item-action"
-              :class="settingsTab">
+        </button>
+        <button class="list-group-item list-group-item-action" @click="switchTab('MusicPlayerSettings')">Music Player
+        </button>
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('UserSettings')">
             Settings
-        </Link>
-        <Link :href="route('user.music.settings')" class="list-group-item list-group-item-action">Music Player
-        </Link>
+        </button>
     </div>
 </template>
 
@@ -33,5 +36,11 @@ const settingsTab = computed(() => {
 const createRoomTab = computed(() => {
     return props.selectedTab === 'createRoom' ? 'active' : '';
 });
+
+const emit = defineEmits(['switch-tab'])
+
+const switchTab = (tabName) => {
+    emit('switch-tab', tabName)
+}
 
 </script>

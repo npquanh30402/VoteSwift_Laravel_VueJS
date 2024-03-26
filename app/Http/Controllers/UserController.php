@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Models\UserSetting;
+use App\Services\FriendService;
 use App\Services\HelperService;
 use App\Services\UserService;
 use DateTime;
@@ -16,12 +17,15 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    protected $userService;
+    protected $friendService;
 
-    public function __construct(UserService $userService)
+    public function __construct(FriendService $friendService, UserService $userService)
     {
+        $this->friendService = $friendService;
         $this->userService = $userService;
     }
+
+    protected $userService;
 
     public function showMusicPlayerSettings()
     {
@@ -98,22 +102,15 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-//        $rooms = auth()->user()->rooms()->latest()->paginate(10);
-//        $rooms->getCollection()->transform(function ($room) {
-//            $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
-//            $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
-//            return $room;
-//        });
-
         $rooms = auth()->user()->rooms()->get()->transform(function ($room) {
             $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
             $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
             return $room;
         });
 
-        return Inertia::render('Users/Dashboard', [
-            'rooms' => $rooms,
-        ]);
+        $authUserFriends = $this->friendService->getFriends(auth()->user());
+
+        return Inertia::render('Users/Dashboard', compact('rooms', 'authUserFriends'));
     }
 
     public function logout(Request $request)

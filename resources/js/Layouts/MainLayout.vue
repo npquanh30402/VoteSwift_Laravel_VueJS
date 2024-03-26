@@ -1,11 +1,6 @@
 <template>
     <TheHeader :authUser="authUser" :authUserSettings="authUserSettings"></TheHeader>
-    <div class="alert alert-success w-50 mx-auto mt-3" v-if="flashSuccess">
-        {{ flashSuccess }}
-    </div>
-    <div class="alert alert-danger w-50 mx-auto mt-3" v-else-if="flashError">
-        {{ flashError }}
-    </div>
+    <FlashMessages></FlashMessages>
     <transition name="fade" mode="out-in">
         <div :key="$page.url">
             <slot></slot>
@@ -18,12 +13,10 @@
 import TheFooter from "./TheFooter.vue";
 import TheHeader from "./TheHeader.vue";
 import {usePage} from "@inertiajs/vue3";
-import {computed} from "vue";
+import FlashMessages from "@/Components/FlashMessages.vue";
 
 const authUser = usePage().props.authUser;
 const authUserSettings = usePage().props.authUserSettings;
-const flashSuccess = computed(() => usePage().props.flash.success);
-const flashError = computed(() => usePage().props.flash.error);
 </script>
 
 <style>
@@ -42,5 +35,34 @@ const flashError = computed(() => usePage().props.flash.error);
     white-space: nowrap;
     text-overflow: ellipsis;
     height: 10rem;
+}
+
+.pagination-container {
+    display: flex;
+    column-gap: 10px;
+}
+
+.paginate-buttons {
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: rgb(242, 242, 242);
+    border: 1px solid rgb(217, 217, 217);
+    color: black;
+}
+
+.paginate-buttons:hover {
+    background-color: #d8d8d8;
+}
+
+.active-page {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: white;
+}
+
+.active-page:hover {
+    background-color: #2988c8;
 }
 </style>

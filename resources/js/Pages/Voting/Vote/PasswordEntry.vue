@@ -28,7 +28,7 @@
 <script setup>
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import image from '../../../../public/anime-girl-peeking-behind-the-door.gif'
+import image from '../../../../../public/anime-girl-peeking-behind-the-door.gif'
 
 const props = defineProps(['room']);
 

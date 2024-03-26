@@ -97,11 +97,7 @@ class VoteController extends Controller
 
         $user_choices = collect($user_choices);
 
-//        dd($room, $nestedResults, $user_has_voted_ids, $user_choices);
-
         $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
-
-//        dd($voteCountsInTimeInterval);
 
         return Inertia::render('Voting/Vote/VotingResult', compact('room', 'nestedResults', 'user_has_voted_ids', 'user_choices', 'voteCountsInTimeInterval'));
     }
@@ -109,7 +105,7 @@ class VoteController extends Controller
 
     public function passwordForm(VotingRoom $room)
     {
-        return Inertia::render('Voting/PasswordEntry', compact('room'));
+        return Inertia::render('Voting/Vote/PasswordEntry', compact('room'));
     }
 
     public function passwordEntry(Request $request, VotingRoom $room)

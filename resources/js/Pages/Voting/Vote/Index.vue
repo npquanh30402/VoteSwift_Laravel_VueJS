@@ -10,7 +10,7 @@
     </BaseOffcanvas>
 
     <transition name="fade" mode="out-in">
-        <component :is="tabs[currentTab]" :room="room" :questions="questions" class="tab"
+        <component :is="tabs[currentTab]" :room="room" :questions="questions"
                    @switch-tab="currentTab = $event"></component>
     </transition>
 </template>

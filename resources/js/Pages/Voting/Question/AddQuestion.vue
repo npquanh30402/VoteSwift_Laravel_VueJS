@@ -13,7 +13,7 @@
                               language="en-US"></MdEditor>
                 </div>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
                 </div>
             </div>
             <div class="col-md-4 vstack">

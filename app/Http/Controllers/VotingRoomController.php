@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\VotingRoomRequest;
 use App\Models\User;
+use App\Models\Vote;
 use App\Models\VotingRoom;
 use App\Models\VotingRoomSetting;
 use App\Services\HelperService;
@@ -17,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use stdClass;
 
 class VotingRoomController extends Controller
 {
@@ -70,12 +72,11 @@ class VotingRoomController extends Controller
         $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
         $room_settings = $room->settings;
 
-        return Inertia::render('Voting/UpdateRoom', compact('room', 'room_settings', 'timezones_with_offset'));
+        return Inertia::render('Voting/VotingRoom/UpdateRoom', compact('room', 'room_settings', 'timezones_with_offset'));
     }
 
     public function update(VotingRoomRequest $request, VotingRoom $room)
     {
-//        dd($request->all(), $room);
         $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
         $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
         $room->timezone = $request->timezone;
@@ -113,6 +114,28 @@ class VotingRoomController extends Controller
         return back()->with('success', 'Room updated successfully!');
     }
 
+    public function dashboard(VotingRoom $room)
+    {
+        $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
+        $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
+
+        $room_settings = $room->settings;
+
+        $nestedResults = Vote::getQuestionResults($room->questions);
+        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
+
+        $room_questions = $room->questions->map(function ($question) {
+            $question->question_title = Crypt::decryptString($question->question_title);
+            $question->question_description = Crypt::decryptString($question->question_description);
+            return $question;
+        });
+
+        $room_attachments = $room->attachments;
+
+
+        return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'));
+    }
+
     public function main(VotingRoom $room)
     {
         $timezones = DateTimeZone::listIdentifiers();
@@ -132,7 +155,7 @@ class VotingRoomController extends Controller
         $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
         $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
 
-        return Inertia::render('Voting/RoomDetails', compact('room', 'settings', 'timezones_with_offset'));
+        return Inertia::render('Voting/VotingRoom/RoomDetails', compact('room', 'settings', 'timezones_with_offset'));
     }
 
     private function getTimezonesWithOffset()
@@ -157,7 +180,7 @@ class VotingRoomController extends Controller
         $timezones_with_offset = $this->getTimezonesWithOffset();
         $user_list = User::all()->pluck('username', 'id');
 
-        return Inertia::render('Voting/CreateRoom', [
+        return Inertia::render('Voting/VotingRoom/CreateRoom', [
             'timezones_with_offset' => $timezones_with_offset,
             'user_list' => $user_list
         ]);
@@ -165,7 +188,6 @@ class VotingRoomController extends Controller
 
     public function store(VotingRoomRequest $request)
     {
-//        dd($request->all());
         try {
             if (auth()->user()->rooms()->where('room_name', $request->room_name)->exists()) {
                 return back()->with('error', 'Voting room already exists!');

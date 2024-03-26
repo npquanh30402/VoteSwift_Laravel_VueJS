@@ -1,69 +1,55 @@
 <template>
-    <div class="row mb-5">
-        <div class="col">
-            <h1 class="display-6 text-center fw-bold">Result: {{ room.room_name }}</h1>
-        </div>
-    </div>
-    <div class="my-3">
-        <div class="row justify-content-center">
-            <div class="col-md-2">
-                <BallotSidebar :room="room"></BallotSidebar>
+    <div>
+        <div class="mb-3 d-flex gap-3">
+            <div>
+                <button type="button" class="btn btn-primary position-relative" disabled>
+                    Realtime
+                    <span
+                        class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle animate__animated animate__flash animate__infinite animate__slow"></span>
+                </button>
             </div>
-            <div class="col-md-9">
-                <div class="mb-3 d-flex gap-3">
-                    <div>
-                        <button type="button" class="btn btn-primary position-relative" disabled>
-                            Realtime
-                            <span
-                                class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle animate__animated animate__flash animate__infinite animate__slow"></span>
-                        </button>
-                    </div>
-                    <div>
-                        <button class="btn btn-secondary" @click="openModal(modals.moreChartsModal)">More Charts
-                        </button>
-                    </div>
-                </div>
-                <div class="vstack gap-4">
-                    <div class="card shadow shadow-sm container-fluid p-3" v-for="(result, index) in rec_nestedResults"
-                         :key="index">
-                        <div class="row justify-content-center align-items-center">
-                            <div class="col-md-7">
-                                <h3 class="fw-semibold">Question {{ index + 1 }}: {{ result.question_title }}</h3>
-                                <div v-for="(candidate, candidateIndex) in result.candidates">
-                                    <div class="form-check ms-4 mb-2">
-                                        <input class="form-check-input fs-5"
-                                               type="radio"
-                                               :checked="isWinner(result.vote_counts, candidateIndex)" disabled>
-                                        <label class="form-check-label fs-5 text-truncate w-75"
-                                               :class="isWinner(result.vote_counts, candidateIndex) ? 'text-success fw-bold' : 'text-muted'">
-                                            {{ candidate }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <BarChart :labels="trimCandidates(result.candidates, 10)"
-                                          :datasets="result.vote_counts"></BarChart>
+            <div>
+                <button class="btn btn-secondary" @click="openModal(modals.moreChartsModal)">More Charts
+                </button>
+            </div>
+        </div>
+        <div class="vstack gap-4">
+            <div class="card shadow shadow-sm container-fluid p-3" v-for="(result, index) in rec_nestedResults"
+                 :key="index">
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-md-7">
+                        <h3 class="fw-semibold">Question {{ index + 1 }}: {{ result.question_title }}</h3>
+                        <div v-for="(candidate, candidateIndex) in result.candidates">
+                            <div class="form-check ms-4 mb-2">
+                                <input class="form-check-input fs-5"
+                                       type="radio"
+                                       :checked="isWinner(result.vote_counts, candidateIndex)" disabled>
+                                <label class="form-check-label fs-5 text-truncate w-75"
+                                       :class="isWinner(result.vote_counts, candidateIndex) ? 'text-success fw-bold' : 'text-muted'">
+                                    {{ candidate }}
+                                </label>
                             </div>
                         </div>
                     </div>
+                    <div class="col-md-5">
+                        <BarChart :labels="trimCandidates(result.candidates, 10)"
+                                  :datasets="result.vote_counts"></BarChart>
+                    </div>
                 </div>
             </div>
         </div>
+        <BaseModal :id="modals.moreChartsModal" title="More Charts">
+            <!--        <VueDatePicker v-model="date" :enable-time-picker="false" range multi-calendars/>-->
+            <LineChart :labels="rec_voteCountsInTimeInterval[0]"
+                       :datasets="rec_voteCountsInTimeInterval[1]"/>
+        </BaseModal>
     </div>
-    <BaseModal :id="modals.moreChartsModal" title="More Charts">
-        <!--        <VueDatePicker v-model="date" :enable-time-picker="false" range multi-calendars/>-->
-        <LineChart :labels="rec_voteCountsInTimeInterval[0]"
-                   :datasets="rec_voteCountsInTimeInterval[1]"/>
-    </BaseModal>
 </template>
 
 <script setup>
 import BarChart from "@/Components/BarChart.vue";
 import {onMounted, reactive, ref} from "vue";
-import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import LineChart from "@/Components/LineChart.vue";
 import * as bootstrap from "bootstrap";
 import BaseModal from "@/Components/BaseModal.vue";

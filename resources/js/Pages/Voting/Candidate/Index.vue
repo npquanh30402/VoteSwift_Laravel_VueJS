@@ -8,7 +8,6 @@
         </div>
         <div class="row justify-content-center">
             <div class="col-md-2">
-                <!--                <BallotSidebar :room="room"></BallotSidebar>-->
             </div>
             <div class="col-md-9">
                 <div class="card shadow-sm border-0 mb-3 overflow-auto">
@@ -25,7 +24,8 @@
                                 </div>
                                 <div class="card-body d-flex flex-column">
                                     <div class="truncate-text text-truncate">
-                                        <MdPreview :editorId="'candidate' + candidate.id" :modelValue="candidate.candidate_description" />
+                                        <MdPreview :editorId="'candidate' + candidate.id"
+                                                   :modelValue="candidate.candidate_description"/>
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <div class="hstack gap-3">
@@ -61,15 +61,9 @@
 
 <script setup>
 import {router, usePage} from "@inertiajs/vue3";
-import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
-import AddQuestion from "@/Pages/Voting/Question/AddQuestion.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import * as bootstrap from 'bootstrap'
-import QuestionDetails from "@/Pages/Voting/Question/QuestionDetails.vue";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
-import DeleteQuestion from "@/Pages/Voting/Question/DeleteQuestion.vue";
-import {route} from "ziggy-js";
-import {Link} from "@inertiajs/vue3";
 import AddCandidate from "@/Pages/Voting/Candidate/AddCandidate.vue";
 import DeleteCandidate from "@/Pages/Voting/Candidate/DeleteCandidate.vue";
 import CandidateDetails from "@/Pages/Voting/Candidate/CandidateDetails.vue";

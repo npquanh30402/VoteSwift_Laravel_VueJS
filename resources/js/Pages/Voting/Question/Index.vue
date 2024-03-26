@@ -1,71 +1,55 @@
 <template>
-    <div class="my-3">
-        <div class="row justify-content-center mb-3">
-            <div class="col-md-3">
-                <a @click="back" class="btn btn-secondary small">Back</a>
-            </div>
-            <div class="col-md-7 gap-3 align-items-center"></div>
+    <div class="card shadow-sm border-0 mb-3 overflow-auto">
+        <div class="card-header text-bg-dark text-center">Add Question
         </div>
-        <div class="row justify-content-center">
-            <div class="col-md-2">
-                <BallotSidebar :room="room"></BallotSidebar>
-            </div>
-            <div class="col-md-9">
-                <div class="card shadow-sm border-0 mb-3 overflow-auto">
-                    <div class="card-header text-bg-dark text-center">Add Question
+        <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
+        <div class="card-body">
+            <p>Total Questions: {{ questions.length }}</p>
+            <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
+            <div class="mt-3 d-flex flex-column gap-3">
+                <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="card">
+                    <div class="card-header fw-bold d-flex align-items-center gap-2">
+                        #{{ index + 1 }}: {{ question.question_title }}
                     </div>
-                    <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
-                    <div class="card-body">
-                        <p>Total Questions: {{ questions.length }}</p>
-                        <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
-                        <div class="mt-3 d-flex flex-column gap-3">
-                            <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="card">
-                                <div class="card-header fw-bold d-flex align-items-center gap-2">
-                                    #{{ index + 1 }}: {{ question.question_title }}
-                                </div>
-                                <div class="card-body d-flex flex-column">
-                                    <div class="truncate-text">
-                                        <MdPreview :editorId="'question' + question.id"
-                                                   :modelValue="question.question_description"/>
-                                    </div>
-                                    <div class="d-flex justify-content-between">
-                                        <Link :href="route('candidate.main', question.id)" class="btn btn-primary">
-                                            Candidates
-                                        </Link>
-                                        <div class="hstack gap-3">
-                                            <button class="btn btn-secondary"
-                                                    @click="openModal(modals.questionDetailsModal, question)">Details
-                                            </button>
-                                            <button class="btn btn-danger"
-                                                    @click="openModal(modals.deleteQuestionModal, question)">Delete
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="truncate-text">
+                            <MdPreview :editorId="'question' + question.id"
+                                       :modelValue="question.question_description"/>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <Link :href="route('candidate.main', question.id)" class="btn btn-primary">
+                                Candidates
+                            </Link>
+                            <div class="hstack gap-3">
+                                <button class="btn btn-secondary"
+                                        @click="openModal(modals.questionDetailsModal, question)">Details
+                                </button>
+                                <button class="btn btn-danger"
+                                        @click="openModal(modals.deleteQuestionModal, question)">Delete
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <vue-awesome-paginate
-                            :total-items="questions.length"
-                            :items-per-page="5"
-                            :max-pages-shown="5"
-                            v-model="currentPage"
-                            :on-click="onClickHandler"
-                        />
                     </div>
                 </div>
             </div>
         </div>
+        <div class="d-flex justify-content-end">
+            <vue-awesome-paginate
+                :total-items="questions.length"
+                :items-per-page="5"
+                :max-pages-shown="5"
+                v-model="currentPage"
+                :on-click="onClickHandler"
+            />
+        </div>
+        <QuestionDetails :question="modalQuestion"
+                         id="questionDetailsModal"></QuestionDetails>
+        <DeleteQuestion :question="modalQuestion" id="deleteQuestionModal"></DeleteQuestion>
     </div>
-    <QuestionDetails :question="modalQuestion"
-                     id="questionDetailsModal"></QuestionDetails>
-    <DeleteQuestion :question="modalQuestion" id="deleteQuestionModal"></DeleteQuestion>
 </template>
 
 <script setup>
 import {router, usePage} from "@inertiajs/vue3";
-import BallotSidebar from "@/Pages/Voting/BallotSidebar.vue";
 import AddQuestion from "@/Pages/Voting/Question/AddQuestion.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import * as bootstrap from 'bootstrap'
@@ -96,7 +80,6 @@ function openModal(modal, question = null) {
 }
 
 const props = defineProps(['room', 'questions'])
-
 
 let urlPrev = usePage().props.urlPrev;
 const back = () => {

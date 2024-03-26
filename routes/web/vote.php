@@ -7,6 +7,10 @@ use App\Http\Controllers\VotingRoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
+
+    Route::get('/room/{room}/dashboard', [VotingRoomController::class, 'dashboard'])->name('room.dashboard');
+
+
     // Room related-routes
     Route::get('/room/{room}', [VotingRoomController::class, 'main'])->name('room.main')->can('view', 'room');
     Route::get('/rooms', [VotingRoomController::class, 'create'])->name('room.create');
