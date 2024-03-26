@@ -19,11 +19,11 @@
                     <div>
                         <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="authUser">
                             <li class="nav-item">
-                                <Link class="nav-link active" aria-current="page" href="">Home
+                                <Link class="nav-link" :href="route('homepage')">Home
                                 </Link>
                             </li>
                             <li class="nav-item">
-                                <Link class="nav-link active" aria-current="page" :href="route('public.room')">Public
+                                <Link class="nav-link" :href="route('public.room')">Public
                                     Rooms
                                 </Link>
                             </li>
@@ -73,7 +73,7 @@ import MusicPlayer from "@/Components/MusicPlayer.vue";
 
 const props = defineProps(['authUser', 'authUserSettings'])
 
-const isMusicPlayerEnable = ref(props.authUserSettings.music_player_enabled === 1);
+const isMusicPlayerEnable = ref(props.authUserSettings?.music_player_enabled === 1);
 
 const registerOrLogin = ref(false);
 
