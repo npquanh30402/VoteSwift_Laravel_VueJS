@@ -9,19 +9,41 @@
         <button class="list-group-item list-group-item-action"
                 @click="switchTab('QuestionsPage')">Questions/Candidates
         </button>
-        <Link :href="route('room.update.form', room.id)" class="list-group-item list-group-item-action">Change Settings
-        </Link>
-        <!--        <Link class="list-group-item list-group-item-action">Type-->
-        <!--        </Link>-->
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('UpdateTitleDesc')">Change Title/Desc
+        </button>
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('UpdateTime')">Change Date/Time
+        </button>
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('')">Voters
+        </button>
+
         <button class="list-group-item list-group-item-action"
                 @click="switchTab('AttachmentPage')">Attachments
         </button>
-        <!--        <Link class="list-group-item list-group-item-action">Chat Feature-->
-        <!--        </Link>-->
-        <!--        <Link class="list-group-item list-group-item-action">Published-->
-        <!--        </Link>-->
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('UpdatePassword')">Password
+        </button>
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('')">Chat Feature
+        </button>
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('')">Extra Settings
+        </button>
+
         <button class="list-group-item list-group-item-action"
                 @click="switchTab('VotingResult')">Results
+        </button>
+
+        <button class="list-group-item list-group-item-action"
+                @click="switchTab('')">Published
         </button>
     </div>
 </template>

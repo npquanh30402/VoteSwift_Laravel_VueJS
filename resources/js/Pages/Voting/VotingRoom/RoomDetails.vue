@@ -5,13 +5,17 @@
             <h5 class="card-title">Room Name: {{ room.room_name }}</h5>
             <h6 class="card-subtitle mb-2 text-muted">Room ID: {{ room.id }}</h6>
             <p class="card-text">
-                Room Date: {{ room.start_time }}
-                - {{ room.end_time }}
+                Room Date (Your Locale): {{ new Date(room?.start_time).toLocaleString() }}
+                - {{ new Date(room?.end_time).toLocaleString() }}
             </p>
             <p class="card-text">
-                Room Hours: {{ room.start_time }}
+                Room Date (UTC): {{ room.start_time }}
                 - {{ room.end_time }}
             </p>
+            <!--            <p class="card-text">-->
+            <!--                Room Hours: {{ room.start_time }}-->
+            <!--                - {{ room.end_time }}-->
+            <!--            </p>-->
             <p class="card-text">
                 Room Timezone: {{ room.timezone }}
                 ({{ gmtOffset(room.timezone) }})

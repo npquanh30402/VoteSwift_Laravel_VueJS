@@ -34,6 +34,8 @@
                         <div class="hstack gap-3">
                             <div class="me-3 hstack" v-if="authUser">
                                 <MusicPlayer class="me-5" v-if="isMusicPlayerEnable"></MusicPlayer>
+                                
+                                <Clock class="me-4"></Clock>
                                 <Link :href="route('dashboard.user')" class="d-flex align-items-center">
                                     <img :src="authUser.avatar" class="rounded-circle"
                                          style="width: 3rem;"
@@ -66,10 +68,11 @@
 </template>
 
 <script setup>
-import {Link, usePage} from "@inertiajs/vue3";
+import {Link} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {ref} from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
+import Clock from "@/Components/Clock.vue";
 
 const props = defineProps(['authUser', 'authUserSettings'])
 

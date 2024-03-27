@@ -96,7 +96,7 @@ function uploadMusic() {
 }
 </script>
 
-<style scoped>
+<style>
 .un-interactive {
     pointer-events: none;
     opacity: 0.5;

@@ -75,41 +75,48 @@ class VotingRoomController extends Controller
         return Inertia::render('Voting/VotingRoom/UpdateRoom', compact('room', 'room_settings', 'timezones_with_offset'));
     }
 
-    public function update(VotingRoomRequest $request, VotingRoom $room)
+    public function update(Request $request, VotingRoom $room)
     {
-        $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
-        $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
-        $room->timezone = $request->timezone;
+//        dd($request->all());
+        if (isset($request->room_name)) {
+            $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
+        }
 
-        $startTime = Carbon::parse($request->start_time)->setTimezone($request->timezone);
-        $endTime = Carbon::parse($request->end_time)->setTimezone($request->timezone);
+        if (isset($request->room_description)) {
+            $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
+        }
 
-        $room->start_time = $startTime;
-        $room->end_time = $endTime;
-        $room->timezone = $request->timezone;
+        if (isset($request->activeTz)) {
+            $room->timezone = $request->activeTz['tz'];
+        }
+
+        if (isset($request->date)) {
+            $start_date = Carbon::parse($request->date[0])->setTimezone('UTC');
+            $end_date = Carbon::parse($request->date[1])->setTimezone('UTC');
+
+            $room->start_time = $start_date;
+            $room->end_time = $end_date;
+        }
 
         $room->save();
 
         $settings = $room->settings;
 
-        $settings->update([
-            'allow_multiple_votes' => (bool)($request->allow_multiple_votes ?? false),
-            'public_visibility' => (bool)($request->public_visibility ?? false),
-            'results_visibility' => $request->results_visibility,
-            'allow_voting' => (bool)($request->allow_voting ?? false),
-            'allow_skipping' => (bool)($request->allow_skipping ?? false),
-            'allow_anonymous_voting' => (bool)($request->allow_anonymous_voting ?? false),
-        ]);
-
-        if (!empty($request->require_password)) {
+        if (isset($request->require_password) && $request->require_password !== null) {
             $settings->password = bcrypt($request->require_password);
-            $settings->save();
-        }
-
-        if ($request->disable_password) {
+        } else {
             $settings->password = null;
-            $settings->save();
         }
+        $settings->save();
+
+//        $settings->update([
+//            'allow_multiple_votes' => (bool)($request->allow_multiple_votes ?? false),
+//            'public_visibility' => (bool)($request->public_visibility ?? false),
+//            'results_visibility' => $request->results_visibility,
+//            'allow_voting' => (bool)($request->allow_voting ?? false),
+//            'allow_skipping' => (bool)($request->allow_skipping ?? false),
+//            'allow_anonymous_voting' => (bool)($request->allow_anonymous_voting ?? false),
+//        ]);
 
         return back()->with('success', 'Room updated successfully!');
     }
@@ -175,15 +182,20 @@ class VotingRoomController extends Controller
         return $timezones_with_offset;
     }
 
+//    public function create()
+//    {
+//        $timezones_with_offset = $this->getTimezonesWithOffset();
+//        $user_list = User::all()->pluck('username', 'id');
+//
+//        return Inertia::render('Voting/VotingRoom/CreateRoom', [
+//            'timezones_with_offset' => $timezones_with_offset,
+//            'user_list' => $user_list
+//        ]);
+//    }
+
     public function create()
     {
-        $timezones_with_offset = $this->getTimezonesWithOffset();
-        $user_list = User::all()->pluck('username', 'id');
-
-        return Inertia::render('Voting/VotingRoom/CreateRoom', [
-            'timezones_with_offset' => $timezones_with_offset,
-            'user_list' => $user_list
-        ]);
+        return Inertia::render('Voting/VotingRoom/CreateRoom');
     }
 
     public function store(VotingRoomRequest $request)
@@ -200,49 +212,10 @@ class VotingRoomController extends Controller
 
             $room->user_id = auth()->user()->id;
 
-            $startTime = Carbon::parse($request->start_time)->setTimezone($request->timezone);
-            $endTime = Carbon::parse($request->end_time)->setTimezone($request->timezone);
-
-            $room->start_time = $startTime;
-            $room->end_time = $endTime;
-            $room->timezone = $request->timezone;
-
             $room->save();
-
-            if (!empty($request->files)) {
-                $fileBag = $request->files;
-                $files = $fileBag->get('files', []);
-                foreach ($files as $file) {
-                    $filePath = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
-
-                    $filePath = HelperService::sanitizeFileName($filePath);
-
-                    Storage::disk('public')->putFileAs('uploads/rooms', $file, $filePath);
-
-                    $oriFileName = $file->getClientOriginalName();
-
-                    $room->attachments()->create([
-                        'voting_room_id' => $room->id,
-                        'file_name' => $oriFileName,
-                        'file_path' => $filePath,
-                    ]);
-                }
-            }
-
-            $passwordRoom = null;
-            if (!empty($request->require_password)) {
-                $passwordRoom = Hash::make($request->require_password);
-            }
 
             VotingRoomSetting::create([
                 'voting_room_id' => $room->id,
-                'allow_multiple_votes' => $request->boolean('allow_multiple_votes'),
-                'public_visibility' => $request->boolean('public_visibility'),
-                'password' => $passwordRoom,
-                'results_visibility' => $request->results_visibility,
-                'allow_voting' => $request->boolean('allow_voting'),
-                'allow_skipping' => $request->boolean('allow_skipping'),
-                'allow_anonymous_voting' => $request->boolean('allow_anonymous_voting'),
             ]);
 
             return redirect()->route('dashboard.user')->with('success', 'Voting room created successfully!');
@@ -250,4 +223,69 @@ class VotingRoomController extends Controller
             return back()->with('error', $e->getMessage());
         }
     }
+
+//    public function store(VotingRoomRequest $request)
+//    {
+//        try {
+//            if (auth()->user()->rooms()->where('room_name', $request->room_name)->exists()) {
+//                return back()->with('error', 'Voting room already exists!');
+//            }
+//
+//            $room = new VotingRoom();
+//
+//            $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
+//            $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
+//
+//            $room->user_id = auth()->user()->id;
+//
+//            $startTime = Carbon::parse($request->start_time)->setTimezone($request->timezone);
+//            $endTime = Carbon::parse($request->end_time)->setTimezone($request->timezone);
+//
+//            $room->start_time = $startTime;
+//            $room->end_time = $endTime;
+//            $room->timezone = $request->timezone;
+//
+//            $room->save();
+//
+//            if (!empty($request->files)) {
+//                $fileBag = $request->files;
+//                $files = $fileBag->get('files', []);
+//                foreach ($files as $file) {
+//                    $filePath = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+//
+//                    $filePath = HelperService::sanitizeFileName($filePath);
+//
+//                    Storage::disk('public')->putFileAs('uploads/rooms', $file, $filePath);
+//
+//                    $oriFileName = $file->getClientOriginalName();
+//
+//                    $room->attachments()->create([
+//                        'voting_room_id' => $room->id,
+//                        'file_name' => $oriFileName,
+//                        'file_path' => $filePath,
+//                    ]);
+//                }
+//            }
+//
+//            $passwordRoom = null;
+//            if (!empty($request->require_password)) {
+//                $passwordRoom = Hash::make($request->require_password);
+//            }
+//
+//            VotingRoomSetting::create([
+//                'voting_room_id' => $room->id,
+//                'allow_multiple_votes' => $request->boolean('allow_multiple_votes'),
+//                'public_visibility' => $request->boolean('public_visibility'),
+//                'password' => $passwordRoom,
+//                'results_visibility' => $request->results_visibility,
+//                'allow_voting' => $request->boolean('allow_voting'),
+//                'allow_skipping' => $request->boolean('allow_skipping'),
+//                'allow_anonymous_voting' => $request->boolean('allow_anonymous_voting'),
+//            ]);
+//
+//            return redirect()->route('dashboard.user')->with('success', 'Voting room created successfully!');
+//        } catch (Exception $e) {
+//            return back()->with('error', $e->getMessage());
+//        }
+//    }
 }

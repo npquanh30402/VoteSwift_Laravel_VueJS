@@ -1,6 +1,7 @@
 <template>
-    <form @submit.prevent="submit" class="my-5">
-        <div class="container card shadow p-5">
+    <div class="card shadow-sm border-0 mb-3 overflow-auto">
+        <div class="card-header text-bg-dark text-center">Change Title/Description</div>
+        <form @submit.prevent="submit" class="card-body">
             <div class="row gx-3">
                 <div class="col-md-12">
                     <div class="mb-3">
@@ -19,32 +20,26 @@
                     </div>
                 </div>
 
-                <div class="col-md-8">
+                <div class="col-md-12">
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-sm btn-success p-3">Create Room</button>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="d-grid">
-                        <button type="reset" class="btn btn-sm btn-secondary p-3" aria-label="Clear">Clear
-                        </button>
+                        <button type="submit" class="btn btn-sm btn-success p-3">Update</button>
                     </div>
                 </div>
             </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </template>
 
 <script setup>
-import '@vuepic/vue-datepicker/dist/main.css';
-import {MdEditor} from 'md-editor-v3';
-import 'md-editor-v3/lib/style.css';
+import {MdEditor} from "md-editor-v3";
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 
+const props = defineProps(['room'])
+
 const form = useForm({
-    room_name: '',
-    room_description: '',
+    room_name: props.room?.room_name,
+    room_description: props.room?.room_description,
 });
 
 const onUploadImg = async (files, callback) => {
@@ -69,8 +64,9 @@ const onUploadImg = async (files, callback) => {
 }
 
 const submit = () => {
-    router.post(route('room.store'), {
+    router.post(route('room.update', props.room.id), {
+        _method: 'put',
         ...form
-    });
+    })
 }
 </script>
