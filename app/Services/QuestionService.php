@@ -29,6 +29,8 @@ class QuestionService
                 $question->question_image = $fileName;
             }
 
+            $question->allow_multiple_votes = $request->allow_multiple_votes;
+
             $question->voting_room_id = $room->id;
 
             $question->save();
@@ -51,7 +53,7 @@ class QuestionService
                 $fileName = $question->voting_room_id . '-' . uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
 
                 $fileName = HelperService::sanitizeFileName($fileName);
-                
+
                 $request->question_image->storeAs('uploads/questions', $fileName, 'public');
                 $question->question_image = $fileName;
             }
@@ -59,6 +61,8 @@ class QuestionService
             if ($oldImage !== $question->question_image) {
                 Storage::delete(str_replace('/storage/', 'public/', $oldImage));
             }
+
+            $question->allow_multiple_votes = $request->allow_multiple_votes;
 
             $question->save();
 

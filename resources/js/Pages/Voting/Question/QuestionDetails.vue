@@ -23,6 +23,12 @@
                 </div>
             </div>
             <div class="col-md-4">
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="allow_multiple_votes" name="question_image"
+                           v-model="form.allow_multiple_votes">
+                    <label class="form-check-label" for="allow_multiple_votes">Allow Multiple Votes</label>
+                    <p class="m-0 small text-danger"></p>
+                </div>
                 <div class="form-group mb-4">
                     <label class="form-label" for="question_image">Image:</label>
                     <div style="position: relative;">
@@ -82,23 +88,27 @@ const data = reactive({
     question_title: props.question?.question_title,
     question_description: props.question?.question_description,
     question_image: props.question?.question_image,
+    allow_multiple_votes: props.question?.allow_multiple_votes === 1,
 });
 
 const form = useForm({
     question_title: data.question_title,
     question_description: data.question_description,
     question_image: data.question_image,
+    allow_multiple_votes: data.allow_multiple_votes,
 });
 
 watch(() => props.question, (newQuestion) => {
     data.question_title = newQuestion?.question_title;
     data.question_description = newQuestion?.question_description;
     data.question_image = newQuestion?.question_image;
+    data.allow_multiple_votes = newQuestion?.allow_multiple_votes === 1;
 
     if (form) {
         form.question_title = data.question_title;
         form.question_description = data.question_description;
         form.question_image = data.question_image;
+        form.allow_multiple_votes = data.allow_multiple_votes;
     }
 }, {
     deep: true,

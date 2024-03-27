@@ -175,6 +175,12 @@ class VoteController extends Controller
         $selectedOptions = $request->selectedOptions;
 
         foreach ($selectedOptions as $questionId => $candidateIds) {
+            $question = Question::findOrFail($questionId);
+
+            if ($question->allow_multiple_votes === false && count($candidateIds) > 1) {
+                return back()->with('error', 'The question does not allow multiple votes.');
+            }
+
             if (!empty($candidateIds)) {
                 foreach ($candidateIds as $candidateId) {
                     $this->createVote($candidateId);

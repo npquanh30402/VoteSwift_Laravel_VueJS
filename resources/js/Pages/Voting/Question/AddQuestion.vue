@@ -17,6 +17,12 @@
                 </div>
             </div>
             <div class="col-md-4 vstack">
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="allow_multiple_votes" name="question_image"
+                           v-model="form.allow_multiple_votes">
+                    <label class="form-check-label" for="allow_multiple_votes">Allow Multiple Votes</label>
+                    <p class="m-0 small text-danger"></p>
+                </div>
                 <div class="form-group mb-4">
                     <label class="form-label" for="question_image">Image:</label>
                     <input type="file" class="form-control" id="question_image" name="question_image"
@@ -75,6 +81,7 @@ const form = useForm({
     question_title: '',
     question_description: '',
     question_image: null,
+    allow_multiple_votes: null,
 });
 
 function handleFileChange(event) {
