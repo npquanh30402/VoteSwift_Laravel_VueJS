@@ -14,9 +14,11 @@ import TheFooter from "./TheFooter.vue";
 import TheHeader from "./TheHeader.vue";
 import {usePage} from "@inertiajs/vue3";
 import FlashMessages from "@/Components/FlashMessages.vue";
+import {computed} from "vue";
 
-const authUser = usePage().props.authUser;
-const authUserSettings = usePage().props.authUserSettings;
+const authUser = computed(() => usePage().props.authUser);
+
+const authUserSettings = computed(() => usePage().props.authUserSettings)
 </script>
 
 <style>

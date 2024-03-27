@@ -10,10 +10,10 @@
 </template>
 
 <script setup>
-import {ref} from 'vue';
+import {computed, ref} from 'vue';
 import {usePage} from "@inertiajs/vue3";
 
-const music = usePage().props.music;
+const music = computed(() => usePage().props.music);
 
 const audioPlayerRef = ref(null);
 const title = ref("");

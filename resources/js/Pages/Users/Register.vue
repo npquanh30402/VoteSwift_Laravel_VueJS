@@ -5,24 +5,25 @@
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" name="username" id="username" v-model="form.username">
-                <p class="m-0 small text-danger">{{ form.errors.username }}</p>
+                <p class="m-0 small text-danger" v-if="form.errors.username">{{ form.errors.username }}</p>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
                 <input type="email" class="form-control" name="email" id="email" v-model="form.email">
-                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
-                <p class="m-0 small text-danger">{{ form.errors.email }}</p>
+                <p class="m-0 small text-danger" v-if="form.errors.email">{{ form.errors.email }}</p>
+                <div id="emailHelp" class="form-text" v-else>We'll never share your email with anyone else.</div>
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" name="password" id="password" v-model="form.password">
-                <p class="m-0 small text-danger">{{ form.errors.password }}</p>
+                <p class="m-0 small text-danger" v-if="form.errors.password">{{ form.errors.password }}</p>
             </div>
             <div class="mb-3">
                 <label for="password_confirmation" class="form-label">Confirm Password</label>
                 <input type="password" class="form-control" name="password_confirmation" id="password_confirmation"
                        v-model="form.password_confirmation">
-                <p class="m-0 small text-danger">{{ form.errors.password_confirmation }}</p>
+                <p class="m-0 small text-danger" v-if="form.errors.password_confirmation">
+                    {{ form.errors.password_confirmation }}</p>
             </div>
             <button type="submit" class="btn btn-primary">Register</button>
         </form>

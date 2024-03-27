@@ -55,8 +55,9 @@
 <script setup>
 import {router, useForm, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {computed} from "vue";
 
-const authUser = usePage().props.authUser;
+const authUser = computed(() => usePage().props.authUser);
 
 const form = useForm({
     username: authUser.username,

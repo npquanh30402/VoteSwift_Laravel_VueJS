@@ -81,7 +81,7 @@ function openModal(modal, question = null) {
 
 const props = defineProps(['room', 'questions'])
 
-let urlPrev = usePage().props.urlPrev;
+let urlPrev = computed(() => usePage().props.urlPrev);
 const back = () => {
     if (urlPrev !== 'empty') {
         router.visit(urlPrev)

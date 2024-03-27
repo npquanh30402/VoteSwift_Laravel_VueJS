@@ -130,7 +130,8 @@ class UserController extends Controller
     public function login(UserRequest $request)
     {
         if ($this->userService->login($request)) {
-            return redirect()->route('dashboard.user')->with('success', 'Login successfully!');
+//            return redirect()->route('dashboard.user')->with('success', 'Login successfully!');
+            return redirect()->intended()->with('success', 'Login successfully!');
         }
 
         return back()->with('error', 'Login failed!');

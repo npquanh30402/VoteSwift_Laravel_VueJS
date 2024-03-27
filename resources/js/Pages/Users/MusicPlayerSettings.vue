@@ -61,11 +61,12 @@
 <script setup>
 import {router, useForm, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {ref} from "vue";
+import {computed, ref} from "vue";
 
-const authUser = usePage().props.authUser;
-const authUserSettings = usePage().props.authUserSettings;
-const music = usePage().props.music;
+const authUser = computed(() => usePage().props.authUser);
+const authUserSettings = computed(() => usePage().props.authUserSettings)
+
+const music = computed(() => usePage().props.music);
 
 const isMusicPlayerEnable = ref(authUserSettings?.music_player_enabled === 1);
 

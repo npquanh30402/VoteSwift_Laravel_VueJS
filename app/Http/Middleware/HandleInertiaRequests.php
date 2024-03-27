@@ -41,7 +41,7 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
-            'authUser' => auth()->user(),
+            'authUser' => $request->user(),
             'authUserSettings' => Auth::user()->settings ?? null,
             'music' => Auth::user()->music ?? null,
             'urlPrev' => function () {

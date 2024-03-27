@@ -127,7 +127,7 @@ import {computed} from "vue";
 
 const props = defineProps(['user', 'public_rooms'])
 
-const authUser = usePage().props.authUser;
+const authUser = computed(() => usePage().props.authUser);
 
 const fullName = `${props.user.first_name} ${props.user.last_name}`;
 
