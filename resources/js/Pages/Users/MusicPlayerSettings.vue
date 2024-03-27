@@ -68,7 +68,7 @@ const authUserSettings = computed(() => usePage().props.authUserSettings)
 
 const music = computed(() => usePage().props.music);
 
-const isMusicPlayerEnable = ref(authUserSettings?.music_player_enabled === 1);
+const isMusicPlayerEnable = ref(usePage().props.authUserSettings?.music_player_enabled === 1);
 
 const toggleMusicPlayer = () => {
     isMusicPlayerEnable.value = !isMusicPlayerEnable.value
