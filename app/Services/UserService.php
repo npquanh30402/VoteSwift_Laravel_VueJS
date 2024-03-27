@@ -6,6 +6,7 @@ use App\Events\UserActivity;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -70,7 +71,7 @@ class UserService
             $user = new User();
             $user->username = $requestData['username'];
             $user->email = $requestData['email'];
-            $user->password = bcrypt($requestData['password']);
+            $user->password = Hash::make($requestData['password']);
 
             $user->save();
 
