@@ -15,13 +15,14 @@
                         <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
                     </div>
                 </div>
+
                 <div v-if="notification.type === 'App\\Notifications\\FriendRequestSend'"
                      class="notification-list_content">
-                    <div class="notification-list_img">
+                    <Link :href="route('user.profile', notification.data.sender_id)" class="notification-list_img">
                         <img :src="notification.data.sender_avatar" alt="user">
-                    </div>
+                    </Link>
                     <div class="notification-list_detail">
-                        <p><b>{{ notification.data.sender_username }}</b> have sent you a friend request</p>
+                        <p><b>{{ notification.data.sender_username }}</b> have sent you a friend request.</p>
                         <p class="text-muted">Click
                             <Link class="link-success"
                                   :href="route('user.accept-friend-request', notification.data.sender_id)"
@@ -39,6 +40,18 @@
                         <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
                     </div>
                 </div>
+
+                <div v-if="notification.type === 'App\\Notifications\\FriendRequestAccepted'"
+                     class="notification-list_content">
+                    <Link :href="route('user.profile', notification.data.recipient_id)" class="notification-list_img">
+                        <img :src="notification.data.recipient_avatar" alt="user">
+                    </Link>
+                    <div class="notification-list_detail">
+                        <p><b>{{ notification.data.recipient_username }}</b> have accepted your friend request.</p>
+                        <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
+                    </div>
+                </div>
+
                 <div v-if="!notification.read_at" class="d-flex flex-column justify-content-end gap-3">
                     <Link :href="route('notification.read', notification.id)" method="PUT" as="button"
                           class="btn btn-outline-primary">Mark

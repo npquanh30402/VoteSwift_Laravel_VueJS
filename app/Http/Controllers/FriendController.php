@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\FriendRequestAccepted;
 use App\Notifications\FriendRequestSend;
 use App\Services\FriendService;
 use Illuminate\Support\Facades\Auth;
@@ -40,14 +41,20 @@ class FriendController extends Controller
 
     public function acceptFriendRequest(User $sender)
     {
-        $this->friendService->acceptFriendRequest(auth()->user(), $sender);
+        $authUser = Auth::user();
+
+        $this->friendService->acceptFriendRequest($authUser, $sender);
+
+        $sender->notify(new FriendRequestAccepted($authUser));
 
         return back()->with('success', 'Friend request accepted!');
     }
 
     public function rejectFriendRequest(User $sender)
     {
-        $this->friendService->rejectFriendRequest(auth()->user(), $sender);
+        $authUser = Auth::user();
+
+        $this->friendService->rejectFriendRequest($authUser, $sender);
 
         return back()->with('success', 'Friend request rejected!');
     }
