@@ -6,7 +6,7 @@
 
     </div>
     <div class="row row-cols-3 gy-4 mb-4">
-        <div class="d-flex align-items-stretch" v-for="(room, index) in paginatedRooms">
+        <div class="d-flex align-items-stretch" v-for="(room, index) in publicRooms.data">
             <div class="card text-center">
                 <div class="card-header">
                     Room #{{ index + 1 }}
@@ -24,14 +24,16 @@
             </div>
         </div>
     </div>
-    <div class="d-flex justify-content-center my-3">
-        <vue-awesome-paginate
-            :total-items="publicRooms.length"
-            :items-per-page="5"
-            :max-pages-shown="5"
-            v-model="currentPage"
-            :on-click="onClickHandler"
-        />
+    <div class="d-flex justify-content-center my-3" v-if="publicRooms.data.length">
+        <Pagination :links="publicRooms.links"/>
+        <!--        <vue-awesome-paginate-->
+        <!--            :total-items="publicRooms.length"-->
+        <!--            :items-per-page="5"-->
+        <!--            :max-pages-shown="5"-->
+        <!--            v-model="currentPage"-->
+        <!--            :on-click="onClickHandler"-->
+        <!--        />-->
+
     </div>
 </template>
 
@@ -41,6 +43,7 @@ import {intlFormatDistance} from "date-fns";
 import {route} from "ziggy-js";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
 import {computed, ref} from "vue";
+import Pagination from "@/Components/Pagination.vue";
 
 const props = defineProps(['publicRooms'])
 

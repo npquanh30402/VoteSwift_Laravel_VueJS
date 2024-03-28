@@ -43,7 +43,7 @@ class VotingRoom extends Model
     {
         return DB::table('voting_rooms')
             ->join('voting_room_settings', 'voting_room_settings.voting_room_id', '=', 'voting_rooms.id')
-            ->where('public_visibility', 1)->get();
+            ->where('public_visibility', 1);
     }
 
 //    public static function getPublicRooms()

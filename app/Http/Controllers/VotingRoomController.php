@@ -43,9 +43,9 @@ class VotingRoomController extends Controller
     public function showPublicRoom()
     {
 
-        $orgPublicRooms = VotingRoom::getPublicRooms();
+        $public_rooms = VotingRoom::getPublicRooms()->paginate(9);
 
-        $public_rooms = $orgPublicRooms->transform(function ($room) {
+        $public_rooms->each(function ($room) {
             $room->room_name = Crypt::decryptString($room->room_name);
             $room->room_description = Crypt::decryptString($room->room_description);
 
