@@ -26,14 +26,6 @@
     </div>
     <div class="d-flex justify-content-center my-3" v-if="publicRooms.data.length">
         <Pagination :links="publicRooms.links"/>
-        <!--        <vue-awesome-paginate-->
-        <!--            :total-items="publicRooms.length"-->
-        <!--            :items-per-page="5"-->
-        <!--            :max-pages-shown="5"-->
-        <!--            v-model="currentPage"-->
-        <!--            :on-click="onClickHandler"-->
-        <!--        />-->
-
     </div>
 </template>
 

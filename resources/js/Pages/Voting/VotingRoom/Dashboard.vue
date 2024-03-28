@@ -1,7 +1,9 @@
 <template>
     <div class="row">
         <div class="col">
-            <h1 class="display-6 text-center fw-bold">Dashboard: {{ room.room_name }}</h1>
+            <h1 class="display-6 text-center fw-bold">Room Dashboard
+                <i class="bi bi-arrow-clockwise icon" @click="router.reload()" style="cursor: pointer"></i>
+            </h1>
         </div>
     </div>
     <div class="my-3">
@@ -32,6 +34,7 @@ import BallotSidebar from "@/Pages/Voting/VotingRoom/BallotSidebar.vue";
 import UpdateTitleDesc from "@/Pages/Voting/VotingRoom/Features/UpdateTitleDesc.vue";
 import UpdateTime from "@/Pages/Voting/VotingRoom/Features/UpdateTime.vue";
 import UpdatePassword from "@/Pages/Voting/VotingRoom/Features/UpdatePassword.vue";
+import {router} from "@inertiajs/vue3";
 
 const props = defineProps(['room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
 

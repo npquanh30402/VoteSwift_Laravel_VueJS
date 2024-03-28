@@ -127,8 +127,7 @@ class VotingRoomController extends Controller
 
     public function dashboard(VotingRoom $room)
     {
-        $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
-        $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
+        $room->decryptVotingRoom();
 
         $room_settings = $room->settings;
 
@@ -142,7 +141,6 @@ class VotingRoomController extends Controller
         });
 
         $room_attachments = $room->attachments;
-
 
         return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'));
     }
