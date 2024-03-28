@@ -5,7 +5,10 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationSeenController;
 use App\Http\Controllers\UserController;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::group(['prefix' => '/user'], function () {
     Route::group(['middleware' => 'guest'], function () {
@@ -15,12 +18,11 @@ Route::group(['prefix' => '/user'], function () {
         Route::post('/register', [UserController::class, 'register'])->name('register.store');
     });
 
-    Route::group(['middleware' => 'auth'], function () {
+    Route::group(['middleware' => ['auth', 'verified']], function () {
 
         Route::resource('notification', NotificationController::class)->only(['index']);
         Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('notification.read');
 
-        Route::post('/logout', [UserController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard.user');
         Route::get('/settings', [UserController::class, 'showSettings'])->name('user.settings');
         Route::put('/settings', [UserController::class, 'storeInformation'])->name('user.settings.update');
@@ -46,5 +48,23 @@ Route::group(['prefix' => '/user'], function () {
             Route::get('/chat/{user}', [ChatController::class, 'main'])->name('chat.main');
             Route::post('/chat/message/{user}', [ChatController::class, 'messageReceived'])->name('chat.message');
         });
+
     });
+    Route::post('/logout', [UserController::class, 'logout'])->name('logout');
+
+    Route::get('/email/verify', function () {
+        return Inertia::render('Users/Auth/VerifyEmail');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+
+        return redirect()->route('dashboard.user')->with('success', 'Email successfully verified!');
+    })->middleware(['auth', 'signed'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('success', 'Verification link sent!');
+    })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 });

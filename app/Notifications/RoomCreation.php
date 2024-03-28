@@ -29,7 +29,7 @@ class RoomCreation extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -38,8 +38,8 @@ class RoomCreation extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
+            ->line('You have created a new voting room')
+            ->action('Visit your room', route('room.dashboard', $this->room->id))
             ->line('Thank you for using our application!');
     }
 

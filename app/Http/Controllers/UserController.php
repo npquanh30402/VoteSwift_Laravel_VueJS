@@ -10,6 +10,7 @@ use App\Services\HelperService;
 use App\Services\UserService;
 use DateTime;
 use DateTimeZone;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -122,7 +123,10 @@ class UserController extends Controller
 
     public function register(UserRequest $request)
     {
-        auth()->login($this->userService->register($request));
+        $user = $this->userService->register($request);
+        auth()->login($user);
+
+        event(new Registered($user));
 
         return redirect()->route('homepage')->with('success', 'Registration successfully!');
     }
