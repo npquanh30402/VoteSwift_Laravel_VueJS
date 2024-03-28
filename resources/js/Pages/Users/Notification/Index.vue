@@ -14,16 +14,30 @@
                         </p>
                         <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
                     </div>
-
-                    <!--                    <div class="notification-list_img">-->
-                    <!--                        <img src="https://i.imgur.com/zYxDCQT.jpg" alt="user">-->
-                    <!--                    </div>-->
-                    <!--                    <div class="notification-list_detail">-->
-                    <!--                        <p><b>John Doe</b> reacted to your post</p>-->
-                    <!--                        <p class="text-muted">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Unde,-->
-                    <!--                            dolorem.</p>-->
-                    <!--                        <p class="text-muted"><small>10 mins ago</small></p>-->
-                    <!--                    </div>-->
+                </div>
+                <div v-if="notification.type === 'App\\Notifications\\FriendRequestSend'"
+                     class="notification-list_content">
+                    <div class="notification-list_img">
+                        <img :src="notification.data.sender_avatar" alt="user">
+                    </div>
+                    <div class="notification-list_detail">
+                        <p><b>{{ notification.data.sender_username }}</b> have sent you a friend request</p>
+                        <p class="text-muted">Click
+                            <Link class="link-success"
+                                  :href="route('user.accept-friend-request', notification.data.sender_id)"
+                                  method="POST">here
+                            </Link>
+                            to accept.
+                        </p>
+                        <p class="text-muted">Or
+                            <Link class="link-danger"
+                                  :href="route('user.reject-friend-request', notification.data.sender_id)"
+                                  method="POST">here
+                            </Link>
+                            to reject.
+                        </p>
+                        <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
+                    </div>
                 </div>
                 <div v-if="!notification.read_at" class="d-flex flex-column justify-content-end gap-3">
                     <Link :href="route('notification.read', notification.id)" method="PUT" as="button"

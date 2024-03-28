@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\FriendRequestSend;
 use App\Services\FriendService;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class FriendController extends Controller
@@ -52,7 +54,10 @@ class FriendController extends Controller
 
     public function sendFriendRequest(User $recipient)
     {
-        $data = $this->friendService->sendFriendRequest(auth()->user(), $recipient);
+        $authUser = Auth::user();
+        $data = $this->friendService->sendFriendRequest($authUser, $recipient);
+
+        $recipient->notify(new FriendRequestSend($authUser));
 
         return back()->with($data['type'], $data['message']);
     }
