@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Question extends Model
 {
@@ -20,8 +21,16 @@ class Question extends Model
         return $this->hasMany(Candidate::class, 'question_id', 'id');
     }
 
+    public function decryptQuestion()
+    {
+        $this->question_title = Crypt::decryptString($this->question_title);
+        $this->question_description = Crypt::decryptString($this->question_description);
+    }
+
     protected function questionImage(): Attribute
     {
-        return Attribute::make(fn($value) => $value ? asset('storage/uploads/questions/' . $value) : null);
+        return Attribute::make(
+            get: fn($value) => $value ? asset('storage/uploads/questions/' . $value) : null,
+        );
     }
 }

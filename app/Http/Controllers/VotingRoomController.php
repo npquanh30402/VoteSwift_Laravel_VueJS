@@ -3,47 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VotingRoomRequest;
-use App\Models\User;
 use App\Models\Vote;
 use App\Models\VotingRoom;
-use App\Models\VotingRoomSetting;
 use App\Notifications\RoomCreation;
-use App\Services\HelperService;
+use App\Services\VotingRoomService;
 use Carbon\Carbon;
 use DateTime;
 use DateTimeZone;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
-use stdClass;
 
 class VotingRoomController extends Controller
 {
-    public function showDescription(VotingRoom $room)
-    {
-        $room->room_name = Crypt::decryptString($room->room_name);
-        $room->room_description = Crypt::decryptString($room->room_description);
+    protected $votingRoomService;
 
-        return Inertia::render('Voting/VotingRoom/DescriptionPage', compact('room'));
+    public function __construct(VotingRoomService $votingRoomService)
+    {
+        $this->votingRoomService = $votingRoomService;
     }
 
-    public function showAttachment(VotingRoom $room)
-    {
-        $attachments = $room->attachments()->get();
-
-        $room->room_name = Crypt::decryptString($room->room_name);
-        $room->room_description = Crypt::decryptString($room->room_description);
-
-        return Inertia::render('Voting/VotingRoom/AttachmentPage', compact('attachments', 'room'));
-    }
+//    public function showDescription(VotingRoom $room)
+//    {
+//        $room->room_name = Crypt::decryptString($room->room_name);
+//        $room->room_description = Crypt::decryptString($room->room_description);
+//
+//        return Inertia::render('Voting/VotingRoom/DescriptionPage', compact('room'));
+//    }
+//
+//    public function showAttachment(VotingRoom $room)
+//    {
+//        $attachments = $room->attachments()->get();
+//
+//        $room->room_name = Crypt::decryptString($room->room_name);
+//        $room->room_description = Crypt::decryptString($room->room_description);
+//
+//        return Inertia::render('Voting/VotingRoom/AttachmentPage', compact('attachments', 'room'));
+//    }
 
     public function showPublicRoom()
     {
-
         $public_rooms = VotingRoom::getPublicRooms()->paginate(9);
 
         $public_rooms->each(function ($room) {
@@ -58,27 +59,29 @@ class VotingRoomController extends Controller
         ]);
     }
 
-    public function delete(VotingRoom $room)
+    public function delete(VotingRoom $room): RedirectResponse
     {
-        $room->delete();
-
-        return back()->with('success', 'Voting room deleted successfully!');
+        try {
+            $this->votingRoomService->deleteVotingRoom($room);
+            return back()->with('success', 'Voting room deleted successfully!');
+        } catch (Exception $e) {
+            return back()->with('error', 'Error deleting voting room: ' . $e->getMessage());
+        }
     }
 
-    public function showUpdateRoomForm(VotingRoom $room)
-    {
-        $timezones_with_offset = $this->getTimezonesWithOffset();
-
-        $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
-        $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
-        $room_settings = $room->settings;
-
-        return Inertia::render('Voting/VotingRoom/UpdateRoom', compact('room', 'room_settings', 'timezones_with_offset'));
-    }
+//    public function showUpdateRoomForm(VotingRoom $room)
+//    {
+//        $timezones_with_offset = $this->getTimezonesWithOffset();
+//
+//        $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
+//        $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
+//        $room_settings = $room->settings;
+//
+//        return Inertia::render('Voting/VotingRoom/UpdateRoom', compact('room', 'room_settings', 'timezones_with_offset'));
+//    }
 
     public function update(Request $request, VotingRoom $room)
     {
-//        dd($request->all());
         if (isset($request->room_name)) {
             $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
         }

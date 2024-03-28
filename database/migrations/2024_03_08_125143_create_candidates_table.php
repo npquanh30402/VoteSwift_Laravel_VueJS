@@ -15,7 +15,6 @@ return new class extends Migration {
             $table->string('candidate_title');
             $table->text('candidate_description')->nullable();
             $table->string('candidate_image')->nullable();
-            $table->unsignedBigInteger('votes')->default(0)->nullable();
             $table->unsignedBigInteger('question_id');
             $table->foreign('question_id')->references('id')->on('questions')->cascadeOnDelete();
             $table->timestamps();

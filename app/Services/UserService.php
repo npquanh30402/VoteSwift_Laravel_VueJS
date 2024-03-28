@@ -53,8 +53,6 @@ class UserService
 
                 $friendIds = $this->getFriendIds($requestData->user());
 
-                broadcast(new UserActivity($friendIds, "{$requestData->user()->username} is online", 'success'))->toOthers();
-
                 return true;
             }
 
@@ -87,7 +85,6 @@ class UserService
         try {
             $friendIds = $this->getFriendIds($requestData->user());
 
-            broadcast(new UserActivity($friendIds, "{$requestData->user()->username} is offline", 'danger'))->toOthers();
             Auth::logout();
             $requestData->session()->invalidate();
             $requestData->session()->regenerateToken();

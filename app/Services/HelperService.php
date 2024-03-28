@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 
 class HelperService
@@ -16,5 +17,10 @@ class HelperService
         }
 
         return Str::of($fileName)->replace(' ', self::$replacementCharacter);
+    }
+
+    public static function encryptAndStripTags($input)
+    {
+        return Crypt::encryptString(strip_tags($input));
     }
 }

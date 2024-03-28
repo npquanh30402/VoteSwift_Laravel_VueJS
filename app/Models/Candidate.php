@@ -5,15 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 
 class Candidate extends Model
 {
     use HasFactory;
 
-    public function votingRoom()
-    {
-        return $this->belongsTo(VotingRoom::class, 'voting_room_id', 'id');
-    }
+    protected $fillable = [
+        'candidate_title',
+        'candidate_description',
+        'candidate_image',
+        'question_id'
+    ];
 
     public function question()
     {
@@ -25,8 +28,16 @@ class Candidate extends Model
         return $this->hasMany(Vote::class, 'candidate_id', 'id');
     }
 
+    public function decryptCandidate()
+    {
+        $this->candidate_title = Crypt::decryptString($this->candidate_title);
+        $this->candidate_description = Crypt::decryptString($this->candidate_description);
+    }
+
     protected function candidateImage(): Attribute
     {
-        return Attribute::make(fn($value) => $value ? asset('storage/uploads/candidates/' . $value) : null);
+        return Attribute::make(
+            get: fn($value) => $value ? asset('storage/uploads/candidates/' . $value) : null,
+        );
     }
 }

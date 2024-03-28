@@ -21,10 +21,10 @@ class CandidateController extends Controller
 
     public function main(Question $question)
     {
-        $candidates = $question->candidates->map(function ($candidate) {
-            $candidate->candidate_title = Crypt::decryptString($candidate->candidate_title);
-            $candidate->candidate_description = Crypt::decryptString($candidate->candidate_description);
-            return $candidate;
+        $candidates = $question->candidates()->get();
+
+        $candidates->each(function ($candidate) {
+            $candidate->decryptCandidate();
         });
 
         $question->question_title = Crypt::decryptString($question->question_title);

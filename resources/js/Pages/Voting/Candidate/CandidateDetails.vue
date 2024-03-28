@@ -13,7 +13,7 @@
                 <div class="mb-3">
                     <div style="position: relative;">
                         <label for="candidate_description" class="form-label">Candidate Description</label>
-                        <MdEditor v-model="form.question_description" @onUploadImg="onUploadImg"
+                        <MdEditor v-model="form.candidate_description" @onUploadImg="onUploadImg"
                                   language="en-US" :disabled="!editMode.description"></MdEditor>
                         <i @click="toggleEditMode('description')" class="bi bi-pencil" style="top: 25%"></i>
                     </div>
@@ -22,31 +22,31 @@
                     <button type="submit" class="btn btn-warning" data-bs-dismiss="modal">Update</button>
                 </div>
             </div>
-                        <div class="col-md-4">
-                            <div class="form-group mb-4">
-                                <label class="form-label" for="candidate_image">Image:</label>
-                                <div style="position: relative;">
-                                    <input type="file" class="form-control" id="candidate_image" name="candidate_image"
-                                           @change="handleFileChange" :disabled="!editMode.image">
-                                    <i @click="toggleEditMode('image')" class="bi bi-pencil"></i>
-                                </div>
-                                <p class="m-0 small text-danger"></p>
-                            </div>
-                            <div class="form-group mb-4 text-center">
-                                <img :src="data.candidate_image"
-                                     class="img-fluid"
-                                     style="cursor: pointer"
-                                     alt="Image" @click="showSingle"/>
-                                <teleport to="body">
-                                    <vue-easy-lightbox
-                                        :visible="visibleRef"
-                                        :imgs="imgsRef"
-                                        :index="indexRef"
-                                        @hide="onHide"
-                                    ></vue-easy-lightbox>
-                                </teleport>
-                            </div>
-                        </div>
+            <div class="col-md-4">
+                <div class="form-group mb-4">
+                    <label class="form-label" for="candidate_image">Image:</label>
+                    <div style="position: relative;">
+                        <input type="file" class="form-control" id="candidate_image" name="candidate_image"
+                               @change="handleFileChange" :disabled="!editMode.image">
+                        <i @click="toggleEditMode('image')" class="bi bi-pencil"></i>
+                    </div>
+                    <p class="m-0 small text-danger"></p>
+                </div>
+                <div class="form-group mb-4 text-center">
+                    <img :src="data.candidate_image"
+                         class="img-fluid"
+                         style="cursor: pointer"
+                         alt="Image" @click="showSingle"/>
+                    <teleport to="body">
+                        <vue-easy-lightbox
+                            :visible="visibleRef"
+                            :imgs="imgsRef"
+                            :index="indexRef"
+                            @hide="onHide"
+                        ></vue-easy-lightbox>
+                    </teleport>
+                </div>
+            </div>
         </form>
     </BaseModal>
 </template>
@@ -85,9 +85,9 @@ const data = reactive({
 });
 
 const form = useForm({
-    candidate_title: data.candidate_title,
-    candidate_description: data.candidate_description,
-    candidate_image: data.candidate_image,
+    candidate_title: data?.candidate_title,
+    candidate_description: data?.candidate_description,
+    candidate_image: data?.candidate_image,
 });
 
 watch(() => props.candidate, (newQuestion) => {
@@ -96,8 +96,8 @@ watch(() => props.candidate, (newQuestion) => {
     data.candidate_image = newQuestion?.candidate_image;
 
     if (form) {
-        form.candidate_title = data.candidate_title;
-        form.candidate_description = data.candidate_description;
+        form.candidate_title = data?.candidate_title;
+        form.candidate_description = data?.candidate_description;
     }
 }, {
     deep: true,

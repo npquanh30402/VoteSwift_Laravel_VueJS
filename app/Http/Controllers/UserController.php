@@ -8,9 +8,6 @@ use App\Models\UserSetting;
 use App\Services\FriendService;
 use App\Services\HelperService;
 use App\Services\UserService;
-use DateTime;
-use DateTimeZone;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -112,42 +109,5 @@ class UserController extends Controller
         $authUserFriends = $this->friendService->getFriends(auth()->user());
 
         return Inertia::render('Users/Dashboard', compact('rooms', 'authUserFriends'));
-    }
-
-    public function logout(Request $request)
-    {
-        $this->userService->logout($request);
-
-        return redirect()->route('homepage')->with('success', 'Logout successfully!');
-    }
-
-    public function register(UserRequest $request)
-    {
-        $user = $this->userService->register($request);
-        auth()->login($user);
-
-        event(new Registered($user));
-
-        return redirect()->route('homepage')->with('success', 'Registration successfully!');
-    }
-
-    public function login(UserRequest $request)
-    {
-        if ($this->userService->login($request)) {
-//            return redirect()->route('dashboard.user')->with('success', 'Login successfully!');
-            return redirect()->intended()->with('success', 'Login successfully!');
-        }
-
-        return back()->with('error', 'Login failed!');
-    }
-
-    public function getRegisterForm()
-    {
-        return Inertia::render('Users/Register');
-    }
-
-    public function getLoginForm()
-    {
-        return Inertia::render('Users/Login');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class VotingRoom extends Model
@@ -46,10 +47,9 @@ class VotingRoom extends Model
             ->where('public_visibility', 1);
     }
 
-//    public static function getPublicRooms()
-//    {
-//        return $this->with('settings')->whereHas('settings', function ($query) {
-//            $query->where('public_visibility', true);
-//        })->get();
-//    }
+    public function decryptVotingRoom()
+    {
+        $this->room_name = Crypt::decryptString($this->room_name);
+        $this->room_description = Crypt::decryptString($this->room_description);
+    }
 }
