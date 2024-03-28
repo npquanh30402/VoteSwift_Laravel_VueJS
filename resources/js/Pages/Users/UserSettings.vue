@@ -35,7 +35,7 @@
                 </div>
                 <div class="d-flex align-items-center">
                     <div class="form-group col-md-4 d-flex justify-content-center">
-                        <img :src="authUser.avatar"
+                        <img :src="authUser.user.avatar"
                              class="rounded-circle img-fluid"
                              style="width: 10rem;"
                              alt="Avatar"/>
@@ -60,12 +60,12 @@ import {computed} from "vue";
 const authUser = computed(() => usePage().props.authUser);
 
 const form = useForm({
-    username: authUser.username,
-    email: authUser.email,
-    first_name: authUser.first_name,
-    last_name: authUser.last_name,
-    phone: authUser.phone,
-    address: authUser.address,
+    username: authUser.value.user.username,
+    email: authUser.value.user.email,
+    first_name: authUser.value.user.first_name,
+    last_name: authUser.value.user.last_name,
+    phone: authUser.value.user.phone,
+    address: authUser.value.user.address,
     avatar: null
 })
 

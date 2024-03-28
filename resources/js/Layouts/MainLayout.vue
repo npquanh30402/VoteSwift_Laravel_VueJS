@@ -1,5 +1,5 @@
 <template>
-    <TheHeader :authUser="authUser" :authUserSettings="authUserSettings"></TheHeader>
+    <TheHeader :authUser="authUser"></TheHeader>
     <FlashMessages></FlashMessages>
     <transition name="fade" mode="out-in">
         <div :key="$page.url">
@@ -17,8 +17,6 @@ import FlashMessages from "@/Components/FlashMessages.vue";
 import {computed} from "vue";
 
 const authUser = computed(() => usePage().props.authUser);
-
-const authUserSettings = computed(() => usePage().props.authUserSettings)
 </script>
 
 <style>

@@ -80,7 +80,7 @@
                     </div>
                     <form @submit.prevent="sendMessage"
                           class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
-                        <img :src="authUser.avatar"
+                        <img :src="authUser.user.avatar"
                              alt="avatar 3" style="width: 40px; height: 100%;">
                         <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1"
                                placeholder="Type message" v-model="newMessage">
@@ -126,7 +126,7 @@ const chatContainer = ref(null);
 const emit = defineEmits(['send-message'])
 
 const isYou = (msgUserId) => {
-    return msgUserId === authUser.value.id
+    return msgUserId === authUser.value.user.id
 }
 
 function goToProfile(userId) {

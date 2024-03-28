@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Vote;
 use App\Models\VotingRoom;
 use App\Models\VotingRoomSetting;
+use App\Notifications\RoomCreation;
 use App\Services\HelperService;
 use Carbon\Carbon;
 use DateTime;
@@ -205,18 +206,17 @@ class VotingRoomController extends Controller
                 return back()->with('error', 'Voting room already exists!');
             }
 
-            $room = new VotingRoom();
-
-            $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
-            $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
-
-            $room->user_id = auth()->user()->id;
+            $room = new VotingRoom([
+                'room_name' => Crypt::encryptString(strip_tags($request->room_name)),
+                'room_description' => Crypt::encryptString(strip_tags($request->room_description)),
+                'user_id' => auth()->user()->id,
+            ]);
 
             $room->save();
 
-            VotingRoomSetting::create([
-                'voting_room_id' => $room->id,
-            ]);
+            $room->settings()->create();
+
+            $room->user->notify(new RoomCreation($room));
 
             return redirect()->route('dashboard.user')->with('success', 'Voting room created successfully!');
         } catch (Exception $e) {

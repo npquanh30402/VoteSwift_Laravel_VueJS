@@ -17,7 +17,7 @@
                 </button>
                 <div class="collapse navbar-collapse hstack justify-content-between" id="navbarHeaderContent">
                     <div>
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="authUser">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0" v-if="authUser.user">
                             <li class="nav-item">
                                 <Link class="nav-link" :href="route('homepage')">Home
                                 </Link>
@@ -32,20 +32,20 @@
 
                     <div class="d-flex">
                         <div class="hstack gap-3">
-                            <div class="me-3 hstack" v-if="authUser">
+                            <div class="me-3 hstack" v-if="authUser.user">
                                 <MusicPlayer class="me-5" v-if="isMusicPlayerEnable"
                                              style="transform: scale(0.8)"></MusicPlayer>
 
                                 <Clock class="me-4"></Clock>
                                 <Link :href="route('dashboard.user')" class="d-flex align-items-center">
-                                    <img :src="authUser.avatar" class="rounded-circle"
+                                    <img :src="authUser.user.avatar" class="rounded-circle"
                                          style="width: 3rem;"
                                          alt="Avatar"/>
-                                    <span class="fs-4 mx-3 text-white">{{ authUser.username }}</span>
+                                    <span class="fs-4 mx-3 text-white">{{ authUser.user.username }}</span>
                                 </Link>
                             </div>
                             <div class="vr text-white"></div>
-                            <div v-if="authUser">
+                            <div v-if="authUser.user">
                                 <Link :href="route('logout')" class="btn btn-sm btn-warning" as="button" method="POST">
                                     <i class="bi bi-power"></i>
                                 </Link>
@@ -75,9 +75,9 @@ import {computed, ref} from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
 
-const props = defineProps(['authUser', 'authUserSettings'])
+const props = defineProps(['authUser'])
 
-const isMusicPlayerEnable = computed(() => props.authUserSettings?.music_player_enabled === 1)
+const isMusicPlayerEnable = computed(() => props.authUser.settings?.music_player_enabled === 1)
 
 const registerOrLogin = ref(false);
 

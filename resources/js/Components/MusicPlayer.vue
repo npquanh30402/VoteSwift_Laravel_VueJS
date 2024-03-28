@@ -13,7 +13,7 @@
 import {computed, ref} from 'vue';
 import {usePage} from "@inertiajs/vue3";
 
-const music = computed(() => usePage().props.music);
+const music = computed(() => usePage().props.authUser.music);
 
 const audioPlayerRef = ref(null);
 const title = ref("");

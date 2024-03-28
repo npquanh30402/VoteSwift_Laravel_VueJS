@@ -139,7 +139,7 @@ const handleReceivedMessage = (e) => {
     // console.log({user: e.user, messageObj: e.messageObj, message: e.plainMessage});
 };
 
-const chatAuthChannel = 'chat.' + authUser.value.id;
+const chatAuthChannel = 'chat.' + authUser.value.user.id;
 const chatRecipientChannel = 'chat.' + recipientId;
 
 Echo.private(chatAuthChannel)

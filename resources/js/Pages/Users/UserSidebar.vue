@@ -4,7 +4,7 @@
         <button class="list-group-item list-group-item-action"
                 @click="switchTab('RoomList')">Room List
         </button>
-        <Link :href="route('room.create')" class="list-group-item list-group-item-action" :class="createRoomTab">Create
+        <Link :href="route('room.create')" class="list-group-item list-group-item-action">Create
             Room
         </Link>
     </div>
@@ -25,17 +25,8 @@
 <script setup>
 import {Link} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {computed} from "vue";
 
 const props = defineProps(['selectedTab'])
-
-const settingsTab = computed(() => {
-    return props.selectedTab === 'settings' ? 'active' : '';
-});
-
-const createRoomTab = computed(() => {
-    return props.selectedTab === 'createRoom' ? 'active' : '';
-});
 
 const emit = defineEmits(['switch-tab'])
 

@@ -36,7 +36,7 @@
                     <div class="card-body">
                         <div
                             class="list-group vstack justify-content-between align-items-center overflow-auto">
-                            <div v-for="file in music" :key="file.path"
+                            <div v-for="file in authUser.music" :key="file.path"
                                  class="list-group-item list-group-item-action">
                                 <div class="overflow-hidden">
                                     <span class="text-truncate">{{ file.title }}</span>
@@ -64,11 +64,8 @@ import {route} from "ziggy-js";
 import {computed, ref} from "vue";
 
 const authUser = computed(() => usePage().props.authUser);
-const authUserSettings = computed(() => usePage().props.authUserSettings)
 
-const music = computed(() => usePage().props.music);
-
-const isMusicPlayerEnable = ref(usePage().props.authUserSettings?.music_player_enabled === 1);
+const isMusicPlayerEnable = ref(authUser.value.settings?.music_player_enabled === 1);
 
 const toggleMusicPlayer = () => {
     isMusicPlayerEnable.value = !isMusicPlayerEnable.value
