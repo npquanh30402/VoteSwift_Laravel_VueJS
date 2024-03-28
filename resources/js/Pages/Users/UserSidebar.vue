@@ -10,7 +10,7 @@
     </div>
     <div class="list-group shadow-sm small mb-3">
         <div class="list-group-item text-bg-dark">User Actions</div>
-        <button class="list-group-item list-group-item-action" @click="switchTab('FriendList')">Friend
+        <button class="list-group-item list-group-item-action" @click="switchTab('Friend')">Friend
             List
         </button>
         <button class="list-group-item list-group-item-action" @click="switchTab('MusicPlayerSettings')">Music Player
@@ -25,8 +25,6 @@
 <script setup>
 import {Link} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-
-const props = defineProps(['selectedTab'])
 
 const emit = defineEmits(['switch-tab'])
 

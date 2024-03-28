@@ -1,5 +1,7 @@
 <template>
-    <h1 class="display-6 text-center fw-bold">User Dashboard</h1>
+    <h1 class="display-6 text-center fw-bold">User Dashboard
+        <i class="bi bi-arrow-clockwise icon" @click="router.reload()" style="cursor: pointer"></i>
+    </h1>
     <div class="my-3">
         <div class="row justify-content-center">
             <div class="col-md-2">
@@ -20,7 +22,8 @@ import {ref} from "vue";
 import RoomList from "@/Pages/Voting/VotingRoom/RoomList.vue";
 import UserSettings from "@/Pages/Users/UserSettings.vue";
 import MusicPlayerSettings from "@/Pages/Users/MusicPlayerSettings.vue";
-import FriendList from "@/Pages/Users/FriendList.vue";
+import Friend from "@/Pages/Users/Friend/Index.vue";
+import {router} from "@inertiajs/vue3";
 
 const props = defineProps(['rooms', 'authUserFriends']);
 
@@ -28,7 +31,7 @@ const currentTab = ref('RoomList')
 
 const tabs = {
     RoomList,
-    FriendList,
+    Friend,
     UserSettings,
     MusicPlayerSettings,
 }
