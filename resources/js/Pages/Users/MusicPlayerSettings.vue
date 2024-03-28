@@ -19,7 +19,7 @@
                     <label class="form-label" for="uploadMusic">Upload Music:</label>
                     <input type="file" class="form-control" id="uploadMusic" name="uploadMusic"
                            @change="handleFileChange">
-                    <p class="m-0 small text-danger"></p>
+                    <p class="m-0 small text-danger" v-if="form.errors.music">{{ form.errors.music }}</p>
                     <div class="ms-auto mt-3">
                         <button type="submit" class="btn btn-primary">Upload</button>
                     </div>
@@ -33,9 +33,9 @@
                         <span>Music playlist:</span>
                         <i class="bi bi-arrow-clockwise icon" @click="refresh"></i>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body overflow-auto">
                         <div
-                            class="list-group vstack justify-content-between align-items-center overflow-auto">
+                            class="list-group vstack justify-content-between align-items-center">
                             <div v-for="file in authUser.music" :key="file.path"
                                  class="list-group-item list-group-item-action">
                                 <div class="overflow-hidden">
@@ -45,8 +45,11 @@
                                     class="float-end hstack gap-3 justify-content-center align-items-center">
                                     <div
                                         class="hstack gap-3 justify-content-center align-items-center">
-                                        <a :href="file.url"><i
-                                            class="bi bi-download icon text-dark"></i></a>
+                                        <a :href="file.url" class="btn btn-secondary"><i
+                                            class="bi bi-download"></i></a>
+                                        <Link :href="route('user.music.settings.delete', file.id)" method="DELETE"
+                                              as="button" class="btn btn-danger"><i
+                                            class="bi bi-trash"></i></Link>
                                     </div>
                                 </div>
                             </div>
@@ -62,6 +65,7 @@
 import {router, useForm, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {computed, ref} from "vue";
+import {Link} from "@inertiajs/vue3";
 
 const authUser = computed(() => usePage().props.authUser);
 
@@ -87,7 +91,7 @@ function refresh() {
 }
 
 function uploadMusic() {
-    router.post(route('user.music.settings.upload'), {
+    form.post(route('user.music.settings.upload'), {
         ...form,
         music: form.music,
     })

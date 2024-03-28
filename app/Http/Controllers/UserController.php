@@ -46,30 +46,6 @@ class UserController extends Controller
         $authUser->settings->save();
     }
 
-    public function uploadMusic(Request $request)
-    {
-        $authUser = Auth::user();
-
-        if ($request->hasFile('music')) {
-            $music = $request->music;
-            $fileName = $authUser->id . '-' . uniqid('', true) . '.' . $music->getClientOriginalExtension();
-
-            $fileName = HelperService::sanitizeFileName($fileName);
-
-            $oriFileName = $music->getClientOriginalName();
-
-            $request->music->storeAs('uploads/music', $fileName, 'public');
-
-            $authUser->music()->create([
-                'user_id' => $authUser->id,
-                'title' => $oriFileName,
-                'url' => $fileName,
-            ]);
-        }
-
-        return back()->with('success', 'Upload music successfully!');
-    }
-
     public function profile(User $user)
     {
         $public_rooms = $user->getPublicRooms();

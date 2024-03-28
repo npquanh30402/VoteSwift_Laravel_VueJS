@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\MusicController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationSeenController;
 use App\Http\Controllers\UserController;
@@ -29,7 +30,8 @@ Route::group(['prefix' => '/user'], function () {
 
         Route::get('/music-settings', [UserController::class, 'showMusicPlayerSettings'])->name('user.music.settings');
         Route::post('/music-settings', [UserController::class, 'updateMusicPlayerSettings'])->name('user.music.settings.update');
-        Route::post('/music-settings/upload', [UserController::class, 'uploadMusic'])->name('user.music.settings.upload');
+        Route::post('/music-settings/upload', [MusicController::class, 'uploadMusic'])->name('user.music.settings.upload');
+        Route::delete('/music-settings/{music}/delete', [MusicController::class, 'deleteMusic'])->name('user.music.settings.delete');
 
         Route::get('/profile/{user}', [UserController::class, 'profile'])->name('user.profile');
 
