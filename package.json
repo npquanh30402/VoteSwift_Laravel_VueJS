@@ -6,13 +6,13 @@
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^5.0.4",
-        "axios": "^1.1.2",
-        "laravel-echo": "^1.16.0",
-        "laravel-vite-plugin": "^1.0",
-        "pusher-js": "^8.4.0-rc2",
         "vite": "^5.0"
     },
     "dependencies": {
+        "pusher-js": "^8.4.0-rc2",
+        "laravel-vite-plugin": "^1.0",
+        "laravel-echo": "^1.16.0",
+        "axios": "^1.1.2",
         "@inertiajs/vue3": "^1.0.15",
         "@liripeng/vue-audio-player": "^1.5.3",
         "@uppy/core": "^3.9.3",

@@ -43,9 +43,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'authUser' => [
                 'user' => $request->user(),
-                'notificationCount' => $request->user()->unreadNotifications()->count() ?? 0,
-                'settings' => $request->user()->settings ?? null,
-                'music' => $request->user()->music ?? null
+                'notificationCount' => $request->user()?->unreadNotifications()->count() ?? null,
+                'settings' => $request->user()?->settings ?? null,
+                'music' => $request->user()?->music ?? null
             ],
             'urlPrev' => function () {
                 if (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current()) {

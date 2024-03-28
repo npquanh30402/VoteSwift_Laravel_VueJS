@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\NotificationSeenController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +16,10 @@ Route::group(['prefix' => '/user'], function () {
     });
 
     Route::group(['middleware' => 'auth'], function () {
+
+        Route::resource('notification', NotificationController::class)->only(['index']);
+        Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('notification.read');
+
         Route::post('/logout', [UserController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard.user');
         Route::get('/settings', [UserController::class, 'showSettings'])->name('user.settings');

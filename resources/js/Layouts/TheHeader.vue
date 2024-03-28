@@ -32,11 +32,20 @@
 
                     <div class="d-flex">
                         <div class="hstack gap-3">
-                            <div class="me-3 hstack" v-if="authUser.user">
+                            <div class="me-3 hstack align-items-center" v-if="authUser.user">
                                 <MusicPlayer class="me-5" v-if="isMusicPlayerEnable"
                                              style="transform: scale(0.8)"></MusicPlayer>
 
                                 <Clock class="me-4"></Clock>
+
+                                <Link :href="route('notification.index')" class="mx-3 position-relative">
+                                    <i class="bi bi-bell text-white fs-4"></i>
+                                    <span v-if="notificationCount"
+                                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{
+                                            notificationCount
+                                        }}</span>
+                                </Link>
+
                                 <Link :href="route('dashboard.user')" class="d-flex align-items-center">
                                     <img :src="authUser.user.avatar" class="rounded-circle"
                                          style="width: 3rem;"
@@ -69,13 +78,15 @@
 </template>
 
 <script setup>
-import {Link} from "@inertiajs/vue3";
+import {Link, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {computed, ref} from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
 
 const props = defineProps(['authUser'])
+
+const notificationCount = computed(() => Math.min(props.authUser.notificationCount, 9))
 
 const isMusicPlayerEnable = computed(() => props.authUser.settings?.music_player_enabled === 1)
 
