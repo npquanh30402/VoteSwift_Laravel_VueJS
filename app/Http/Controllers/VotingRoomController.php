@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VotingRoomRequest;
+use App\Models\User;
 use App\Models\Vote;
 use App\Models\VotingRoom;
 use App\Notifications\RoomCreation;
@@ -141,6 +142,15 @@ class VotingRoomController extends Controller
         });
 
         $room_attachments = $room->attachments;
+
+//        $user_list = User::all()->map(function ($user) {
+//            return [
+//                'id' => $user->id,
+//                'username' => $user->username,
+//                'email' => $user->email,
+//                'avatar' => $user->avatar
+//            ];
+//        });
 
         return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'));
     }

@@ -25,6 +25,18 @@ class UserController extends Controller
 
     protected $userService;
 
+    public function search(Request $request)
+    {
+        $query = $request->input('query');
+
+        $users = User::where('id', $query)
+            ->orWhere('username', 'like', "%$query%")
+            ->orWhere('email', 'like', "%$query%")
+            ->get();
+
+        return response()->json($users);
+    }
+
     public function showMusicPlayerSettings()
     {
         $music = Auth::user()->music;

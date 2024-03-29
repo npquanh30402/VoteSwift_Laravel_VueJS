@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreign('voting_room_id')->references('id')->on('voting_rooms')->cascadeOnDelete();
 
             // Extra settings
+            $table->boolean('invitation_only')->default(false);
             $table->boolean('allow_multiple_votes')->default(false);
             $table->boolean('public_visibility')->default(false);
             $table->string('password')->nullable();

@@ -40,6 +40,11 @@ class VotingRoom extends Model
         return $this->hasMany(VotingRoomFiles::class, 'voting_room_id', 'id');
     }
 
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class, 'voting_room_id', 'id');
+    }
+
     public static function getPublicRooms()
     {
         return DB::table('voting_rooms')

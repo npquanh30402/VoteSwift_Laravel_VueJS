@@ -19,7 +19,7 @@
         </button>
 
         <button class="list-group-item list-group-item-action"
-                @click="switchTab('')">Voters
+                @click="switchTab('VoterPage')">Voters
         </button>
 
         <button class="list-group-item list-group-item-action"

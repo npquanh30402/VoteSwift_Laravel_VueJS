@@ -1,15 +1,19 @@
 <?php
 
 use App\Http\Controllers\CandidateController;
+use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\VoteController;
 use App\Http\Controllers\VotingRoomController;
+use App\Http\Controllers\VotingRoomSettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
     Route::get('/room/{room}/dashboard', [VotingRoomController::class, 'dashboard'])->name('room.dashboard');
 
+    Route::post('/room/{room}/invitations', [InvitationController::class, 'store'])->name('invitation.store');
+    Route::delete('/room/invitations', [InvitationController::class, 'delete'])->name('invitation.delete');
 
     // Room related-routes
     Route::get('/room/{room}', [VotingRoomController::class, 'main'])->name('room.main')->can('view', 'room');
@@ -24,6 +28,8 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
     Route::get('/room/{room}/attachment', [VotingRoomController::class, 'showAttachment'])->name('room.attachment');
 
     Route::get('/room/{room}/description', [VotingRoomController::class, 'showDescription'])->name('room.description');
+
+    Route::put('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
 
 
     // Questions related-routes

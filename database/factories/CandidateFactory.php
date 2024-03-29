@@ -24,7 +24,6 @@ class CandidateFactory extends Factory
         return [
             'candidate_title' => Crypt::encryptString(Str::limit(fake()->sentence, 5)),
             'candidate_description' => Crypt::encryptString(fake()->paragraph),
-            'votes' => 0,
             'created_at' => fake()->dateTimeBetween('-1 week', '+1 week'),
         ];
     }

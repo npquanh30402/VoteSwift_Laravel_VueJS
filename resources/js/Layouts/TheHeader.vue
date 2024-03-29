@@ -36,7 +36,14 @@
                                 <MusicPlayer class="me-5" v-if="isMusicPlayerEnable"
                                              style="transform: scale(0.8)"></MusicPlayer>
 
-                                <Clock class="me-4"></Clock>
+                                <div class="d-flex flex-column mt-3">
+                                    <Clock class="me-4"></Clock>
+                                    <p class="text-white">
+                                        {{
+                                            Intl.DateTimeFormat().resolvedOptions().timeZone
+                                        }} ({{ format(new Date(), 'OOOO') }})
+                                    </p>
+                                </div>
 
                                 <Link :href="route('notification.index')" class="mx-3 position-relative">
                                     <i class="bi bi-bell text-white fs-4"></i>
@@ -83,6 +90,7 @@ import {route} from "ziggy-js";
 import {computed, ref} from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
+import {format} from "date-fns";
 
 const props = defineProps(['authUser'])
 
