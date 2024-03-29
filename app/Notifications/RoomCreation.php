@@ -4,10 +4,11 @@ namespace App\Notifications;
 
 use App\Models\VotingRoom;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class RoomCreation extends Notification
+class RoomCreation extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -30,7 +31,7 @@ class RoomCreation extends Notification
             ->action('Visit your room', route('room.dashboard', $this->room->id))
             ->line('Thank you for using our application!');
     }
-    
+
     public function toArray(object $notifiable): array
     {
         return [
