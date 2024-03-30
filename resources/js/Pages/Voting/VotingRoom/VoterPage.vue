@@ -117,7 +117,10 @@ const searchUsers = async () => {
                     query: search_query.value
                 }
             });
-            users.value = response.data;
+
+            users.value = response.data.filter(user => {
+                return !userInvitationList.value.some(invitedUser => invitedUser.id === user.id)
+            });
         } catch (error) {
             console.error(error);
         }
@@ -136,10 +139,15 @@ axios.get(route('invitation.get', props.room.id))
     });
 
 const addToInvite = (userToAdd) => {
-    const userExistsInInvitationList = userInvitationList.value.some(user => user.id === userToAdd.id);
+    const userExistsInInvitationListIndex = userInvitationList.value.findIndex(user => user.id === userToAdd.id);
 
-    if (!userExistsInInvitationList) {
+    if (userExistsInInvitationListIndex === -1) {
         userInvitationList.value.push(userToAdd);
+
+        const userIndexInUsers = users.value.findIndex(user => user.id === userToAdd.id);
+        if (userIndexInUsers !== -1) {
+            users.value.splice(userIndexInUsers, 1);
+        }
     }
 };
 
