@@ -17,7 +17,6 @@ import FlashMessages from "@/Components/FlashMessages.vue";
 import {computed} from "vue";
 
 const authUser = computed(() => usePage().props.authUser);
-console.log(authUser);
 </script>
 
 <style>

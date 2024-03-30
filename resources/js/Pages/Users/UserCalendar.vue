@@ -32,6 +32,7 @@ import {CalendarView, CalendarViewHeader} from "vue-simple-calendar";
 import 'vue-simple-calendar/dist/style.css';
 import 'vue-simple-calendar/dist/css/default.css';
 import 'vue-simple-calendar/dist/css/holidays-us.css';
+import {route} from "ziggy-js";
 
 const props = defineProps(['rooms'])
 
@@ -63,7 +64,8 @@ const items = authUserRooms.value.map(item => ({
     startDate: parseDateString(new Date(item.start_time).toLocaleString()),
     endDate: parseDateString(new Date(item.end_time).toLocaleString()),
     title: item.room_name,
-    tooltip: "This spans multiple days",
+    tooltip: item.room_name,
+    url: route('vote.main', item.id)
 }));
 
 

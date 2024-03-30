@@ -28,7 +28,7 @@ class UserSeeder extends Seeder
 
         DB::transaction(function () {
             User::factory(5)->has(
-                VotingRoom::factory(random_int(10, 30))
+                VotingRoom::factory(random_int(5, 8))
                     ->has(VotingRoomSetting::factory(1), 'settings')
                     ->has(
                         Question::factory(random_int(2, 5))->afterCreating(function (Question $question) {

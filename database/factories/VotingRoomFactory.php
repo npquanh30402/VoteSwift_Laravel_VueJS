@@ -23,8 +23,8 @@ class VotingRoomFactory extends Factory
         return [
             'room_name' => Crypt::encryptString(fake()->sentence),
             'room_description' => Crypt::encryptString(fake()->paragraph),
-            'start_time' => fake()->dateTimeBetween('-1 week', '+1 week'),
-            'end_time' => fake()->dateTimeBetween('+1 week', '+2 weeks'),
+            'start_time' => fake()->unique()->dateTimeBetween('-1 week', '+1 week'),
+            'end_time' => fake()->unique()->dateTimeBetween('+1 week', '+2 weeks'),
             'timezone' => fake()->timezone,
         ];
     }
