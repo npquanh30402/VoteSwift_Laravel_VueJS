@@ -14,7 +14,7 @@ class UserRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            'username' => ['required', 'min:3', 'max:20', 'unique:users'],
+            'username' => ['required', 'min:3', 'max:10', 'unique:users'],
             'email' => ['required', 'email', 'unique:users'],
             'password' => ['required', 'min:8', 'confirmed'],
         ];
@@ -29,10 +29,15 @@ class UserRequest extends FormRequest
         if ($this->route()->named('user.settings.update')) {
             $rules = [
                 'avatar' => ['image', 'nullable'],
-                'first_name' => ['max:255'],
-                'last_name' => ['max:255'],
-                'phone' => ['max:20'],
-                'address' => ['max:255'],
+                'first_name' => 'nullable|string|max:255',
+                'last_name' => 'nullable|string|max:255',
+                'birth_date' => 'nullable|date',
+                'gender' => 'nullable|in:male,female,other',
+                'country' => 'nullable|string|max:255',
+                'city' => 'nullable|string|max:255',
+                'zip_code' => 'nullable|string|max:255',
+                'phone' => 'nullable|string|max:255',
+                'address' => 'nullable|string|max:255',
             ];
         }
 

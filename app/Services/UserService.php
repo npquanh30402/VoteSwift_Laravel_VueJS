@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\UserActivity;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +22,12 @@ class UserService
             $user->last_name = $requestData['last_name'];
             $user->phone = $requestData['phone'];
             $user->address = $requestData['address'];
+
+            $user->birth_date = Carbon::parse($requestData['birth_date'])->format('Y-m-d');
+            $user->gender = $requestData['gender'];
+            $user->country = $requestData['country'];
+            $user->city = $requestData['city'];
+            $user->zip_code = $requestData['zip_code'];
 
             if (isset($requestData['avatar'])) {
                 $fileName = $user->id . '-' . uniqid('', true) . '.' . $requestData['avatar']->getClientOriginalExtension();

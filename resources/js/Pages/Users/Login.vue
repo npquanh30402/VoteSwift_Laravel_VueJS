@@ -5,11 +5,13 @@
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" name="username" id="username" v-model="form.username">
+                <p class="m-0 small text-danger" v-if="form.errors.username">{{ form.errors.username }}</p>
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" name="password" id="password"
                        v-model="form.password">
+                <p class="m-0 small text-danger" v-if="form.errors.password">{{ form.errors.password }}</p>
             </div>
             <div class="mb-3 form-check">
                 <input type="checkbox" class="form-check-input" name="remember_me" id="remember_me"
