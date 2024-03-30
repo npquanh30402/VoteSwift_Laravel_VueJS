@@ -29,7 +29,9 @@
                 </div>
                 <div class="row">
                     <div class="form-group col-md-6 d-flex flex-column">
-                        <label class="form-label" for="birth_date">Birth Date:</label>
+                        <label class="form-label" for="birth_date">Birth Date <strong>(Age: {{
+                                userAge
+                            }})</strong>:</label>
                         <VueDatePicker placeholder="Nothing..." v-model="form.birth_date" :enable-time-picker="false"/>
                         <p class="m-0 small text-danger" v-if="errors.birth_date">{{ errors.birth_date }}</p>
                     </div>
@@ -106,6 +108,7 @@ import {computed, ref} from "vue";
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import axios from 'axios';
+import {differenceInYears} from "date-fns";
 
 const authUser = computed(() => usePage().props.authUser);
 
@@ -118,6 +121,8 @@ axios.get('https://restcountries.com/v3.1/all')
                 countries.value.push(country.name.common);
             });
     });
+
+const userAge = computed(() => Math.abs(differenceInYears(new Date(form.birth_date), new Date())))
 
 const form = useForm({
     username: authUser.value.user.username,
