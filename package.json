@@ -11,6 +11,7 @@
     "dependencies": {
         "@inertiajs/vue3": "^1.0.15",
         "@liripeng/vue-audio-player": "^1.5.3",
+        "@popperjs/core": "^2.11.8",
         "@uppy/core": "^3.9.3",
         "@uppy/dashboard": "^3.7.5",
         "@uppy/image-editor": "^2.4.4",
@@ -31,10 +32,12 @@
         "luxon": "^3.4.4",
         "md-editor-v3": "^4.12.1",
         "pusher-js": "^8.4.0-rc2",
+        "v-calendar": "^3.1.2",
         "vue": "^3.4.21",
         "vue-awesome-paginate": "^1.1.46",
         "vue-chartjs": "^5.3.0",
         "vue-easy-lightbox": "^1.19.0",
+        "vue-simple-calendar": "^7.1.0",
         "ziggy-js": "^2.0.5"
     },
     "type": "module"

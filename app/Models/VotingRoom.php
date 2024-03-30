@@ -56,5 +56,7 @@ class VotingRoom extends Model
     {
         $this->room_name = Crypt::decryptString($this->room_name);
         $this->room_description = Crypt::decryptString($this->room_description);
+
+        return $this;
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -36,6 +37,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $authUserRooms = $request->user()?->rooms->each(function ($room) {
+            $room->decryptVotingRoom();
+        });
+
         return array_merge(parent::share($request), [
             'flash' => [
                 'success' => $request->session()->get('success'),
@@ -45,7 +50,8 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user()?->decryptUser(),
                 'notificationCount' => $request->user()?->unreadNotifications()->count() ?? null,
                 'settings' => $request->user()?->settings ?? null,
-                'music' => $request->user()?->music ?? null
+                'music' => $request->user()?->music ?? null,
+                'rooms' => $authUserRooms ?? null
             ],
             'urlPrev' => function () {
                 if (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current()) {

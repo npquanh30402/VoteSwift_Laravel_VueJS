@@ -63,11 +63,11 @@ class AuthController extends Controller
 
     public function getRegistrationForm()
     {
-        return Inertia::render('Users/Register');
+        return Inertia::render('Users/Auth/Register');
     }
 
     public function getLoginForm()
     {
-        return Inertia::render('Users/Login');
+        return Inertia::render('Users/Auth/Login');
     }
 }

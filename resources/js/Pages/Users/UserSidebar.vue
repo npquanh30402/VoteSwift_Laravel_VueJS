@@ -12,6 +12,12 @@
     <div class="list-group shadow-sm small mb-3">
         <div class="list-group-item text-bg-dark">User Actions</div>
         <button
+            :class="{ 'list-group-item': true, 'list-group-item-action': true, 'active': currentTab === 'UserCalendar' }"
+            @click="switchTab('UserCalendar')"
+        >
+            Calendar
+        </button>
+        <button
             :class="{ 'list-group-item': true, 'list-group-item-action': true, 'active': currentTab === 'Friend' }"
             @click="switchTab('Friend')"
         >

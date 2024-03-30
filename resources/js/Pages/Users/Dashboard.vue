@@ -24,6 +24,7 @@ import UserSettings from "@/Pages/Users/UserSettings.vue";
 import MusicPlayerSettings from "@/Pages/Users/MusicPlayerSettings.vue";
 import Friend from "@/Pages/Users/Friend/Index.vue";
 import {router} from "@inertiajs/vue3";
+import UserCalendar from "@/Pages/Users/UserCalendar.vue";
 
 const props = defineProps(['rooms', 'authUserFriends']);
 
@@ -34,6 +35,7 @@ const tabs = {
     Friend,
     UserSettings,
     MusicPlayerSettings,
+    UserCalendar,
 }
 
 const handleSwitchTab = (tabName) => {
