@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Services\HelperService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -29,10 +30,15 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail,
             'email_verified_at' => now(),
             'password' => Hash::make('123'),
-            'first_name' => fake()->firstName,
-            'last_name' => fake()->lastName,
-            'phone' => fake()->phoneNumber,
-            'address' => fake()->address,
+            'first_name' => HelperService::encryptAndStripTags(fake()->firstName),
+            'last_name' => HelperService::encryptAndStripTags(fake()->lastName),
+            'phone' => HelperService::encryptAndStripTags(fake()->phoneNumber),
+            'address' => HelperService::encryptAndStripTags(fake()->address),
+            'birth_date' => fake()->date(),
+            'gender' => fake()->randomElement(['male', 'female']),
+            'country' => fake()->countryCode(),
+            'city' => fake()->city,
+            'zip_code' => fake()->postcode(),
             'remember_token' => Str::random(10),
         ];
     }

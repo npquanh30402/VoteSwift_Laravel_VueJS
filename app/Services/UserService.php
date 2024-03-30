@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Events\UserActivity;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -18,10 +17,10 @@ class UserService
         try {
             $oldAvatar = $user->avatar;
 
-            $user->first_name = $requestData['first_name'];
-            $user->last_name = $requestData['last_name'];
-            $user->phone = $requestData['phone'];
-            $user->address = $requestData['address'];
+            $user->first_name = HelperService::encryptAndStripTags($requestData['first_name']);
+            $user->last_name = HelperService::encryptAndStripTags($requestData['last_name']);
+            $user->phone = HelperService::encryptAndStripTags(($requestData['phone']));
+            $user->address = HelperService::encryptAndStripTags($requestData['address']);
 
             $user->birth_date = Carbon::parse($requestData['birth_date'])->format('Y-m-d');
             $user->gender = $requestData['gender'];

@@ -2,18 +2,6 @@
     <section style="background-color: #eee;">
         <div class="container py-5">
             <div class="row">
-                <div class="col">
-                    <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
-                        <ol class="breadcrumb mb-0">
-                            <li class="breadcrumb-item"><a>Home</a></li>
-                            <li class="breadcrumb-item"><a href="#">User</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">User Profile</li>
-                        </ol>
-                    </nav>
-                </div>
-            </div>
-
-            <div class="row">
                 <div class="col-lg-4">
                     <div class="card mb-4">
                         <div class="card-body text-center">
@@ -53,28 +41,29 @@
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Email</p>
+                                    <p class="mb-0">Age</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ user.email }}</p>
+                                    <p class="text-muted mb-0">
+                                        {{ Math.abs(differenceInYears(new Date(user.birth_date), new Date())) }}</p>
                                 </div>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Phone</p>
+                                    <p class="mb-0">Gender</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ user.phone }}</p>
+                                    <p class="text-muted mb-0">{{ user.gender }}</p>
                                 </div>
                             </div>
                             <hr>
                             <div class="row">
                                 <div class="col-sm-3">
-                                    <p class="mb-0">Address</p>
+                                    <p class="mb-0">Country</p>
                                 </div>
                                 <div class="col-sm-9">
-                                    <p class="text-muted mb-0">{{ user.address }}</p>
+                                    <p class="text-muted mb-0">{{ user.country }}</p>
                                 </div>
                             </div>
                         </div>
@@ -86,21 +75,7 @@
                                     <p class="mb-4"><span class="text-primary font-italic me-1">voting</span> Room
                                         (Public)
                                     </p>
-                                    <div v-for="room in public_rooms" :key="room.id"
-                                         class="card shadow-sm border-0 mb-3 overflow-auto"
-                                         style="background-color: lightblue">
-                                        <div
-                                            class="card-header text-center d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <span class="btn btn-sm btn-primary">{{ room.id }}</span>
-                                                <span class="btn btn-sm btn-success">{{ room.room_name }}</span>
-                                            </div>
-                                            <div class="d-flex gap-3">
-                                                <a href="{{route('vote.main', room.id)}}"
-                                                   class="btn btn-sm btn-warning">Join</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <!--                                    -->
                                 </div>
                             </div>
                         </div>
@@ -124,6 +99,7 @@
 import {Link} from "@inertiajs/vue3";
 import {usePage} from "@inertiajs/vue3";
 import {computed} from "vue";
+import {differenceInYears} from "date-fns";
 
 const props = defineProps(['user', 'public_rooms'])
 

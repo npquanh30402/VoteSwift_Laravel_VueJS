@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -35,6 +37,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         $this->notify(new QueuedVerifyEmail());
+    }
+
+    public function decryptUser()
+    {
+        $this->first_name = Crypt::decryptString($this->first_name);
+        $this->last_name = Crypt::decryptString($this->last_name);
+        $this->phone = Crypt::decryptString($this->phone);
+        $this->address = Crypt::decryptString($this->address);
+
+        return $this;
     }
 
     public function music()

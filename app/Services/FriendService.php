@@ -11,10 +11,19 @@ class FriendService
     public function getFriends(User $user)
     {
         try {
-            $friends = $user->acceptedFriendsFrom->merge($user->acceptedFriendsTo);
+            $friends = $user->acceptedFriendsFrom->map(function ($user) {
+                return $user->decryptUser();
+            })->merge($user->acceptedFriendsTo->map(function ($user) {
+                return $user->decryptUser();
+            }));
 
-            $friendRequests = $user->pendingFriendsFrom()->wherePivot('accepted', false)->get();
-            $requestSent = $user->pendingFriendsTo()->get();
+            $friendRequests = $user->pendingFriendsFrom()->wherePivot('accepted', false)->get()->map(function ($user) {
+                return $user->decryptUser();
+            });
+
+            $requestSent = $user->pendingFriendsTo()->get()->map(function ($user) {
+                return $user->decryptUser();
+            });
 
             return compact('friends', 'friendRequests', 'requestSent');
         } catch (Exception $e) {

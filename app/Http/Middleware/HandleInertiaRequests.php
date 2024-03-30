@@ -42,7 +42,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'authUser' => [
-                'user' => $request->user(),
+                'user' => $request->user()?->decryptUser(),
                 'notificationCount' => $request->user()?->unreadNotifications()->count() ?? null,
                 'settings' => $request->user()?->settings ?? null,
                 'music' => $request->user()?->music ?? null

@@ -66,8 +66,10 @@ class UserController extends Controller
             $room->room_name = Crypt::decryptString($room->room_name);
         });
 
+//        dd($user->decryptUser());
+
         return Inertia::render('Users/UserProfile', [
-            'user' => $user,
+            'user' => $user->decryptUser(),
             'public_rooms' => $public_rooms
         ]);
     }
