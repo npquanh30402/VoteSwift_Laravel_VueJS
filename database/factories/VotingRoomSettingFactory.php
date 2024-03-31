@@ -17,12 +17,10 @@ class VotingRoomSettingFactory extends Factory
     public function definition(): array
     {
         return [
-            'allow_multiple_votes' => fake()->boolean,
             'public_visibility' => fake()->boolean,
             'password' => null,
             'results_visibility' => fake()->randomElement(['after_voting', 'restricted']),
             'allow_voting' => fake()->boolean,
-            'allow_skipping' => fake()->boolean,
             'allow_anonymous_voting' => fake()->boolean,
         ];
     }

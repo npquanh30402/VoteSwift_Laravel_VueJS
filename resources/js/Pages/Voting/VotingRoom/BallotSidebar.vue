@@ -44,7 +44,7 @@
         </button>
 
         <button class="list-group-item list-group-item-action"
-                @click="switchTab('')">Published
+                @click="switchTab('RoomPublish')">Published
         </button>
     </div>
 </template>

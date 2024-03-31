@@ -26,6 +26,27 @@ class VotingRoomController extends Controller
         $this->votingRoomService = $votingRoomService;
     }
 
+    public function publishRoom(VotingRoom $room)
+    {
+        if ($room->is_published) {
+            return back()->with('error', 'Voting room is already published!');
+        }
+
+        if ($room->questions()->count() < 1) {
+            return back()->with('error', 'Voting room must have at least 1 question!');
+        }
+
+        if ($room->start_time == null || $room->end_time == null) {
+            return back()->with('error', 'Voting room must have start and end date!');
+        }
+
+        $room->is_published = true;
+
+        $room->save();
+
+        return back()->with('success', 'Voting room published successfully!');
+    }
+
 //    public function showDescription(VotingRoom $room)
 //    {
 //        $room->room_name = Crypt::decryptString($room->room_name);

@@ -23,10 +23,16 @@
                 </div>
             </div>
             <div class="col-md-4">
+                <label class="form-label">Options:</label>
                 <div class="form-check mb-4">
-                    <input type="checkbox" class="form-check-input" id="allow_multiple_votes" name="question_image"
+                    <input type="checkbox" class="form-check-input" id="allow_multiple_votes"
                            v-model="form.allow_multiple_votes">
                     <label class="form-check-label" for="allow_multiple_votes">Allow Multiple Votes</label>
+                    <p class="m-0 small text-danger"></p>
+                </div>
+                <div class="form-check mb-4">
+                    <input type="checkbox" class="form-check-input" id="allow_skipping" v-model="form.allow_skipping">
+                    <label class="form-check-label" for="allow_skipping">Allow Skipping</label>
                     <p class="m-0 small text-danger"></p>
                 </div>
                 <div class="form-group mb-4">
@@ -89,6 +95,7 @@ const data = reactive({
     question_description: props.question?.question_description,
     question_image: props.question?.question_image,
     allow_multiple_votes: props.question?.allow_multiple_votes === 1,
+    allow_skipping: props.question?.allow_skipping === 1
 });
 
 const form = useForm({
@@ -96,6 +103,7 @@ const form = useForm({
     question_description: data.question_description,
     question_image: data.question_image,
     allow_multiple_votes: data.allow_multiple_votes,
+    allow_skipping: data.allow_skipping
 });
 
 watch(() => props.question, (newQuestion) => {
@@ -103,12 +111,14 @@ watch(() => props.question, (newQuestion) => {
     data.question_description = newQuestion?.question_description;
     data.question_image = newQuestion?.question_image;
     data.allow_multiple_votes = newQuestion?.allow_multiple_votes === 1;
+    data.allow_skipping = newQuestion?.allow_skipping === 1;
 
     if (form) {
         form.question_title = data.question_title;
         form.question_description = data.question_description;
         form.question_image = data.question_image;
         form.allow_multiple_votes = data.allow_multiple_votes;
+        form.allow_skipping = data.allow_skipping;
     }
 }, {
     deep: true,

@@ -17,14 +17,12 @@ return new class extends Migration {
 
             // Extra settings
             $table->boolean('invitation_only')->default(false);
-            $table->boolean('allow_multiple_votes')->default(false);
             $table->boolean('public_visibility')->default(false);
             $table->string('password')->nullable();
-            $table->enum('results_visibility', ['immediately', 'after_voting', 'participants_only', 'restricted'])->default('after_voting');
+            $table->enum('results_visibility', ['after_voting', 'participants_only', 'restricted'])->default('restricted');
 
             // General voting room settings
             $table->boolean('allow_voting')->default(true);
-            $table->boolean('allow_skipping')->default(false);
             $table->boolean('allow_anonymous_voting')->default(false);
 
             $table->timestamps();

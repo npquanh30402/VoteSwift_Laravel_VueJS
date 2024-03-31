@@ -31,6 +31,8 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
     Route::put('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
 
+    Route::put('/room/{room}/publish', [VotingRoomController::class, 'publishRoom'])->name('room.publish');
+
 
     // Questions related-routes
     Route::get('/room/{room}/question', [QuestionController::class, 'main'])->name('question.main')->can('view', 'room');

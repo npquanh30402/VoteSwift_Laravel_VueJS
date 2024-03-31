@@ -36,6 +36,7 @@ import UpdateTime from "@/Pages/Voting/VotingRoom/Features/UpdateTime.vue";
 import UpdatePassword from "@/Pages/Voting/VotingRoom/Features/UpdatePassword.vue";
 import {router} from "@inertiajs/vue3";
 import VoterPage from "@/Pages/Voting/VotingRoom/VoterPage.vue";
+import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
 
 const props = defineProps(['room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
 
@@ -50,7 +51,8 @@ const tabs = {
     AttachmentPage,
     VotingResult,
     UpdatePassword,
-    VoterPage
+    VoterPage,
+    RoomPublish
 }
 
 const handleSwitchTab = (tabName) => {

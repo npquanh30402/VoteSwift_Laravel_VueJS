@@ -41,10 +41,18 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function decryptUser()
     {
-        $this->first_name = Crypt::decryptString($this->first_name);
-        $this->last_name = Crypt::decryptString($this->last_name);
-        $this->phone = Crypt::decryptString($this->phone);
-        $this->address = Crypt::decryptString($this->address);
+        if ($this->first_name) {
+            $this->first_name = Crypt::decryptString($this->first_name);
+        }
+        if ($this->last_name) {
+            $this->last_name = Crypt::decryptString($this->last_name);
+        }
+        if ($this->phone) {
+            $this->phone = Crypt::decryptString($this->phone);
+        }
+        if ($this->address) {
+            $this->address = Crypt::decryptString($this->address);
+        }
 
         return $this;
     }

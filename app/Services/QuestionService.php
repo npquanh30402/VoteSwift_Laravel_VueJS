@@ -20,6 +20,7 @@ class QuestionService
 
             $question->question_description = HelperService::encryptAndStripTags($request->question_description);
 
+
             if ($request->hasFile('question_image')) {
                 $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
 
@@ -30,6 +31,8 @@ class QuestionService
             }
 
             $question->allow_multiple_votes = $request->allow_multiple_votes;
+
+            $question->allow_skipping = $request->allow_skipping;
 
             $question->voting_room_id = $room->id;
 
@@ -63,6 +66,8 @@ class QuestionService
 
             $question->allow_multiple_votes = $request->allow_multiple_votes;
 
+            $question->allow_skipping = $request->allow_skipping;
+            
             $question->save();
         } catch (Exception $e) {
             Log::debug('Error updating question: ' . $e->getMessage());

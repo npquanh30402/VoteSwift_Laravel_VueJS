@@ -18,11 +18,13 @@ return new class extends Migration {
             $table->timestamp('end_time')->nullable();
             $table->string('timezone')->default('UTC');
             $table->unsignedBigInteger('user_id')->comment('Room creator');
+            $table->boolean('is_published')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
-            $table->timestamps();
 
             $table->index('start_time');
             $table->index('end_time');
+
+            $table->timestamps();
         });
     }
 
