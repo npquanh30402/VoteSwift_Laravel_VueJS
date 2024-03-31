@@ -85,7 +85,7 @@ class VotingRoomController extends Controller
     {
         try {
             $this->votingRoomService->deleteVotingRoom($room);
-            return back()->with('success', 'Voting room deleted successfully!');
+            return redirect()->route('dashboard.user')->with('success', 'Voting room deleted successfully!');
         } catch (Exception $e) {
             return back()->with('error', 'Error deleting voting room: ' . $e->getMessage());
         }

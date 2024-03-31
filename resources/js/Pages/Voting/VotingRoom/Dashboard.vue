@@ -37,6 +37,7 @@ import UpdatePassword from "@/Pages/Voting/VotingRoom/Features/UpdatePassword.vu
 import {router} from "@inertiajs/vue3";
 import VoterPage from "@/Pages/Voting/VotingRoom/VoterPage.vue";
 import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
+import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
 
 const props = defineProps(['room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
 
@@ -52,7 +53,8 @@ const tabs = {
     VotingResult,
     UpdatePassword,
     VoterPage,
-    RoomPublish
+    RoomPublish,
+    DeleteRoom
 }
 
 const handleSwitchTab = (tabName) => {

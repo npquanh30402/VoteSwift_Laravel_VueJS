@@ -11,7 +11,6 @@
                     <th>End Time</th>
                     <th>Timezone</th>
                     <th>Details</th>
-                    <th>Delete</th>
                 </tr>
                 <!-- Table rows -->
                 <tr v-for="room in paginatedRooms" :key="room.id">
@@ -22,12 +21,8 @@
                     <td>{{ room.timezone }} ({{ getGmtOffset(room.timezone) }})</td>
                     <td>
                         <div class="d-grid">
-                            <Link :href="route('room.dashboard', room.id)" class="btn btn-sm btn-primary">Details</Link>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-grid">
-                            <button @click="showDeleteModal(room.id)" class="btn btn-sm btn-danger">Delete</button>
+                            <Link :href="route('room.dashboard', room.id)" class="btn btn-sm btn-secondary">Details
+                            </Link>
                         </div>
                     </td>
                 </tr>
@@ -43,15 +38,6 @@
                 v-if="rooms.length"
             />
         </div>
-        <teleport to="body">
-            <BaseModal title="Confirm Delete" id="deleteModal">
-                Do you want to delete this room?
-                <template #footer>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                    <button type="button" class="btn btn-danger" @click="deleteRoom">Yes</button>
-                </template>
-            </BaseModal>
-        </teleport>
     </div>
 </template>
 
@@ -85,22 +71,5 @@ const getGmtOffset = (timezone) => {
     const offsetMinutes = Math.abs(Math.round((timezoneOffset % 1) * 60)).toString().padStart(2, "0");
 
     return `GMT${offsetSign}${offsetHours}:${offsetMinutes}`;
-};
-
-let modalRoomId = ref(-1);
-let deleteModal;
-
-onMounted(() => {
-    deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-});
-
-const showDeleteModal = (roomId) => {
-    deleteModal.show();
-    modalRoomId.value = roomId;
-};
-
-const deleteRoom = () => {
-    router.delete(route("room.delete", modalRoomId.value));
-    deleteModal.hide();
 };
 </script>

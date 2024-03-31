@@ -43,8 +43,13 @@
                 @click="switchTab('VotingResult')">Results
         </button>
 
-        <button class="list-group-item list-group-item-action"
+        <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'RoomPublish'}"
                 @click="switchTab('RoomPublish')">Published
+        </button>
+
+        <button class="opacity-50 list-group-item list-group-item-action fw-bold text-bg-danger"
+                :class="{'opacity-100': currentTab === 'DeleteRoom'}"
+                @click="switchTab('DeleteRoom')">DELETE
         </button>
     </div>
 </template>
