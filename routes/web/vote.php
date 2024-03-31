@@ -33,6 +33,9 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
     Route::put('/room/{room}/publish', [VotingRoomController::class, 'publishRoom'])->name('room.publish');
 
+    Route::get('/room/{room}/invitations', [InvitationController::class, 'sendInvitation'])->name('invitations.send');
+    Route::get('/invitations/{token}', [InvitationController::class, 'joinInvitation'])->name('invitations.join');
+
 
     // Questions related-routes
     Route::get('/room/{room}/question', [QuestionController::class, 'main'])->name('question.main')->can('view', 'room');

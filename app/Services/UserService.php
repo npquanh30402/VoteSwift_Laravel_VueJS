@@ -57,8 +57,6 @@ class UserService
             if (Auth::attempt($credentials, $remember)) {
                 $requestData->session()->regenerate();
 
-                $friendIds = $this->getFriendIds($requestData->user());
-
                 return true;
             }
 

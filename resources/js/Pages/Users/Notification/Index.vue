@@ -41,6 +41,18 @@
                     </div>
                 </div>
 
+                <div v-if="notification.type === 'App\\Notifications\\InvitationNotification'"
+                     class="notification-list_content">
+                    <Link :href="route('user.profile', notification.data.sender_id)" class="notification-list_img">
+                        <img :src="notification.data.sender_avatar" alt="user">
+                    </Link>
+                    <div class="notification-list_detail">
+                        <p><b>{{ notification.data.sender_username }}</b> have sent you an invitation link to his voting
+                            room. Please check your email for more details.</p>
+                        <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
+                    </div>
+                </div>
+
                 <div v-if="notification.type === 'App\\Notifications\\FriendRequestAccepted'"
                      class="notification-list_content">
                     <Link :href="route('user.profile', notification.data.recipient_id)" class="notification-list_img">
