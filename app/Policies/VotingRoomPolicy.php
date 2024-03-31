@@ -20,7 +20,7 @@ class VotingRoomPolicy
             $tokenCacheKey = "ballot.tkn.{$token}";
             $userId = Cache::get($tokenCacheKey);
 
-            if ($userId && $room->invitations()->where('invited_user_id', $userId)->exists()) {
+            if ($userId === $user->id && $room->invitations()->where('invited_user_id', $userId)->exists()) {
                 return true;
             }
         } else {

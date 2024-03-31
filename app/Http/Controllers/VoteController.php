@@ -27,6 +27,8 @@ class VoteController extends Controller
     public function __construct(VoteService $voteService)
     {
         $this->voteService = $voteService;
+
+        $this->middleware('voting_room_password')->only(['main']);
     }
 
     public function userHistory()

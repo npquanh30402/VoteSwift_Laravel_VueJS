@@ -44,7 +44,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
     // Vote routes
     Route::get('/room/{room}/vote/password', [VoteController::class, 'passwordForm'])->name('vote.password.form');
     Route::post('/room/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
-    Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('voting_room_password');
+    Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main');
     Route::post('/room/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
     Route::get('/room/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
 

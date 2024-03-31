@@ -43,7 +43,7 @@ class InvitationNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your magic link to login')
+            ->subject('Voting Room Invitation')
             ->line("Hi, {$this->receiver->username}!")
             ->line("User {$this->sender->username} has invited you to join the room {$this->room->id}. You can join the room by the link below:")
             ->action('Join', $this->invitationUrl)
