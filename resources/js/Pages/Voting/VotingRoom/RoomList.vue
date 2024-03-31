@@ -9,16 +9,17 @@
                     <th>Room Name</th>
                     <th>Start Time</th>
                     <th>End Time</th>
-                    <th>Timezone</th>
+                    <th>Status</th>
                     <th>Details</th>
                 </tr>
                 <!-- Table rows -->
                 <tr v-for="room in paginatedRooms" :key="room.id">
                     <td>{{ room.id }}</td>
                     <td>{{ room.room_name }}</td>
-                    <td>{{ room.start_time }}</td>
-                    <td>{{ room.end_time }}</td>
-                    <td>{{ room.timezone }} ({{ getGmtOffset(room.timezone) }})</td>
+                    <td>{{ formattedDate(room?.start_time) }}
+                    </td>
+                    <td>{{ formattedDate(room?.end_time) }}</td>
+                    <td>{{ room.is_published === 1 ? 'Published' : 'Draft' }}</td>
                     <td>
                         <div class="d-grid">
                             <Link :href="route('room.dashboard', room.id)" class="btn btn-sm btn-secondary">Details
@@ -42,13 +43,11 @@
 </template>
 
 <script setup>
-import {Link, router} from "@inertiajs/vue3";
-import {DateTime} from "luxon";
+import {Link} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {computed, onMounted, ref} from "vue";
-import * as bootstrap from 'bootstrap'
-import BaseModal from "@/Components/BaseModal.vue";
+import {computed, ref} from "vue";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
+import useFormattedDate from "@/Composables/useFormattedDate.js";
 
 const props = defineProps(["rooms"]);
 
@@ -56,20 +55,12 @@ const onClickHandler = (page) => {
     currentPage.value = page
 };
 
+const formattedDate = useFormattedDate();
+
 const currentPage = ref(1);
 const paginatedRooms = computed(() => {
     const startIndex = (currentPage.value - 1) * 5;
     const endIndex = startIndex + 5;
     return props.rooms.slice(startIndex, endIndex);
 });
-
-const getGmtOffset = (timezone) => {
-    const now = DateTime.now().setZone(timezone);
-    const timezoneOffset = now.offset / 60;
-    const offsetSign = timezoneOffset >= 0 ? "+" : "-";
-    const offsetHours = Math.abs(Math.floor(timezoneOffset)).toString().padStart(2, "0");
-    const offsetMinutes = Math.abs(Math.round((timezoneOffset % 1) * 60)).toString().padStart(2, "0");
-
-    return `GMT${offsetSign}${offsetHours}:${offsetMinutes}`;
-};
 </script>
