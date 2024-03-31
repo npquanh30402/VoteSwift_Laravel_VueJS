@@ -26,24 +26,11 @@ class InvitationController extends Controller
 
                 Cache::put("ballot.tkn.{$token}", $user->id, 10 * 60);
 
-                $invitationUrl = route('invitations.join', ['token' => $token]);
+                $invitationUrl = route('vote.main', ['token' => $token, 'room' => $room]);
 
                 $user->notify(new InvitationNotification($room, $authUser, $user, $invitationUrl));
             }
         }
-    }
-
-    public static function joinInvitation(string $token)
-    {
-        $tokenCacheKey = "ballot.tkn.{$token}";
-
-        $userId = Cache::get($tokenCacheKey);
-
-        if ($userId === null) {
-            abort(401);
-        }
-
-        return 'success';
     }
 
     public function getInvitations(VotingRoom $room)

@@ -4,9 +4,32 @@ namespace App\Policies;
 
 use App\Models\User;
 use App\Models\VotingRoom;
+use Illuminate\Support\Facades\Cache;
 
 class VotingRoomPolicy
 {
+    public function joinInvitation(User $user, VotingRoom $room, $token)
+    {
+        if ($user->id === $room->user_id) {
+            return true;
+        }
+
+        $settings = $room->settings()->first();
+
+        if ($settings && $settings->invitation_only) {
+            $tokenCacheKey = "ballot.tkn.{$token}";
+            $userId = Cache::get($tokenCacheKey);
+
+            if ($userId && $room->invitations()->where('invited_user_id', $userId)->exists()) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+
+        return false;
+    }
+
     public function viewResults(User $user, VotingRoom $room)
     {
         $session_name = "{$user->id}_voting_room_password_{$room->id}";

@@ -14,6 +14,7 @@ use DateInterval;
 use DatePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -127,6 +128,8 @@ class VoteController extends Controller
 
     public function main(VotingRoom $room, Request $request)
     {
+        $this->authorize('joinInvitation', [$room, $request->query('token')]);
+
         $user = Auth::user();
 
 //        if (!$room->settings->allow_voting) {

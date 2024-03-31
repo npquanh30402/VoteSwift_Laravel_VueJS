@@ -3,12 +3,17 @@
         <div class="card-header text-bg-dark text-center">Voters</div>
         <div class="card-body">
             <div class="d-flex flex-column gap-3">
-                <div class="hstack gap-3 align-items-center">
+                <div class="hstack gap-3 align-items-center justify-content-between">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="SpecificVoterSwitch"
                                @change="toggleInvitation" :checked="onlyInvitation">
                         <label class="form-check-label" for="musicPlayerSwitch">Only Voters I invite Can Join and
                             Vote</label>
+                    </div>
+                    <div class="form-check form-switch" :class="[onlyInvitation ? '' : 'un-interactive']">
+                        <input class="form-check-input" type="checkbox" role="switch" id="waitVoterSwitch">
+                        <label class="form-check-label" for="waitVoterSwitch">Wait Until Voters Joined to Start
+                            Voting</label>
                     </div>
                 </div>
                 <div class="row g-3" :class="[onlyInvitation ? '' : 'un-interactive']">

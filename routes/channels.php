@@ -25,3 +25,7 @@ Broadcast::channel('chat.{user}', function ($user) {
         return ['id' => $user->id, 'name' => $user->username];
     }
 });
+
+Broadcast::channel('voting', function () {
+    return true;
+});

@@ -25,6 +25,8 @@ class Question extends Model
     {
         $this->question_title = Crypt::decryptString($this->question_title);
         $this->question_description = Crypt::decryptString($this->question_description);
+
+        return $this;
     }
 
     protected function questionImage(): Attribute

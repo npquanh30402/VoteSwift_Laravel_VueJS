@@ -40,6 +40,25 @@ onMounted(() => {
 function openSidebar(modal) {
     modal.show();
 }
+
+const onlineUsers = ref([]);
+
+const handleHere = (users) => {
+    onlineUsers.value = users.map(user => user);
+};
+
+const handleJoining = (user) => {
+    onlineUsers.value.push(user);
+};
+
+const handleLeaving = (user) => {
+    onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
+};
+
+Echo.join('voting')
+    .here(handleHere)
+    .joining(handleJoining)
+    .leaving(handleLeaving);
 </script>
 
 <style scoped>

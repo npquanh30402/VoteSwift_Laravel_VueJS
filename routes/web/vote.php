@@ -10,51 +10,44 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
+    // Voting Room routes
     Route::get('/room/{room}/dashboard', [VotingRoomController::class, 'dashboard'])->name('room.dashboard');
 
-    Route::post('/room/{room}/invitations', [InvitationController::class, 'store'])->name('invitation.store');
-    Route::delete('/room/invitations', [InvitationController::class, 'delete'])->name('invitation.delete');
+    Route::prefix('room')->group(function () {
+        Route::get('/create', [VotingRoomController::class, 'create'])->name('room.create');
+        Route::post('/create', [VotingRoomController::class, 'store'])->name('room.store');
+        Route::put('/{room}/update', [VotingRoomController::class, 'update'])->name('room.update');
+        Route::delete('/{room}/delete', [VotingRoomController::class, 'delete'])->name('room.delete');
+        Route::put('/{room}/publish', [VotingRoomController::class, 'publishRoom'])->name('room.publish');
+        Route::get('/public', [VotingRoomController::class, 'showPublicRoom'])->name('public.room');
 
-    // Room related-routes
-    Route::get('/room/{room}', [VotingRoomController::class, 'main'])->name('room.main')->can('view', 'room');
-    Route::get('/rooms', [VotingRoomController::class, 'create'])->name('room.create');
-    Route::post('/rooms', [VotingRoomController::class, 'store'])->name('room.store');
-    Route::get('/room/{room}/update', [VotingRoomController::class, 'showUpdateRoomForm'])->name('room.update.form');
-    Route::put('/room/{room}', [VotingRoomController::class, 'update'])->name('room.update')->can('update', 'room');
-    Route::delete('/room/{room}', [VotingRoomController::class, 'delete'])->name('room.delete')->can('delete', 'room');
+        // Invitation routes
+        Route::get('/{room}/invitations/send', [InvitationController::class, 'sendInvitation'])->name('invitations.send');
+        Route::post('/{room}/invitations', [InvitationController::class, 'store'])->name('invitation.store');
+        Route::delete('/invitations', [InvitationController::class, 'delete'])->name('invitation.delete');
 
-    Route::get('/public-room', [VotingRoomController::class, 'showPublicRoom'])->name('public.room');
+        // Room settings routes
+        Route::put('/{room}/settings/invitations/update', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
+    });
 
-    Route::get('/room/{room}/attachment', [VotingRoomController::class, 'showAttachment'])->name('room.attachment');
+    // Question routes
+    Route::post('/room/{room}/question', [QuestionController::class, 'store'])->name('question.store');
+    Route::delete('/question/{question}', [QuestionController::class, 'delete'])->name('question.delete');
+    Route::put('/question/{question}', [QuestionController::class, 'update'])->name('question.update');
 
-    Route::get('/room/{room}/description', [VotingRoomController::class, 'showDescription'])->name('room.description');
+    // Candidate routes
+    Route::get('/question/{question}/candidate', [CandidateController::class, 'main'])->name('candidate.main');
+    Route::post('/question/{question}/candidate', [CandidateController::class, 'store'])->name('candidate.store');
+    Route::delete('/candidate/{candidate}', [CandidateController::class, 'delete'])->name('candidate.delete');
+    Route::put('/candidate/{candidate}', [CandidateController::class, 'update'])->name('candidate.update');
 
-    Route::put('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
-
-    Route::put('/room/{room}/publish', [VotingRoomController::class, 'publishRoom'])->name('room.publish');
-
-    Route::get('/room/{room}/invitations', [InvitationController::class, 'sendInvitation'])->name('invitations.send');
-    Route::get('/invitations/{token}', [InvitationController::class, 'joinInvitation'])->name('invitations.join');
-
-
-    // Questions related-routes
-    Route::get('/room/{room}/question', [QuestionController::class, 'main'])->name('question.main')->can('view', 'room');
-    Route::post('/room/{room}/question', [QuestionController::class, 'store'])->name('question.store')->can('view', 'room');
-    Route::delete('/question/{question}', [QuestionController::class, 'delete'])->name('question.delete')->can('delete', 'question');
-    Route::put('/question/{question}', [QuestionController::class, 'update'])->name('question.update')->can('update', 'question');
-
-    // Candidate related-routes
-    Route::get('/question/{question}/candidate', [CandidateController::class, 'main'])->name('candidate.main')->can('view', 'question');
-    Route::post('/question/{question}/candidate', [CandidateController::class, 'store'])->name('candidate.store')->can('view', 'question');
-    Route::delete('/candidate/{candidate}', [CandidateController::class, 'delete'])->name('candidate.delete')->can('delete', 'candidate');
-    Route::put('/candidate/{candidate}', [CandidateController::class, 'update'])->name('candidate.update')->can('update', 'candidate');
-
-    //Votes related-routes
+    // Vote routes
     Route::get('/room/{room}/vote/password', [VoteController::class, 'passwordForm'])->name('vote.password.form');
     Route::post('/room/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
     Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('voting_room_password');
     Route::post('/room/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
     Route::get('/room/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
 
+    // User history route
     Route::get('/history', [VoteController::class, 'userHistory'])->name('user.history');
 });
