@@ -45,6 +45,21 @@ class VotingRoom extends Model
         return $this->hasMany(Invitation::class, 'voting_room_id', 'id');
     }
 
+    public function userHasAccess($user)
+    {
+        if ($this->user_id === $user->id) {
+            return true;
+        }
+
+        if ($this->settings->invitation_only) {
+            return $this->invitations()
+                ->where('invited_user_id', $user->id)
+                ->exists();
+        }
+
+        return false;
+    }
+
     public static function getPublicRooms()
     {
         return DB::table('voting_rooms')

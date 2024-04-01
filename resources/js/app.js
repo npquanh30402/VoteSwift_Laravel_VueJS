@@ -1,9 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.min.js';
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
-// import 'font-awesome/css/font-awesome.min.css'
-import VueAwesomePaginate from "vue-awesome-paginate";
-import "vue-awesome-paginate/dist/style.css";
+import 'animate.css';
 
 import './realtime-setup.js'
 
@@ -11,9 +9,7 @@ import {createApp, h} from "vue";
 import {createInertiaApp} from "@inertiajs/vue3";
 import {ZiggyVue} from "ziggy-js";
 import MainLayout from "./Layouts/MainLayout.vue";
-import 'animate.css';
 import AudioPlayer from '@liripeng/vue-audio-player'
-
 
 var elem = document.getElementById("app");
 elem.className += "d-flex flex-column min-vh-100";
@@ -31,28 +27,7 @@ createInertiaApp({
         createApp({render: () => h(App, props)})
             .use(plugin)
             .use(ZiggyVue)
-            .use(VueAwesomePaginate)
             .use(AudioPlayer)
             .mount(el);
     },
 });
-
-// Echo.private('status-notifications').listen('UserActivity', (e) => {
-//     const notificationElement = document.getElementById('status-notification');
-
-//     e.users.forEach(user => {
-//         const userId = user.id;
-//         const message = e.message;
-//         const type = e.type;
-
-//         if (userId === currentUserId) {
-//             notificationElement.innerText = message;
-//             notificationElement.classList.remove('d-none');
-//             notificationElement.classList.add('alert-' + type);
-//             setTimeout(() => {
-//                 notificationElement.classList.add('d-none');
-//                 notificationElement.classList.remove('alert-' + type);
-//             }, 5000);
-//         }
-//     });
-// })

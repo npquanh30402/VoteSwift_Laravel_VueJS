@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\User;
+use App\Models\VotingRoom;
 use Illuminate\Support\Facades\Broadcast;
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
@@ -26,6 +28,14 @@ Broadcast::channel('chat.{user}', function ($user) {
     }
 });
 
-Broadcast::channel('voting', function () {
-    return true;
+Broadcast::channel('voting.{room}', function (User $user, VotingRoom $room) {
+    if ($room && $room->userHasAccess($user)) {
+        return [
+            'id' => $user->id,
+            'username' => $user->username,
+            'avatar' => $user->avatar,
+        ];
+    }
+
+    return false;
 });

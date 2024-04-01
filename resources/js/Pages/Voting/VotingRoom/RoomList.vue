@@ -47,6 +47,7 @@ import {Link} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {computed, ref} from "vue";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
+import "vue-awesome-paginate/dist/style.css";
 import useFormattedDate from "@/Composables/useFormattedDate.js";
 
 const props = defineProps(["rooms"]);

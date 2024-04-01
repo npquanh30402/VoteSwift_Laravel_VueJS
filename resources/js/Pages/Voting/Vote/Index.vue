@@ -9,6 +9,10 @@
         </div>
     </BaseOffcanvas>
 
+    <ul>
+        <li v-for="user in onlineUsers">{{ user.username }}</li>
+    </ul>
+
     <transition name="fade" mode="out-in">
         <component :is="tabs[currentTab]" :room="room" :questions="questions"
                    @switch-tab="currentTab = $event"></component>
@@ -17,10 +21,11 @@
 
 <script setup>
 import BaseOffcanvas from "@/Components/BaseOffcanvas.vue";
-import {onMounted, ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import * as bootstrap from 'bootstrap'
 import Welcome from "@/Pages/Voting/Vote/Welcome.vue";
 import StartVoting from "@/Pages/Voting/Vote/StartVoting.vue";
+import {usePage} from "@inertiajs/vue3";
 
 const currentTab = ref('Welcome')
 
@@ -43,8 +48,9 @@ function openSidebar(modal) {
 
 const onlineUsers = ref([]);
 
+// Define the handleHere function
 const handleHere = (users) => {
-    onlineUsers.value = users.map(user => user);
+    onlineUsers.value = users;
 };
 
 const handleJoining = (user) => {
@@ -55,7 +61,7 @@ const handleLeaving = (user) => {
     onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
 };
 
-Echo.join('voting')
+Echo.join('voting.' + props.room.id)
     .here(handleHere)
     .joining(handleJoining)
     .leaving(handleLeaving);
