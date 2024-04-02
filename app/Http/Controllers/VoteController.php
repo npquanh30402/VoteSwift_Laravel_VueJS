@@ -149,6 +149,8 @@ class VoteController extends Controller
 
         $roomSettings = $room->settings->only('invitation_only', 'wait_for_voters', 'allow_anonymous_voting');
 
+        $roomAttachments = $room->attachments;
+
         $invitedUserIds = $room->invitations()->pluck('invited_user_id');
         $invitedUsers = [Auth::user()];
         foreach ($invitedUserIds as $userId) {
@@ -159,7 +161,7 @@ class VoteController extends Controller
             }
         }
 
-        return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'roomSettings', 'invitedUsers'));
+        return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'roomSettings', 'roomAttachments', 'invitedUsers'));
     }
 
     public function store(VotingRoom $room, Request $request)
