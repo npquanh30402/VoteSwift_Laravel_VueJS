@@ -112,11 +112,13 @@ class VotingRoomController extends Controller
 //            'allow_anonymous_voting' => (bool)($request->allow_anonymous_voting ?? false),
 //        ]);
 
-        return back()->with('success', 'Room updated successfully!');
+//        return back()->with('success', 'Room updated successfully!');
     }
 
     public function dashboard(VotingRoom $room)
     {
+        $this->authorize('view', $room);
+
         $room->decryptVotingRoom();
 
         $room_settings = $room->settings;

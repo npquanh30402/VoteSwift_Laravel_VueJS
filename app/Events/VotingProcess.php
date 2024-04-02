@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\VotingRoom;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -15,12 +16,14 @@ class VotingProcess implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $room;
+
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(VotingRoom $room)
     {
-        //
+        $this->room = $room;
     }
 
     /**
@@ -30,8 +33,10 @@ class VotingProcess implements ShouldBroadcastNow
      */
     public function broadcastOn(): array
     {
-        $presenceChannel = new PresenceChannel('voting');
+        $privateChannel = new PrivateChannel('voting.' . $this->room->id);
 
-        return [$presenceChannel];
+        $presenceChannel = new PresenceChannel('voting.' . $this->room->id);
+
+        return [$privateChannel, $presenceChannel];
     }
 }

@@ -47,7 +47,7 @@ class VotingRoomPolicy
 
     public function view(User $user, VotingRoom $votingRoom): bool
     {
-        return $user->id == $votingRoom->user_id;
+        return $user->id === $votingRoom->user_id;
     }
 
     public function update(User $user, VotingRoom $votingRoom): bool

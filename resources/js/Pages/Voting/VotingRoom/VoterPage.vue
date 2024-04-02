@@ -97,10 +97,12 @@
 <script setup>
 import axios from 'axios';
 import {route} from "ziggy-js";
-import {router} from "@inertiajs/vue3";
-import {ref} from "vue";
+import {router, usePage} from "@inertiajs/vue3";
+import {computed, ref} from "vue";
 
 const props = defineProps(['room', 'room_settings'])
+
+const authUser = computed(() => usePage().props.authUser.user);
 
 const onlyInvitation = ref(props.room_settings?.invitation_only === 1);
 
@@ -114,7 +116,7 @@ const toggleInvitation = () => {
 const search_query = ref('');
 const users = ref([]);
 
-const searchUsers = async () => {
+const searchUsers = async (specificUserId) => {
     if (search_query.value.length >= 3) {
         try {
             const response = await axios.get(route('user.search'), {
@@ -124,7 +126,7 @@ const searchUsers = async () => {
             });
 
             users.value = response.data.filter(user => {
-                return !userInvitationList.value.some(invitedUser => invitedUser.id === user.id)
+                return !userInvitationList.value.some(invitedUser => invitedUser.id === user.id) && user.id !== authUser.value.id;
             });
         } catch (error) {
             console.error(error);

@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\ImageUploadController;
+use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -14,3 +15,5 @@ Route::post('/images/{room}/upload', [FileUploadController::class, 'storeAttachm
 Route::get('/search', [UserController::class, 'search'])->name('user.search');
 
 Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('invitation.get');
+
+Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('api.room.vote.start')->middleware('web');

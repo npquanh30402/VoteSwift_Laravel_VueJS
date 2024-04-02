@@ -10,7 +10,18 @@ class VotingRoomSettingController extends Controller
     public function updateInvitationSetting(VotingRoom $room, Request $request)
     {
         $room->settings()->update(['invitation_only' => $request->invitation_only]);
+    }
 
-        return back()->with('success', 'Invitation settings updated successfully');
+    public function updatePasswordSetting(VotingRoom $room, Request $request)
+    {
+        $settings = $room->settings;
+
+        if (isset($request->require_password) && $request->require_password !== null) {
+            $settings->password = bcrypt($request->require_password);
+        } else {
+            $settings->password = null;
+        }
+        
+        $settings->save();
     }
 }

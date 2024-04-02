@@ -9,32 +9,47 @@
         </div>
     </BaseOffcanvas>
 
+    <button @click="startVoting" class="btn btn-primary">Start</button>
+
     <ul>
         <li v-for="user in onlineUsers">{{ user.username }}</li>
     </ul>
 
+    <h3>Time remaining: </h3>
+    <VotingClock :date="room.end_time"/>
+
     <transition name="fade" mode="out-in">
-        <component :is="tabs[currentTab]" :room="room" :questions="questions"
+        <component :is="tabs[currentTab]" :room="room" :questions="questions" :isReadyToStart="isReadyToStart"
                    @switch-tab="currentTab = $event"></component>
     </transition>
 </template>
 
 <script setup>
+import {Link} from "@inertiajs/vue3";
 import BaseOffcanvas from "@/Components/BaseOffcanvas.vue";
-import {computed, onMounted, ref} from "vue";
+import {onMounted, ref} from "vue";
 import * as bootstrap from 'bootstrap'
 import Welcome from "@/Pages/Voting/Vote/Welcome.vue";
 import StartVoting from "@/Pages/Voting/Vote/StartVoting.vue";
-import {usePage} from "@inertiajs/vue3";
+import {route} from "ziggy-js";
+import VotingClock from "@/Components/VotingClock.vue";
 
-const currentTab = ref('Welcome')
+const props = defineProps(['questions', 'room'])
+// const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
+const currentTab = ref('Welcome');
 
 const tabs = {
     Welcome,
     StartVoting,
 }
 
-const props = defineProps(['questions', 'room'])
+function startVoting() {
+    axios.get(route('api.room.vote.start', props.room.id))
+        .then(function (response) {
+            console.log(response.data);
+        })
+}
+
 
 const bsOffcanvas = ref(null);
 
@@ -47,14 +62,17 @@ function openSidebar(modal) {
 }
 
 const onlineUsers = ref([]);
+const isReadyToStart = ref(false);
 
 // Define the handleHere function
 const handleHere = (users) => {
     onlineUsers.value = users;
+    isReadyToStart.value = onlineUsers.value.length >= 2;
 };
 
 const handleJoining = (user) => {
     onlineUsers.value.push(user);
+    isReadyToStart.value = onlineUsers.value.length >= 2;
 };
 
 const handleLeaving = (user) => {
@@ -65,6 +83,13 @@ Echo.join('voting.' + props.room.id)
     .here(handleHere)
     .joining(handleJoining)
     .leaving(handleLeaving);
+
+Echo.private('voting.' + props.room.id).listen('VotingProcess', (e) => {
+    if (e.room.vote_started) {
+        currentTab.value = 'StartVoting';
+    }
+    console.log(e.room.vote_started)
+})
 </script>
 
 <style scoped>

@@ -18,6 +18,9 @@ class VotingRoom extends Model
         'end_time',
         'timezone',
         'user_id',
+        'vote_started',
+        'is_published',
+        'has_ended',
     ];
 
     public function user()
@@ -73,5 +76,15 @@ class VotingRoom extends Model
         $this->room_description = Crypt::decryptString($this->room_description);
 
         return $this;
+    }
+
+    public function startVote()
+    {
+        $this->update(['vote_started' => true]);
+    }
+
+    public function endVote()
+    {
+        $this->update(['has_ended' => true]);
     }
 }

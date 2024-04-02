@@ -7,6 +7,7 @@ use App\Http\Middleware\CheckFriendship;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
+use App\Http\Middleware\PreventVotingAfterEndMiddleware;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
@@ -33,7 +34,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 class Kernel extends HttpKernel
 {
     protected $middleware = [
-            // \App\Http\Middleware\TrustHosts::class,
+        // \App\Http\Middleware\TrustHosts::class,
         TrustProxies::class,
         HandleCors::class,
         PreventRequestsDuringMaintenance::class,
@@ -53,7 +54,7 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-                // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             ThrottleRequests::class . ':api',
             SubstituteBindings::class,
         ],
@@ -72,6 +73,7 @@ class Kernel extends HttpKernel
         'throttle' => ThrottleRequests::class,
         'verified' => EnsureEmailIsVerified::class,
         'voting_room_password' => VotingRoomPasswordMiddleware::class,
+        'prevent_voting_after_end' => PreventVotingAfterEndMiddleware::class,
         'check_friendship' => CheckFriendship::class
     ];
 }

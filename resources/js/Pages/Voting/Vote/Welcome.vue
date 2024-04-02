@@ -6,7 +6,7 @@
 
         <div class="text-center my-5">
             <button class="btn btn-primary btn-lg animate__animated animate__pulse animate__infinite 	infinite"
-                    @click="switchTab">Ready to
+                    @click="switchTab" :disabled="!isReadyToStart">Ready to
                 Start?
             </button>
         </div>
@@ -14,10 +14,17 @@
 </template>
 <script setup>
 import {MdPreview} from "md-editor-v3";
+import {ref, watch} from "vue";
 
-defineProps(['room'])
+const props = defineProps(['room', 'isReadyToStart'])
 
 const emit = defineEmits(['switch-tab'])
+
+const isReadyToStart = ref(props.isReadyToStart);
+
+watch(() => props.isReadyToStart, (newValue, oldValue) => {
+    isReadyToStart.value = newValue
+});
 
 const switchTab = () => {
     emit('switch-tab', 'StartVoting')

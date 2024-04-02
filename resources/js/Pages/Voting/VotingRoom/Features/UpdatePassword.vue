@@ -49,7 +49,7 @@ const togglePassword = () => {
     isPasswordEnable.value = !isPasswordEnable.value
 
     if (isPasswordEnable.value === false) {
-        router.post(route('room.update', props.room.id), {
+        router.post(route('room.settings.password.update', props.room.id), {
             _method: 'put',
             ...form,
             require_password: null,

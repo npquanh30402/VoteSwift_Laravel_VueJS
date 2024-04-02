@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\ResultUpdate;
+use App\Events\VotingProcess;
 use App\Models\Candidate;
 use App\Models\Question;
 use App\Models\User;
@@ -132,28 +133,6 @@ class VoteController extends Controller
     {
         $this->authorize('joinInvitation', [$room, $request->query('token')]);
 
-        $user = Auth::user();
-
-//        if (!$room->settings->allow_voting) {
-//            return redirect()->route('homepage')->with('error', 'Voting is currently disabled.');
-//        }
-//
-//        $hasVoted = $user->hasVotedForVotingRoom($room->id);
-//
-//        if ($hasVoted) {
-//            $request->session()->now('error', 'You have already voted for this voting room.');
-//        }
-//
-//        $now = Carbon::now()->setTimezone($room->timezone);
-//        if ($room->start_time < $now) {
-//            $request->session()->now('error', 'Voting has not started.');
-//        }
-//
-//        $isResultHidden = $room->settings->results_visibility === 'after_voting' || $user->id === $room->user_id;
-//
-//        $endTime = Carbon::parse($room->end_time, $room->timezone);
-//        $hasEnded = $endTime->isPast();
-
         $questions = $room->questions()->with('candidates')->get()->map(function ($question) {
             $question->question_title = Crypt::decryptString($question->question_title);
             $question->question_description = Crypt::decryptString($question->question_description);
@@ -165,10 +144,6 @@ class VoteController extends Controller
             return $question;
         });
 
-//        $isMultipleChoice = $room->settings->allow_multiple_votes;
-
-//        return Inertia::render('Voting/VotePage', compact('room', 'questions', 'isMultipleChoice', 'hasVoted', 'isResultHidden', 'hasEnded'));
-//        dd($room);
         $room->room_name = Crypt::decryptString($room->room_name);
         $room->room_description = Crypt::decryptString($room->room_description);
 

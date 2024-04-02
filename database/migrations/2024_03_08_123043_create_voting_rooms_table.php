@@ -19,6 +19,8 @@ return new class extends Migration {
             $table->string('timezone')->default('UTC');
             $table->unsignedBigInteger('user_id')->comment('Room creator');
             $table->boolean('is_published')->default(false);
+            $table->boolean('vote_started')->default(false);
+            $table->boolean('has_ended')->default(false);
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
 
             $table->index('start_time');

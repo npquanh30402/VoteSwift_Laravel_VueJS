@@ -28,6 +28,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
         // Room settings routes
         Route::put('/{room}/settings/invitations/update', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
+        Route::put('/{room}/settings/password/update', [VotingRoomSettingController::class, 'updatePasswordSetting'])->name('room.settings.password.update');
     });
 
     // Question routes
@@ -44,7 +45,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
     // Vote routes
     Route::get('/room/{room}/vote/password', [VoteController::class, 'passwordForm'])->name('vote.password.form');
     Route::post('/room/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
-    Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main');
+    Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('prevent_voting_after_end');
     Route::post('/room/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
     Route::get('/room/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
 
