@@ -16,6 +16,17 @@
                     </div>
                 </div>
 
+                <div v-if="notification.type === 'App\\Notifications\\RoomPublish'" class="notification-list_content">
+                    <div class="notification-list_detail">
+                        <p>You have published a great <b>Voting Room</b></p>
+                        <p class="text-muted">Click
+                            <Link :href="route('room.dashboard', notification.data.room_id)">here</Link>
+                            to visit its dashboard.
+                        </p>
+                        <p class="text-muted"><small>{{ formattedDate(notification.created_at) }}</small></p>
+                    </div>
+                </div>
+
                 <div v-if="notification.type === 'App\\Notifications\\FriendRequestSend'"
                      class="notification-list_content">
                     <Link :href="route('user.profile', notification.data.sender_id)" class="notification-list_img">

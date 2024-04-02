@@ -6,6 +6,7 @@ use App\Http\Requests\VotingRoomRequest;
 use App\Models\Vote;
 use App\Models\VotingRoom;
 use App\Notifications\RoomCreation;
+use App\Notifications\RoomPublish;
 use App\Services\VotingRoomService;
 use Carbon\Carbon;
 use Exception;
@@ -40,6 +41,8 @@ class VotingRoomController extends Controller
         $room->is_published = true;
 
         $room->save();
+
+        $room->user->notify(new RoomPublish($room));
 
         InvitationController::sendInvitation($room);
 
