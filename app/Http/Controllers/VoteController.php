@@ -152,7 +152,7 @@ class VoteController extends Controller
         $roomAttachments = $room->attachments;
 
         $invitedUserIds = $room->invitations()->pluck('invited_user_id');
-        $invitedUsers = [Auth::user()];
+        $invitedUsers = [User::findOrFail($room->user_id)];
         foreach ($invitedUserIds as $userId) {
             $user = User::find($userId);
 
