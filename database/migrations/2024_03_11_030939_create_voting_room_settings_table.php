@@ -17,6 +17,7 @@ return new class extends Migration {
 
             // Extra settings
             $table->boolean('invitation_only')->default(false);
+            $table->boolean('wait_for_voters')->default(false);
             $table->boolean('public_visibility')->default(false);
             $table->string('password')->nullable();
             $table->enum('results_visibility', ['after_voting', 'participants_only', 'restricted'])->default('restricted');

@@ -11,7 +11,8 @@
                             Vote</label>
                     </div>
                     <div class="form-check form-switch" :class="[onlyInvitation ? '' : 'un-interactive']">
-                        <input class="form-check-input" type="checkbox" role="switch" id="waitVoterSwitch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="waitVoterSwitch"
+                               @change="toggleWaitForVoters" :checked="waitForVoters">
                         <label class="form-check-label" for="waitVoterSwitch">Wait Until Voters Joined to Start
                             Voting</label>
                     </div>
@@ -105,11 +106,19 @@ const props = defineProps(['room', 'room_settings'])
 const authUser = computed(() => usePage().props.authUser.user);
 
 const onlyInvitation = ref(props.room_settings?.invitation_only === 1);
+const waitForVoters = ref(props.room_settings?.wait_for_voters === 1);
 
 const toggleInvitation = () => {
     onlyInvitation.value = !onlyInvitation.value
     router.put(route('room.settings.invitation.update', props.room.id), {
         invitation_only: onlyInvitation.value
+    })
+}
+
+const toggleWaitForVoters = () => {
+    waitForVoters.value = !waitForVoters.value
+    router.put(route('room.settings.waitForVoters.update', props.room.id), {
+        wait_for_voters: waitForVoters.value
     })
 }
 

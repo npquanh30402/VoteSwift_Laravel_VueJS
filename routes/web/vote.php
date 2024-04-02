@@ -28,6 +28,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
         // Room settings routes
         Route::put('/{room}/settings/invitations/update', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
+        Route::put('/{room}/settings/waitForVoters/update', [VotingRoomSettingController::class, 'updateWaitForVotersSetting'])->name('room.settings.waitForVoters.update');
         Route::put('/{room}/settings/password/update', [VotingRoomSettingController::class, 'updatePasswordSetting'])->name('room.settings.password.update');
     });
 

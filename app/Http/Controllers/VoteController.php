@@ -147,7 +147,19 @@ class VoteController extends Controller
         $room->room_name = Crypt::decryptString($room->room_name);
         $room->room_description = Crypt::decryptString($room->room_description);
 
-        return Inertia::render('Voting/Vote/Index', compact('questions', 'room'));
+        $roomSettings = $room->settings->only('invitation_only', 'wait_for_voters', 'allow_anonymous_voting');
+
+        $invitedUserIds = $room->invitations()->pluck('invited_user_id');
+        $invitedUsers = [Auth::user()];
+        foreach ($invitedUserIds as $userId) {
+            $user = User::find($userId);
+
+            if ($user) {
+                $invitedUsers[] = $user;
+            }
+        }
+
+        return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'roomSettings', 'invitedUsers'));
     }
 
     public function store(VotingRoom $room, Request $request)
