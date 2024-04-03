@@ -5,21 +5,26 @@
         </div>
         <ul class="dropdown-menu">
             <li>
-                <Link class="dropdown-item" :href="route('candidate.delete', candidate.id)" as="button"
-                      method="DELETE">Delete
-                </Link>
+                <button class="dropdown-item text-success">Details</button>
             </li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
+            <li>
+                <button class="dropdown-item text-danger" @click="deleteCandidate">Delete</button>
+            </li>
         </ul>
     </div>
 </template>
 
 <script setup>
-import {Link} from "@inertiajs/vue3";
-import {route} from "ziggy-js";
+
+import {useCandidateStore} from "@/Stores/candidates.js";
 
 const props = defineProps(['candidate'])
+
+const CandidateStore = useCandidateStore()
+
+const deleteCandidate = () => {
+    CandidateStore.deleteCandidate(props.candidate.id)
+}
 
 </script>
 

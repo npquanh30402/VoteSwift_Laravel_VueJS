@@ -31,10 +31,10 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
-import {route} from "ziggy-js";
 import QuestionSidebar from "@/Pages/Voting/Question/QuestionSidebar.vue";
 import CandidateList from "@/Pages/Voting/Question/Candidate/CandidateList.vue";
 import QuestionRule from "@/Pages/Voting/Question/QuestionRule.vue";
+import {useCandidateStore} from "@/Stores/candidates.js";
 
 const props = defineProps(['room', 'questions'])
 const currentTabs = ref(props.questions.map(() => 'CandidateList'))
@@ -59,16 +59,10 @@ const paginatedQuestions = computed(() => {
     return props.questions.slice(startIndex, endIndex);
 });
 
-const roomCandidates = ref([]);
+const CandidateStore = useCandidateStore()
+const roomCandidates = computed(() => CandidateStore.candidates)
 
-const fetchCandidates = () => {
-    axios.get(route('api.room.candidate.index', props.room.id))
-        .then((response) => {
-            roomCandidates.value = response.data
-        })
-}
-
-onMounted(async () => {
-    await fetchCandidates()
+onMounted(() => {
+    CandidateStore.fetchCandidates(props.room.id)
 })
 </script>

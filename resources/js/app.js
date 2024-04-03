@@ -10,9 +10,12 @@ import {createInertiaApp} from "@inertiajs/vue3";
 import {ZiggyVue} from "ziggy-js";
 import MainLayout from "./Layouts/MainLayout.vue";
 import AudioPlayer from '@liripeng/vue-audio-player'
+import {createPinia} from 'pinia'
 
 var elem = document.getElementById("app");
 elem.className += "d-flex flex-column min-vh-100";
+
+const pinia = createPinia()
 
 createInertiaApp({
     resolve: (name) => {
@@ -27,6 +30,7 @@ createInertiaApp({
         createApp({render: () => h(App, props)})
             .use(plugin)
             .use(ZiggyVue)
+            .use(pinia)
             .use(AudioPlayer)
             .mount(el);
     },

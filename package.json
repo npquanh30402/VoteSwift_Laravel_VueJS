@@ -34,6 +34,7 @@
         "laravel-vite-plugin": "^1.0",
         "luxon": "^3.4.4",
         "md-editor-v3": "^4.12.1",
+        "pinia": "^2.1.7",
         "pusher-js": "^8.4.0-rc2",
         "v-calendar": "^3.1.2",
         "vue": "^3.4.21",

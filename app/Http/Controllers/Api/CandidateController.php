@@ -3,22 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Candidate;
 use App\Models\Question;
 use App\Models\VotingRoom;
-use App\Services\CandidateService;
+use App\Services\HelperService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Inertia\Inertia;
 
 class CandidateController extends Controller
 {
-    protected $candidateService;
-
-    public function __construct(CandidateService $candidateService)
-    {
-        $this->candidateService = $candidateService;
-    }
-
     public function QuestionCandidates(Question $question)
     {
         $candidates = $question->candidates()->get();
@@ -52,9 +44,31 @@ class CandidateController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Question $question, Request $request)
     {
-        //
+//        dd($question, $request->all());
+        $candidate = new Candidate();
+
+        $candidate->candidate_title = HelperService::encryptAndStripTags($request->candidate_title);
+
+        $candidate->candidate_description = HelperService::encryptAndStripTags($request->candidate_description);
+
+        $candidate->question_id = $question->id;
+
+        if ($request->hasFile('candidate_image')) {
+            $fileName = uniqid('', true) . '.' . $request->candidate_image->getClientOriginalExtension();
+
+            $fileName = HelperService::sanitizeFileName($fileName);
+
+            $request->candidate_image->storeAs('uploads/candidates', $fileName, 'public');
+            $candidate->candidate_image = $fileName;
+        }
+
+        $candidate->save();
+
+        $candidate->decryptCandidate();
+
+        return response()->json($candidate, 201);
     }
 
     /**
@@ -76,8 +90,10 @@ class CandidateController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Candidate $candidate)
     {
-        //
+        $candidate->delete();
+
+        return response()->json();
     }
 }

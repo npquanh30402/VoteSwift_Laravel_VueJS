@@ -11,9 +11,6 @@
                         @click="switchTab('QuestionRule')">Rules
                 </button>
             </li>
-            <li class="nav-item">
-                <button class="nav-link">Link</button>
-            </li>
         </ul>
     </div>
 </template>
