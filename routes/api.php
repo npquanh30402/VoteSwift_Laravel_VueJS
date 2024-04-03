@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\VoteController;
@@ -17,3 +18,6 @@ Route::get('/search', [UserController::class, 'search'])->name('user.search');
 Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('invitation.get');
 
 Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('api.room.vote.start')->middleware('web');
+
+Route::get('/question/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidate.index');
+Route::get('/room/{room}/candidates', [CandidateController::class, 'RoomCandidates'])->name('api.room.candidate.index');

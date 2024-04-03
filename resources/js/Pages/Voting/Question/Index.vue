@@ -2,33 +2,16 @@
     <div class="card shadow-sm border-0 mb-3 overflow-auto">
         <div class="card-header text-bg-dark text-center">Add Question
         </div>
-        <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
         <div class="card-body">
-            <p>Total Questions: {{ questions.length }}</p>
-            <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
             <div class="mt-3 d-flex flex-column gap-3">
                 <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="card">
-                    <div class="card-header fw-bold d-flex align-items-center gap-2">
-                        #{{ index + 1 }}: {{ question.question_title }}
+                    <div class="card-header fw-bold d-flex flex-column gap-2">
+                        <p>#{{ index + 1 }}: {{ question.question_title }}</p>
+                        <QuestionSidebar @switch-tab="tabName => handleSwitchTab(tabName, index)"/>
                     </div>
                     <div class="card-body d-flex flex-column">
-                        <div class="truncate-text">
-                            <MdPreview :editorId="'question' + question.id"
-                                       :modelValue="question.question_description"/>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <Link :href="route('candidate.main', question.id)" class="btn btn-primary">
-                                Candidates
-                            </Link>
-                            <div class="hstack gap-3">
-                                <button class="btn btn-secondary"
-                                        @click="openModal(modals.questionDetailsModal, question)">Details
-                                </button>
-                                <button class="btn btn-danger"
-                                        @click="openModal(modals.deleteQuestionModal, question)">Delete
-                                </button>
-                            </div>
-                        </div>
+                        <component :is="tabs[currentTabs[index]]" :question="question"
+                                   :candidates="roomCandidates[question.id]"></component>
                     </div>
                 </div>
             </div>
@@ -42,51 +25,28 @@
                 :on-click="onClickHandler"
             />
         </div>
-        <QuestionDetails :question="modalQuestion"
-                         id="questionDetailsModal"></QuestionDetails>
-        <DeleteQuestion :question="modalQuestion" id="deleteQuestionModal"></DeleteQuestion>
     </div>
 </template>
 
 <script setup>
-import {router, usePage} from "@inertiajs/vue3";
-import AddQuestion from "@/Pages/Voting/Question/AddQuestion.vue";
-import {computed, onMounted, reactive, ref} from "vue";
-import * as bootstrap from 'bootstrap'
-import QuestionDetails from "@/Pages/Voting/Question/QuestionDetails.vue";
+import {computed, onMounted, ref} from "vue";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
-import DeleteQuestion from "@/Pages/Voting/Question/DeleteQuestion.vue";
 import {route} from "ziggy-js";
-import {Link} from "@inertiajs/vue3";
-import {MdPreview} from "md-editor-v3";
-
-const modals = reactive({
-    addQuestionModal: 'addQuestionModal',
-    questionDetailsModal: 'questionDetailsModal',
-    deleteQuestionModal: 'deleteQuestionModal'
-})
-
-let modalQuestion = ref(null);
-
-onMounted(() => {
-    modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
-    modals.questionDetailsModal = new bootstrap.Modal(document.getElementById(modals.questionDetailsModal));
-    modals.deleteQuestionModal = new bootstrap.Modal(document.getElementById(modals.deleteQuestionModal));
-})
-
-function openModal(modal, question = null) {
-    modalQuestion.value = question
-    modal.show()
-}
+import QuestionSidebar from "@/Pages/Voting/Question/QuestionSidebar.vue";
+import CandidateList from "@/Pages/Voting/Question/Candidate/CandidateList.vue";
+import QuestionRule from "@/Pages/Voting/Question/QuestionRule.vue";
 
 const props = defineProps(['room', 'questions'])
+const currentTabs = ref(props.questions.map(() => 'CandidateList'))
 
-let urlPrev = computed(() => usePage().props.urlPrev);
-const back = () => {
-    if (urlPrev !== 'empty') {
-        router.visit(urlPrev)
-    }
+const tabs = {
+    CandidateList,
+    QuestionRule
 }
+
+const handleSwitchTab = (tabName, index) => {
+    currentTabs.value[index] = tabName;
+};
 
 const onClickHandler = (page) => {
     currentPage.value = page
@@ -98,4 +58,17 @@ const paginatedQuestions = computed(() => {
     const endIndex = startIndex + 5;
     return props.questions.slice(startIndex, endIndex);
 });
+
+const roomCandidates = ref([]);
+
+const fetchCandidates = () => {
+    axios.get(route('api.room.candidate.index', props.room.id))
+        .then((response) => {
+            roomCandidates.value = response.data
+        })
+}
+
+onMounted(async () => {
+    await fetchCandidates()
+})
 </script>

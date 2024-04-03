@@ -55,8 +55,6 @@
 </template>
 
 <script setup>
-import {Link} from "@inertiajs/vue3";
-import {route} from "ziggy-js"
 import {ref} from "vue";
 
 defineProps(['room']);

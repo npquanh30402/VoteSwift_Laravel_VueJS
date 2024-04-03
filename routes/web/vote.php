@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
 
-    // Voting Room routes
-    Route::get('/room/{room}/dashboard', [VotingRoomController::class, 'dashboard'])->name('room.dashboard');
 
     Route::prefix('room')->group(function () {
+        // Voting Room routes
+        Route::get('/{room}/dashboard', [VotingRoomController::class, 'dashboard'])->name('room.dashboard');
         Route::get('/create', [VotingRoomController::class, 'create'])->name('room.create');
         Route::post('/create', [VotingRoomController::class, 'store'])->name('room.store');
         Route::put('/{room}/update', [VotingRoomController::class, 'update'])->name('room.update');
@@ -30,10 +30,18 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
         Route::put('/{room}/settings/invitations/update', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
         Route::put('/{room}/settings/waitForVoters/update', [VotingRoomSettingController::class, 'updateWaitForVotersSetting'])->name('room.settings.waitForVoters.update');
         Route::put('/{room}/settings/password/update', [VotingRoomSettingController::class, 'updatePasswordSetting'])->name('room.settings.password.update');
+
+        Route::post('/{room}/question', [QuestionController::class, 'store'])->name('question.store');
+
+        // Vote routes
+        Route::get('/{room}/vote/password', [VoteController::class, 'passwordForm'])->name('vote.password.form');
+        Route::post('/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
+        Route::get('/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('prevent_voting_after_end');
+        Route::post('/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
+        Route::get('/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
     });
 
     // Question routes
-    Route::post('/room/{room}/question', [QuestionController::class, 'store'])->name('question.store');
     Route::delete('/question/{question}', [QuestionController::class, 'delete'])->name('question.delete');
     Route::put('/question/{question}', [QuestionController::class, 'update'])->name('question.update');
 
@@ -42,13 +50,6 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
     Route::post('/question/{question}/candidate', [CandidateController::class, 'store'])->name('candidate.store');
     Route::delete('/candidate/{candidate}', [CandidateController::class, 'delete'])->name('candidate.delete');
     Route::put('/candidate/{candidate}', [CandidateController::class, 'update'])->name('candidate.update');
-
-    // Vote routes
-    Route::get('/room/{room}/vote/password', [VoteController::class, 'passwordForm'])->name('vote.password.form');
-    Route::post('/room/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
-    Route::get('/room/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('prevent_voting_after_end');
-    Route::post('/room/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
-    Route::get('/room/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
 
     // User history route
     Route::get('/history', [VoteController::class, 'userHistory'])->name('user.history');
