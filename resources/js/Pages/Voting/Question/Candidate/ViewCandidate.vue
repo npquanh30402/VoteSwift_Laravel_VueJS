@@ -1,5 +1,5 @@
 <template>
-    <BaseModal title="Create a Candidate">
+    <BaseModal title="Candidate">
         <form @submit.prevent="submit" class="row">
             <div class="col-md-8">
                 <div class="mb-3">
@@ -13,7 +13,7 @@
                               language="en-US"></MdEditor>
                 </div>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
+                    <button type="submit" class="btn btn-warning" data-bs-dismiss="modal">Update</button>
                 </div>
             </div>
             <div class="col-md-4 vstack">
@@ -46,19 +46,31 @@
 import BaseModal from "@/Components/BaseModal.vue";
 import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
 
-const props = defineProps(['question'])
+const props = defineProps(['candidate'])
 
 const CandidateStore = useCandidateStore()
 
 const form = useForm({
-    candidate_title: '',
-    candidate_description: '',
-    candidate_image: null,
+    candidate_title: props.candidate?.candidate_title,
+    candidate_description: props.candidate?.candidate_description,
+    candidate_image: props.candidate?.candidate_image,
+});
+const imgSrc = ref(null);
+
+watch(() => props.candidate, (newQuestion) => {
+    form.candidate_title = newQuestion?.candidate_title;
+    form.candidate_description = newQuestion?.candidate_description;
+    form.candidate_image = newQuestion?.candidate_image;
+
+    imgSrc.value = newQuestion?.candidate_image
+}, {
+    deep: true,
+    immediate: true,
 });
 
 const submit = async () => {
@@ -67,10 +79,15 @@ const submit = async () => {
     formData.append('candidate_description', form.candidate_description);
     formData.append('candidate_image', form.candidate_image);
 
-    await CandidateStore.storeCandidate(props.question.id, formData);
+    // const candidateData = {
+    //     candidate_title: form.candidate_title,
+    //     candidate_description: form.candidate_description,
+    //     candidate_image: form.candidate_image,
+    // };
+
+    await CandidateStore.updateCandidate(props.candidate.id, formData);
 }
 
-const imgSrc = ref(null);
 const visibleRef = ref(false)
 const indexRef = ref(0)
 const imgsRef = ref([])

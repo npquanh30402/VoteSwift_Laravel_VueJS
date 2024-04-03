@@ -19,6 +19,23 @@ export const useCandidateStore = defineStore('candidate', () => {
             });
     }
 
+    const updateCandidate = async (candidateId, candidateData) => {
+        await axios.post(route('api.candidate.update', candidateId), candidateData)
+            .then(function (response) {
+                if (response.status === 200) {
+                    for (const questionId in candidates.value) {
+                        const candidatesForQuestion = candidates.value[questionId];
+
+                        const index = candidatesForQuestion.findIndex(candidate => candidate.id === candidateId);
+
+                        if (index !== -1) {
+                            candidatesForQuestion[index] = response.data;
+                        }
+                    }
+                }
+            })
+    }
+
     const deleteCandidate = async (candidateId) => {
         await axios.delete(route('api.candidate.destroy', candidateId))
 
@@ -33,19 +50,5 @@ export const useCandidateStore = defineStore('candidate', () => {
         }
     }
 
-    // const createQuestion = async (roomId, data) => {
-    //     const response = await axios.post(route('api.room.questions.store', roomId), data)
-    //     candidates.value = candidates.value.push(response.data)
-    // }
-    //
-    // const updateQuestion = async (questionId, data) => {
-    //     const response = await axios.put(route('api.room.questions.update', questionId), data)
-    //
-    //     const index = candidates.value.findIndex(question => question.id === questionIds)
-    //     if (index !== -1) {
-    //         candidates.value[index] = response.data
-    //     }
-    // }
-
-    return {candidates, fetchCandidates, storeCandidate, deleteCandidate}
+    return {candidates, fetchCandidates, storeCandidate, updateCandidate, deleteCandidate}
 })

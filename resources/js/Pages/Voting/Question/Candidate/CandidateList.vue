@@ -1,7 +1,7 @@
 <template>
     <div>
         <button class="btn btn-secondary mb-3" @click="openModal(modals.addCandidateModal)">Add Candidate</button>
-        <AddCandidate :id="'addCandidateModal' + question.id" :question="question"></AddCandidate>
+        <AddCandidate :id="'addCandidateModal' + question.id" :question="question"/>
         <div class="list-group">
             <div class="list-group-item d-flex justify-content-between justify-content-center align-items-center"
                  v-for="candidate in candidates" :key="candidate.id">
@@ -11,7 +11,7 @@
                          alt="Image" @click="showSingle">
                     <span><strong>{{ candidate.candidate_title }}</strong></span>
                 </div>
-                <CandidateAction :candidate="candidate"/>
+                <CandidateAction :candidate="candidate" @view-candidate="handleViewCandidate"/>
             </div>
         </div>
         <teleport to="body">
@@ -22,6 +22,7 @@
                 @hide="onHide"
             ></vue-easy-lightbox>
         </teleport>
+        <ViewCandidate :id="'viewCandidateModal' + question.id" :candidate="modalCandidate"/>
     </div>
 </template>
 
@@ -31,17 +32,19 @@ import {onMounted, reactive, ref} from "vue";
 import * as bootstrap from "bootstrap";
 import AddCandidate from "@/Pages/Voting/Question/Candidate/AddCandidate.vue";
 import VueEasyLightbox from "vue-easy-lightbox";
+import ViewCandidate from "@/Pages/Voting/Question/Candidate/ViewCandidate.vue";
 
 const props = defineProps(['question', 'candidates'])
 
+let modalCandidate = ref(null);
 const modals = reactive({
     addCandidateModal: 'addCandidateModal' + props.question.id,
+    viewCandidateModal: 'viewCandidateModal' + props.question.id,
 })
-
-let modalCandidate = ref(null);
 
 onMounted(() => {
     modals.addCandidateModal = new bootstrap.Modal(document.getElementById(modals.addCandidateModal));
+    modals.viewCandidateModal = new bootstrap.Modal(document.getElementById(modals.viewCandidateModal));
 })
 
 function openModal(modal, candidate = null) {
@@ -49,7 +52,12 @@ function openModal(modal, candidate = null) {
     modal.show()
 }
 
-const imgSrc = ref(null);
+const handleViewCandidate = (candidate) => {
+    modalCandidate.value = candidate;
+    modals.viewCandidateModal.show();
+}
+
+
 const visibleRef = ref(false)
 const indexRef = ref(0)
 const imgsRef = ref([])

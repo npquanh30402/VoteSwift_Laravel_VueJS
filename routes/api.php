@@ -22,4 +22,5 @@ Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('ap
 Route::get('/question/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidate.index');
 Route::get('/room/{room}/candidates', [CandidateController::class, 'RoomCandidates'])->name('api.room.candidate.index');
 Route::post('/question/{question}/candidates', [CandidateController::class, 'store'])->name('api.question.candidate.store');
+Route::post('/candidate/{candidate}', [CandidateController::class, 'update'])->name('api.candidate.update');
 Route::delete('/candidate/{candidate}', [CandidateController::class, 'destroy'])->name('api.candidate.destroy');

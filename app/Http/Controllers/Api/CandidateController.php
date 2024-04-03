@@ -8,6 +8,7 @@ use App\Models\Question;
 use App\Models\VotingRoom;
 use App\Services\HelperService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CandidateController extends Controller
 {
@@ -46,7 +47,6 @@ class CandidateController extends Controller
      */
     public function store(Question $question, Request $request)
     {
-//        dd($question, $request->all());
         $candidate = new Candidate();
 
         $candidate->candidate_title = HelperService::encryptAndStripTags($request->candidate_title);
@@ -82,9 +82,31 @@ class CandidateController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Candidate $candidate, Request $request)
     {
-        //
+        $candidate->candidate_title = HelperService::encryptAndStripTags($request->candidate_title);
+
+        $candidate->candidate_description = HelperService::encryptAndStripTags($request->candidate_description);
+
+        $oldImage = $candidate->candidate_image;
+        if ($request->hasFile('candidate_image')) {
+            $fileName = uniqid('', true) . '.' . $request->candidate_image->getClientOriginalExtension();
+
+            $fileName = HelperService::sanitizeFileName($fileName);
+
+            $request->candidate_image->storeAs('uploads/candidates', $fileName, 'public');
+            $candidate->candidate_image = $fileName;
+        }
+
+        if ($oldImage !== $candidate->candidate_image) {
+            Storage::delete(str_replace('/storage/', 'public/', $oldImage));
+        }
+
+        $candidate->save();
+
+        $candidate->decryptCandidate();
+
+        return response()->json($candidate, 200);
     }
 
     /**
