@@ -79,6 +79,8 @@ const submit = async () => {
     formData.append('candidate_description', form.candidate_description);
     formData.append('candidate_image', form.candidate_image);
 
+    formData.append('_method', 'PUT');
+
     // const candidateData = {
     //     candidate_title: form.candidate_title,
     //     candidate_description: form.candidate_description,
