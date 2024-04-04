@@ -6,6 +6,8 @@
                     <label for="candidate_title" class="form-label">Candidate Title</label>
                     <input type="text" class="form-control" v-model="form.candidate_title"
                            placeholder="Enter Candidate Title">
+                    <p class="m-0 small text-danger" v-if="errorMessages.candidate_title">
+                        {{ errorMessages.candidate_title }}</p>
                 </div>
                 <div class="mb-3">
                     <label for="candidate_description" class="form-label">Candidate Description</label>
@@ -13,7 +15,9 @@
                               language="en-US"></MdEditor>
                 </div>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Add</button>
+                    <button type="submit" class="btn btn-primary" :class="{'disabled': errorMessages.candidate_title}"
+                            data-bs-dismiss="modal">Add
+                    </button>
                 </div>
             </div>
             <div class="col-md-4 vstack">
@@ -21,7 +25,8 @@
                     <label class="form-label" for="candidate_image">Image:</label>
                     <input type="file" class="form-control" id="candidate_image" name="candidate_image"
                            @change="handleFileChange">
-                    <p class="m-0 small text-danger"></p>
+                    <p class="m-0 small text-danger" v-if="errorMessages.candidate_image">
+                        {{ errorMessages.candidate_image }}</p>
                 </div>
                 <div class="form-group mb-4 text-center">
                     <img :src="imgSrc"
@@ -46,7 +51,7 @@
 import BaseModal from "@/Components/BaseModal.vue";
 import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {ref} from "vue";
+import {computed, reactive, ref, watch} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
@@ -61,11 +66,49 @@ const form = useForm({
     candidate_image: null,
 });
 
+const errorMessages = reactive({
+    candidate_title: '',
+    candidate_description: '',
+    candidate_image: '',
+});
+
+function updateErrorMessage(fieldName, value) {
+    switch (fieldName) {
+        case 'candidate_title':
+            const titleLength = value.length;
+            if (titleLength < 10) {
+                errorMessages.candidate_title = 'Candidate title must be at least 10 characters.';
+            } else if (titleLength > 100) {
+                errorMessages.candidate_title = 'Candidate title cannot exceed 100 characters.';
+            } else {
+                errorMessages.candidate_title = '';
+            }
+            break;
+        case 'candidate_image':
+            errorMessages.candidate_image = value;
+            break;
+    }
+}
+
+watch(() => form.candidate_title, (newValue) => {
+    updateErrorMessage('candidate_title', newValue);
+});
+
+watch(() => form.candidate_image, (newValue) => {
+    updateErrorMessage('candidate_image', newValue);
+});
+
 const submit = async () => {
     const formData = new FormData();
     formData.append('candidate_title', form.candidate_title);
-    formData.append('candidate_description', form.candidate_description);
-    formData.append('candidate_image', form.candidate_image);
+
+    if (form.candidate_description) {
+        formData.append('candidate_description', form.candidate_description);
+    }
+
+    if (form.candidate_image) {
+        formData.append('candidate_image', form.candidate_image);
+    }
 
     await CandidateStore.storeCandidate(props.question.id, formData);
 }
@@ -94,6 +137,13 @@ function handleFileChange(event) {
     if (!file) {
         return;
     }
+
+    if (!file.type.startsWith('image/')) {
+        errorMessages.candidate_image = 'Please select an image file.'
+        return;
+    }
+
+    errorMessages.candidate_image = '';
 
     form.candidate_image = file;
     imgSrc.value = URL.createObjectURL(file);

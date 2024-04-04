@@ -12,6 +12,11 @@ class CandidatePolicy
         return $user->id === $candidate->question->room->user_id;
     }
 
+    public function create(User $user, Candidate $candidate): bool
+    {
+        return $user->id === $candidate->question->room->user_id;
+    }
+
     public function update(User $user, Candidate $candidate): bool
     {
         return $user->id === $candidate->question->room->user_id;

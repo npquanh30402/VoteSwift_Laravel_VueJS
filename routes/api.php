@@ -19,8 +19,10 @@ Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitat
 
 Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('api.room.vote.start')->middleware('web');
 
-Route::get('/question/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidate.index');
-Route::get('/room/{room}/candidates', [CandidateController::class, 'RoomCandidates'])->name('api.room.candidate.index');
-Route::post('/question/{question}/candidates', [CandidateController::class, 'store'])->name('api.question.candidate.store');
-Route::put('/candidate/{candidate}', [CandidateController::class, 'update'])->name('api.candidate.update');
-Route::delete('/candidate/{candidate}', [CandidateController::class, 'destroy'])->name('api.candidate.destroy');
+Route::group(['middleware' => 'web'], function () {
+    Route::get('/question/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidate.index');
+    Route::get('/room/{room}/candidates', [CandidateController::class, 'RoomCandidates'])->name('api.room.candidate.index');
+    Route::post('/question/{question}/candidates', [CandidateController::class, 'store'])->name('api.question.candidate.store');
+    Route::put('/candidate/{candidate}', [CandidateController::class, 'update'])->name('api.candidate.update');
+    Route::delete('/candidate/{candidate}', [CandidateController::class, 'destroy'])->name('api.candidate.destroy');
+});

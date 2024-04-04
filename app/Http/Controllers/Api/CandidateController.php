@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CandidateRequest;
 use App\Models\Candidate;
 use App\Models\Question;
 use App\Models\VotingRoom;
@@ -45,13 +46,16 @@ class CandidateController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Question $question, Request $request)
+    public function store(Question $question, CandidateRequest $request)
     {
+        $this->authorize('create', $question);
         $candidate = new Candidate();
 
         $candidate->candidate_title = HelperService::encryptAndStripTags($request->candidate_title);
 
-        $candidate->candidate_description = HelperService::encryptAndStripTags($request->candidate_description);
+        if ($request->candidate_description) {
+            $candidate->candidate_description = HelperService::encryptAndStripTags($request->candidate_description);
+        }
 
         $candidate->question_id = $question->id;
 

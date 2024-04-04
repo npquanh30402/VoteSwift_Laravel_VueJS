@@ -12,6 +12,11 @@ class QuestionPolicy
         return $user->id === $question->room->user_id;
     }
 
+    public function create(User $user, Question $question): bool
+    {
+        return $user->id === $question->room->user_id;
+    }
+
     public function update(User $user, Question $question): bool
     {
         return $user->id === $question->room->user_id;
