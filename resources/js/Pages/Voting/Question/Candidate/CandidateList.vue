@@ -57,7 +57,6 @@ const handleViewCandidate = (candidate) => {
     modals.viewCandidateModal.show();
 }
 
-
 const visibleRef = ref(false)
 const indexRef = ref(0)
 const imgsRef = ref([])

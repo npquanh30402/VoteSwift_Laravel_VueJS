@@ -4,25 +4,19 @@
             <div class="col-md-8">
                 <div class="mb-3">
                     <label for="question_title" class="form-label">Question Title</label>
-                    <div style="position: relative;">
-                        <input type="text" class="form-control" v-model="form.question_title"
-                               placeholder="Enter Question Title" :disabled="!editMode.title">
-                        <i @click="toggleEditMode('title')" class="bi bi-pencil"></i>
-                    </div>
+                    <input type="text" class="form-control" v-model="form.question_title"
+                           placeholder="Enter Question Title">
                 </div>
                 <div class="mb-3">
-                    <div style="position: relative;">
-                        <label for="question_description" class="form-label">Question Description</label>
-                        <MdEditor v-model="form.question_description" @onUploadImg="onUploadImg"
-                                  language="en-US" :disabled="!editMode.description"></MdEditor>
-                        <i @click="toggleEditMode('description')" class="bi bi-pencil" style="top: 25%"></i>
-                    </div>
+                    <label for="question_description" class="form-label">Question Description</label>
+                    <MdEditor v-model="form.question_description" @onUploadImg="onUploadImg"
+                              language="en-US"></MdEditor>
                 </div>
-                <div class="text-end" v-if="editMode.title || editMode.description || editMode.image">
+                <div class="text-end">
                     <button type="submit" class="btn btn-warning" data-bs-dismiss="modal">Update</button>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 vstack">
                 <label class="form-label">Options:</label>
                 <div class="form-check mb-4">
                     <input type="checkbox" class="form-check-input" id="allow_multiple_votes"
@@ -37,15 +31,12 @@
                 </div>
                 <div class="form-group mb-4">
                     <label class="form-label" for="question_image">Image:</label>
-                    <div style="position: relative;">
-                        <input type="file" class="form-control" id="question_image" name="question_image"
-                               @change="handleFileChange" :disabled="!editMode.image">
-                        <i @click="toggleEditMode('image')" class="bi bi-pencil"></i>
-                    </div>
+                    <input type="file" class="form-control" id="question_image" name="question_image"
+                           @change="handleFileChange">
                     <p class="m-0 small text-danger"></p>
                 </div>
                 <div class="form-group mb-4 text-center">
-                    <img :src="data.question_image"
+                    <img :src="imgSrc"
                          class="img-fluid"
                          style="cursor: pointer"
                          alt="Image" @click="showSingle"/>
@@ -65,13 +56,42 @@
 
 <script setup>
 import BaseModal from "@/Components/BaseModal.vue";
-import {reactive, ref, watch} from "vue";
-import VueEasyLightbox from "vue-easy-lightbox";
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {ref, watch} from "vue";
+import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
 
 const props = defineProps(['question'])
+
+const form = useForm({
+    question_title: props.question?.question_title,
+    question_description: props.question?.question_description,
+    question_image: props.question?.question_image,
+    allow_multiple_votes: props.question?.allow_multiple_votes,
+    allow_skipping: props.question?.allow_skipping
+});
+const imgSrc = ref(null);
+
+watch(() => props.question, (newQuestion) => {
+    form.question_title = newQuestion?.question_title;
+    form.question_description = newQuestion?.question_description;
+    form.question_image = newQuestion?.question_image;
+    form.allow_multiple_votes = newQuestion?.allow_multiple_votes === 1;
+    form.allow_skipping = newQuestion?.allow_skipping === 1;
+
+    imgSrc.value = newQuestion?.question_image
+}, {
+    deep: true,
+    immediate: true,
+});
+
+const submit = async () => {
+    router.post(route('question.update', props.question.id), {
+        _method: 'put',
+        ...form,
+    });
+}
 
 const visibleRef = ref(false)
 const indexRef = ref(0)
@@ -90,41 +110,6 @@ const onHide = () => {
     visibleRef.value = false
 }
 
-const data = reactive({
-    question_title: props.question?.question_title,
-    question_description: props.question?.question_description,
-    question_image: props.question?.question_image,
-    allow_multiple_votes: props.question?.allow_multiple_votes === 1,
-    allow_skipping: props.question?.allow_skipping === 1
-});
-
-const form = useForm({
-    question_title: data.question_title,
-    question_description: data.question_description,
-    question_image: data.question_image,
-    allow_multiple_votes: data.allow_multiple_votes,
-    allow_skipping: data.allow_skipping
-});
-
-watch(() => props.question, (newQuestion) => {
-    data.question_title = newQuestion?.question_title;
-    data.question_description = newQuestion?.question_description;
-    data.question_image = newQuestion?.question_image;
-    data.allow_multiple_votes = newQuestion?.allow_multiple_votes === 1;
-    data.allow_skipping = newQuestion?.allow_skipping === 1;
-
-    if (form) {
-        form.question_title = data.question_title;
-        form.question_description = data.question_description;
-        form.question_image = data.question_image;
-        form.allow_multiple_votes = data.allow_multiple_votes;
-        form.allow_skipping = data.allow_skipping;
-    }
-}, {
-    deep: true,
-    immediate: true,
-});
-
 function handleFileChange(event) {
     const file = event.target.files[0];
 
@@ -133,18 +118,8 @@ function handleFileChange(event) {
     }
 
     form.question_image = file;
-    data.question_image = URL.createObjectURL(file);
+    imgSrc.value = URL.createObjectURL(file);
 }
-
-const editMode = ref({
-    title: false,
-    description: false,
-    image: false
-});
-
-const toggleEditMode = (field) => {
-    editMode.value[field] = !editMode.value[field];
-};
 
 const onUploadImg = async (files, callback) => {
     const res = await Promise.all(
@@ -166,29 +141,4 @@ const onUploadImg = async (files, callback) => {
     );
     callback(res.map((item) => item.data.image));
 }
-
-const submit = () => {
-    router.post(route('question.update', props.question.id), {
-        _method: 'put',
-        ...form,
-    });
-
-    editMode.value = {
-        title: false,
-        description: false,
-        image: false
-    }
-}
-
 </script>
-
-<style scoped>
-.bi-pencil {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    font-size: 1.5rem;
-}
-</style>

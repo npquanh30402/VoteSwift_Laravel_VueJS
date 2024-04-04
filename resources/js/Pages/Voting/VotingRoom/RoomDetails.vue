@@ -23,19 +23,19 @@
             <p class="card-text">
                 Room Link:
                 <code>
-                    <Link :href="getRoomVoteLink(room.id)" target="_blank">{{
+                    <a :href="getRoomVoteLink(room.id)" target="_blank">{{
                             getRoomVoteLink(room.id)
                         }}
-                    </Link>
+                    </a>
                 </code>
             </p>
             <p class="card-text">
                 Result Link:
                 <code>
-                    <Link :href="getRoomResultLink(room.id)" target="_blank">{{
+                    <a :href="getRoomResultLink(room.id)" target="_blank">{{
                             getRoomResultLink(room.id)
                         }}
-                    </Link>
+                    </a>
                 </code>
             </p>
         </div>

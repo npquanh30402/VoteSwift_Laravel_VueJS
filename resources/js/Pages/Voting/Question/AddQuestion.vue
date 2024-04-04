@@ -58,9 +58,10 @@
 import BaseModal from "@/Components/BaseModal.vue";
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
+import {useCandidateStore} from "@/Stores/candidates.js";
 
 const props = defineProps(['room'])
 
@@ -123,10 +124,14 @@ const onUploadImg = async (files, callback) => {
     callback(res.map((item) => item.data.image));
 }
 
+const CandidateStore = useCandidateStore()
 
 const submit = () => {
     router.post(route('question.store', props.room.id), {
         ...form,
     });
+
+    CandidateStore.fetchCandidates(props.room.id)
 }
+
 </script>
