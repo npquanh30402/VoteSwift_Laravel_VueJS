@@ -128,11 +128,15 @@ import {router, usePage} from "@inertiajs/vue3";
 import date from 'date-and-time';
 import VueEasyLightbox from 'vue-easy-lightbox'
 import {route} from "ziggy-js";
+import {useChatStore} from "@/Stores/chat.js";
 
 const props = defineProps(['messages', 'currentRecipient'])
 
+const ChatStore = useChatStore()
+
 const currentRecipient = ref(props?.currentRecipient)
-const databaseMessages = ref(null)
+// const databaseMessages = ref(null)
+const databaseMessages = computed(() => ChatStore.messages[currentRecipient.value.id] ?? [])
 const messages = computed(() => props.messages)
 
 const fetchMessages = async () => {
@@ -146,8 +150,9 @@ const fetchMessages = async () => {
 
 onMounted(async () => {
     if (currentRecipient.value) {
-        await fetchMessages()
+        ChatStore.fetchMessages(currentRecipient.value.id);
     }
+    console.log(ChatStore.messages)
 })
 
 const authUser = computed(() => usePage().props.authUser);

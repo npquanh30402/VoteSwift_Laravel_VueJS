@@ -59,6 +59,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import {route} from "ziggy-js";
 import UserChatList from "@/Pages/Users/Chat/UserChatList.vue";
 import UserMessage from "@/Pages/Users/Chat/UserMessage.vue";
+import {useChatStore} from "@/Stores/chat.js";
 
 const props = defineProps(['friends']);
 
@@ -66,6 +67,8 @@ const authUser = computed(() => usePage().props.authUser);
 const messages = ref([]);
 const newMessage = ref();
 const currentRecipient = ref(null)
+
+const ChatStore = useChatStore()
 
 const handleChangeUser = async (user) => {
     currentRecipient.value = user;
@@ -82,6 +85,18 @@ const sendMessage = (msg, file = null) => {
     const formData = new FormData();
     formData.append('message', msg);
 
+    // const data = {
+    //     id: null,
+    //     sender_id: authUser.value.user.id,
+    //     avatar: authUser.value.user.avatar,
+    //     file: file ? URL.createObjectURL(file) : null,
+    //     message: msg,
+    //     send_date: new Date().toISOString(),
+    //     sender: authUser.value.user.username,
+    // };
+    //
+    // console.log(data)
+
     if (file) {
         formData.append('file', file);
     }
@@ -91,6 +106,10 @@ const sendMessage = (msg, file = null) => {
             'Content-Type': 'multipart/form-data'
         }
     });
+
+    // console.log(formData)
+    //
+    // ChatStore.storeMessage(currentRecipient.value.id, data);
 
     newMessage.value = null;
 };
