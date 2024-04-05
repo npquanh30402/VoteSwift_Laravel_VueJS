@@ -1,45 +1,49 @@
 <template>
-    <div class="popup-chat">
-        <button class="btn btn-primary fs-5 position-relative" @click="toggleChatForm" v-if="!showChatForm">
-            <i class="bi bi-chat-dots"></i>
-            <span
-                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                v-if="unreadMessagesCount && unreadMessagesCount[room.id] > 0">
+    <div>
+        <div class="popup-chat" v-if="!showChatForm">
+            <button class="btn btn-primary fs-5 position-relative" @click="toggleChatForm">
+                <i class="bi bi-chat-dots"></i>
+                <span
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                    v-if="unreadMessagesCount && unreadMessagesCount[room.id] > 0">
                 {{
-                    unreadMessagesCount[room.id]
-                }}
+                        unreadMessagesCount[room.id]
+                    }}
             </span>
-        </button>
-        <transition name="fade">
-            <div v-if="showChatForm" class="card shadow">
-                <div class="card-header d-flex justify-content-between">
-                    <span>Chat</span>
-                    <span style="cursor: pointer" @click="toggleChatForm"><i class="bi bi-x-lg"></i></span>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3" style="min-height: 50vh">
-                        <VotingMessage :messages="messages[room.id] ? messages[room.id] : {}"/>
+            </button>
+        </div>
+        <div class="popup-chat" style="z-index: 999">
+            <transition name="fade">
+                <div v-if="showChatForm" class="card shadow">
+                    <div class="card-header d-flex justify-content-between">
+                        <span>Chat</span>
+                        <span style="cursor: pointer" @click="toggleChatForm"><i class="bi bi-x-lg"></i></span>
                     </div>
-                    <div>
-                        <form @submit.prevent="sendMessage(newMessage)"
-                              class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
-                            <img :src="authUser.avatar"
-                                 alt="avatar 3" style="width: 40px; height: 100%;">
-                            <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1"
-                                   placeholder="Type message" v-model="newMessage">
-                            <div>
-                                <label for="fileInput" style="cursor:pointer;">
-                                    <i class="bi bi-paperclip"></i>
-                                </label>
-                                <input id="fileInput" type="file" @change="handleFileUpload" hidden/>
-                            </div>
-                            <button type="submit" class="ms-3 btn btn-primary" href="#"><i class="bi bi-send"></i>
-                            </button>
-                        </form>
+                    <div class="card-body">
+                        <div class="mb-3" style="min-height: 50vh">
+                            <VotingMessage :messages="messages[room.id] ? messages[room.id] : {}"/>
+                        </div>
+                        <div>
+                            <form @submit.prevent="sendMessage(newMessage)"
+                                  class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+                                <img :src="authUser.avatar"
+                                     alt="avatar 3" style="width: 40px; height: 100%;">
+                                <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1"
+                                       placeholder="Type message" v-model="newMessage">
+                                <div>
+                                    <label for="fileInput" style="cursor:pointer;">
+                                        <i class="bi bi-paperclip"></i>
+                                    </label>
+                                    <input id="fileInput" type="file" @change="handleFileUpload" hidden/>
+                                </div>
+                                <button type="submit" class="ms-3 btn btn-primary" href="#"><i class="bi bi-send"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </transition>
+            </transition>
+        </div>
     </div>
 </template>
 
