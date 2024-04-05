@@ -151,8 +151,8 @@ const fetchMessages = async () => {
 onMounted(async () => {
     if (currentRecipient.value) {
         ChatStore.fetchMessages(currentRecipient.value.id);
+        ChatStore.markReadAll(currentRecipient.value.id)
     }
-    console.log(ChatStore.messages)
 })
 
 const authUser = computed(() => usePage().props.authUser);

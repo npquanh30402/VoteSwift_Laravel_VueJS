@@ -23,6 +23,8 @@ Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('ap
 Route::group(['middleware' => 'web'], function () {
     Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');
     Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
+    Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
+    Route::post('/chat/{user}/read', [ChatController::class, 'markRead'])->name('api.user.chat.read.all');
 
     Route::get('/question/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidate.index');
     Route::get('/room/{room}/candidates', [CandidateController::class, 'RoomCandidates'])->name('api.room.candidate.index');

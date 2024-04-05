@@ -70,6 +70,10 @@ const currentRecipient = ref(null)
 
 const ChatStore = useChatStore()
 
+onMounted(async () => {
+    await ChatStore.fetchUnreadAll()
+})
+
 const handleChangeUser = async (user) => {
     currentRecipient.value = user;
     messages.value = [];

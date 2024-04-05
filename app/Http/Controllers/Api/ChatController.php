@@ -8,10 +8,41 @@ use App\Models\Message;
 use App\Models\User;
 use App\Services\HelperService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 
 class ChatController extends Controller
 {
+    public function markRead(User $user)
+    {
+        Message::where('receiver_id', Auth::user()->id)
+            ->where('sender_id', $user->id)
+            ->update(['is_read' => true]);
+    }
+
+    public function getUnread(User $user)
+    {
+        $unreadMessages = Message::unread($user->id)->get();
+
+        return response()->json($unreadMessages);
+    }
+
+    public function getUnreadAll()
+    {
+        $unreadMessagesBySender = [];
+        $senders = Message::where('receiver_id', Auth::user()->id)
+            ->where('is_read', false)
+            ->distinct('sender_id')
+            ->pluck('sender_id');
+
+        foreach ($senders as $senderId) {
+            $sender = User::find($senderId);
+            $unreadMessagesBySender[$sender->id] = Message::unread($sender)->get();
+        }
+
+        return response()->json($unreadMessagesBySender);
+    }
+
     public function index(User $user)
     {
         $messages = Message::where(function ($query) use ($user) {

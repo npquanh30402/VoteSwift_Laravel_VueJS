@@ -7,6 +7,7 @@ use App\Models\Message;
 use App\Models\User;
 use App\Services\HelperService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
