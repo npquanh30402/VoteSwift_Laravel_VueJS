@@ -46,10 +46,12 @@ Route::group(['prefix' => '/user'], function () {
             ->name('user.abort-request-sent');
         Route::post('/{friend}/unfriend', [FriendController::class, 'unfriend'])->name('user.unfriend');
 
-        Route::middleware(['check_friendship'])->group(function () {
-            Route::get('/chat/{user}', [ChatController::class, 'main'])->name('chat.main');
-            Route::post('/chat/message/{user}', [ChatController::class, 'messageReceived'])->name('chat.message');
-        });
+//        Route::middleware(['check_friendship'])->group(function () {
+//            Route::get('/chat', [ChatController::class, 'main'])->name('chat.main');
+//            Route::post('/chat/message/{user}', [ChatController::class, 'messageReceived'])->name('chat.message');
+//        });
+        Route::get('/chat', [ChatController::class, 'main'])->name('chat.main');
+        Route::post('/chat/message/{user}', [ChatController::class, 'messageReceived'])->name('chat.message');
 
     });
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

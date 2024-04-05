@@ -14,39 +14,14 @@ use Inertia\Inertia;
 
 class ChatController extends Controller
 {
-    public function main(User $user)
+    public function main()
     {
-        if ($user->id == auth()->id()) {
-            return back()->with('error', 'You cannot chat with yourself.');
-        }
-
-        $messages = Message::where(function ($query) use ($user) {
-            $query->where('sender_id', auth()->id())
-                ->where('receiver_id', $user->id);
-        })->orWhere(function ($query) use ($user) {
-            $query->where('sender_id', $user->id)
-                ->where('receiver_id', auth()->id());
-        })->orderBy('created_at', 'asc')->get();
-
-        $decryptedMessages = $messages->map(function ($message) {
-            return [
-                'id' => $message->id,
-                'sender_id' => $message->sender_id,
-                'avatar' => User::find($message->sender_id)->avatar,
-                'sender' => User::find($message->sender_id)->username,
-                'message' => Crypt::decryptString($message->encrypted_content),
-//                'message' => $message->encrypted_content,
-                'file' => $message->file,
-                'send_date' => $message->created_at
-            ];
-        });
-
         $acceptedFriendsFrom = auth()->user()->acceptedFriendsFrom()->get();
         $acceptedFriendsTo = auth()->user()->acceptedFriendsTo()->get();
 
         $friends = $acceptedFriendsFrom->merge($acceptedFriendsTo);
 
-        return Inertia::render('Users/UserChat', compact('user', 'friends', 'decryptedMessages'));
+        return Inertia::render('Users/UserChat', compact('friends'));
     }
 
     public function messageReceived(Request $request, User $user)

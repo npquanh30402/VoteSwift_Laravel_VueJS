@@ -16,12 +16,6 @@ Broadcast::channel('result-update', function ($user) {
     return true;
 });
 
-Broadcast::channel('chat', function ($user) {
-    if ($user != null) {
-        return ['id' => $user->id, 'name' => $user->username];
-    }
-});
-
 Broadcast::channel('chat.{user}', function ($user) {
     if ($user != null) {
         return ['id' => $user->id, 'name' => $user->username];

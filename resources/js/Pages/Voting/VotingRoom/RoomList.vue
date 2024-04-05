@@ -10,7 +10,7 @@
                     <th>Start Time</th>
                     <th>End Time</th>
                     <th>Status</th>
-                    <th>Details</th>
+                    <th class="text-center">Actions</th>
                 </tr>
                 <!-- Table rows -->
                 <tr v-for="room in paginatedRooms" :key="room.id">

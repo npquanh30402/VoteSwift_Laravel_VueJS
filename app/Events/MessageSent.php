@@ -34,8 +34,11 @@ class MessageSent implements ShouldBroadcastNow
     {
         $privateChannel = new PrivateChannel('chat.' . $this->user->id);
 
-        $presenceChannel = new PresenceChannel('chat');
+        return [$privateChannel];
 
-        return [$privateChannel, $presenceChannel];
+//        return [
+//            new PrivateChannel('chat.' . $this->messageObj->sender_id),
+//            new PrivateChannel('chat.' . $this->messageObj->receiver_id)
+//        ];
     }
 }
