@@ -7,7 +7,8 @@
                 <img :src="friend.avatar" class="rounded-circle me-3" style="width: 50px" alt="">
                 <span class="fs-5"><strong>{{ friend.username }}</strong></span>
             </div>
-            <span class="badge text-bg-danger" v-if="unreadMessagesCount && unreadMessagesCount[friend.id] > 0">{{
+            <span class="badge text-bg-danger"
+                  v-if="unreadMessagesCount && unreadMessagesCount[friend.id] > 0 && currentUser !== friend">{{
                     unreadMessagesCount[friend.id]
                 }}</span>
         </div>

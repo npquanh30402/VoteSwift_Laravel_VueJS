@@ -56,11 +56,13 @@ export const useChatStore = defineStore('chat', () => {
                 }
             });
 
-            if (!messages.value[recipientId]) {
-                messages.value[recipientId] = [];
-            }
+            // unreadCountsBySender.value[recipientId] += 1;
 
-            messages.value[recipientId].push(formData);
+            // if (!messages.value[recipientId]) {
+            //     messages.value[recipientId] = [];
+            // }
+            //
+            // messages.value[recipientId].push(formData);
         } catch (error) {
             console.error('Error storing message for recipient ID ' + recipientId + ':', error);
         }

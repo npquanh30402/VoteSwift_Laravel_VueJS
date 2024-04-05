@@ -105,15 +105,9 @@ const sendMessage = (msg, file = null) => {
         formData.append('file', file);
     }
 
-    window.axios.post(route('api.user.chat.store', currentRecipient.value.id), formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-
     // console.log(formData)
     //
-    // ChatStore.storeMessage(currentRecipient.value.id, data);
+    ChatStore.storeMessage(currentRecipient.value.id, formData);
 
     newMessage.value = null;
 };
@@ -127,6 +121,10 @@ const filteredMessages = computed(() => {
 
 const handleReceivedMessage = (e) => {
     messages.value.push({user: e.user, messageObj: e.messageObj, message: e.plainMessage});
+
+    const senderId = e.messageObj.sender_id;
+    ChatStore.unreadCountsBySender[senderId] = ChatStore.unreadCountsBySender[senderId] + 1;
+    console.log(ChatStore.unreadCountsBySender)
 };
 
 const setupEchoListeners = () => {
@@ -135,16 +133,26 @@ const setupEchoListeners = () => {
     }
 };
 
-watch(currentRecipient, (newRecipient, oldRecipient) => {
-    if (newRecipient !== null) {
-        if (oldRecipient !== null) {
-            Echo.leave(`chat.${oldRecipient.id}`);
-        }
-        Echo.private(`chat.${newRecipient.id}`).listen("MessageSent", handleReceivedMessage);
+const setupEchoListenersForFriends = (recipientId) => {
+    if (recipientId) {
+        Echo.private(`chat.${recipientId}`).listen("MessageSent", handleReceivedMessage);
     }
-});
+};
+
+// watch(currentRecipient, (newRecipient, oldRecipient) => {
+//     if (newRecipient !== null) {
+//         // if (oldRecipient !== null) {
+//         //     Echo.leave(`chat.${oldRecipient.id}`);
+//         // }
+//         Echo.private(`chat.${newRecipient.id}`).listen("MessageSent", handleReceivedMessage);
+//     }
+// });
 
 onMounted(() => {
     setupEchoListeners()
+
+    props.friends.forEach((friend) => {
+        setupEchoListenersForFriends(friend.id);
+    });
 })
 </script>
