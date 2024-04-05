@@ -196,7 +196,6 @@ function truncateFileName(fileName, maxLength) {
     }
 }
 
-
 const visibleRef = ref(false)
 const indexRef = ref(0)
 const imgsRef = ref([])

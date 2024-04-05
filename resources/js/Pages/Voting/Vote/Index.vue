@@ -81,6 +81,7 @@
         <MdPreview :editorId="'room_' + room.id" :modelValue="room.room_description"/>
     </BaseModal>
 
+    <VotingChat :room="room" style="z-index: 999"/>
     <h3>Time remaining: </h3>
     <VotingClock :date="room.end_time"/>
 
@@ -106,6 +107,7 @@ import VotingClock from "@/Components/VotingClock.vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import BaseModal from "@/Components/BaseModal.vue";
 import {MdPreview} from "md-editor-v3";
+import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
 
 const props = defineProps(['questions', 'room', 'roomSettings', 'invitedUsers', 'roomAttachments'])
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');

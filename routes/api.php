@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\VoteController;
+use App\Http\Controllers\Api\VotingChatController;
 use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -31,4 +32,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/question/{question}/candidates', [CandidateController::class, 'store'])->name('api.question.candidate.store');
     Route::put('/candidate/{candidate}', [CandidateController::class, 'update'])->name('api.candidate.update');
     Route::delete('/candidate/{candidate}', [CandidateController::class, 'destroy'])->name('api.candidate.destroy');
+
+    Route::get('/voting/{room}/chat/', [VotingChatController::class, 'index'])->name('api.vote.chat.index');
+    Route::post('/voting/{room}/chat/', [VotingChatController::class, 'store'])->name('api.vote.chat.store');
 });

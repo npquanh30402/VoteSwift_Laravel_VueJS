@@ -35,10 +35,5 @@ class MessageSent implements ShouldBroadcastNow
         $privateChannel = new PrivateChannel('chat.' . $this->user->id);
 
         return [$privateChannel];
-
-//        return [
-//            new PrivateChannel('chat.' . $this->messageObj->sender_id),
-//            new PrivateChannel('chat.' . $this->messageObj->receiver_id)
-//        ];
     }
 }

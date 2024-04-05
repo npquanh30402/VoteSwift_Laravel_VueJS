@@ -124,7 +124,6 @@ const handleReceivedMessage = (e) => {
 
     const senderId = e.messageObj.sender_id;
     ChatStore.unreadCountsBySender[senderId] = ChatStore.unreadCountsBySender[senderId] + 1;
-    console.log(ChatStore.unreadCountsBySender)
 };
 
 const setupEchoListeners = () => {
