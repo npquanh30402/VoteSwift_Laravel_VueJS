@@ -11,8 +11,16 @@
                         <span>{{ message.sender }}</span>
                     </div>
                     <div>
-                        <img class="img-fluid p-2 ms-3 mb-1" style="width: 10rem" :src="message.file"
-                             alt="file" v-if="message.file" @click="showSingle">
+                        <div v-if="message.file" class="ms-3">
+                            <img class="img-fluid" style="width: 10rem" :src="message.file"
+                                 alt="file" v-if="isImage(message.file)" @click="showSingle">
+                            <div class="vstack" v-else>
+                                <a :href="message.file" class="btn btn-danger" download>Download File</a>
+                                <span class="text-muted">{{
+                                        truncateFileName(extractFileName(message.file), maxLength)
+                                    }}</span>
+                            </div>
+                        </div>
                         <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;" v-else>
                             {{ message.message }}</p>
                         <p class="small ms-3 mb-3 rounded-3 text-muted">{{
@@ -22,8 +30,16 @@
                 </div>
                 <div class="hstack justify-content-end mb-4 pt-1" v-else>
                     <div>
-                        <img class="img-fluid p-2 me-3 mb-1" style="width: 10rem" :src="message.file"
-                             alt="file" v-if="message.file" @click="showSingle">
+                        <div v-if="message.file" class="me-3">
+                            <img class="img-fluid" style="width: 10rem" :src="message.file"
+                                 alt="file" v-if="isImage(message.file)" @click="showSingle">
+                            <div class="vstack" v-else>
+                                <a :href="message.file" class="btn btn-danger" download>Download File</a>
+                                <span class="text-muted">{{
+                                        truncateFileName(extractFileName(message.file), maxLength)
+                                    }}</span>
+                            </div>
+                        </div>
                         <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary" v-else>{{
                                 message.message
                             }}</p>
@@ -47,9 +63,16 @@
                         <span>{{ message.user.username }}</span>
                     </div>
                     <div>
-                        <img class="img-fluid p-2 ms-3 mb-1" style="width: 10rem"
-                             :src="message.messageObj.file"
-                             alt="file" v-if="message.messageObj.file" @click="showSingle">
+                        <div v-if="message.messageObj.file" class="ms-3">
+                            <img class="img-fluid" style="width: 10rem" :src="message.messageObj.file"
+                                 alt="file" v-if="isImage(message.messageObj.file)" @click="showSingle">
+                            <div class="vstack" v-else>
+                                <a :href="message.messageObj.file" class="btn btn-danger" download>Download File</a>
+                                <span class="text-muted">{{
+                                        truncateFileName(extractFileName(message.messageObj.file), maxLength)
+                                    }}</span>
+                            </div>
+                        </div>
                         <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;" v-else>
                             {{ message.message }}</p>
                         <p class="small ms-3 mb-3 rounded-3 text-muted">
@@ -58,9 +81,16 @@
                 </div>
                 <div class="hstack justify-content-end mb-4 pt-1" v-else>
                     <div>
-                        <img class="img-fluid p-2 me-3 mb-1" style="width: 10rem"
-                             :src="message.messageObj.file"
-                             alt="file" v-if="message.messageObj.file" @click="showSingle">
+                        <div v-if="message.messageObj.file" class="me-3">
+                            <img class="img-fluid" style="width: 10rem" :src="message.messageObj.file"
+                                 alt="file" v-if="isImage(message.messageObj.file)" @click="showSingle">
+                            <div class="vstack" v-else>
+                                <a :href="message.messageObj.file" class="btn btn-danger" download>Download File</a>
+                                <span class="text-muted">{{
+                                        truncateFileName(extractFileName(message.messageObj.file), maxLength)
+                                    }}</span>
+                            </div>
+                        </div>
                         <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary" v-else>{{
                                 message.message
                             }}</p>
@@ -136,6 +166,31 @@ function formatHour(dt) {
     const fdt = new Date(dt);
     return date.format(fdt, 'HH:mm');
 }
+
+function isImage(file) {
+    const extension = file.split('.').pop().toLowerCase();
+
+    const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
+
+    return imageExtensions.includes(extension);
+}
+
+function extractFileName(filePath) {
+    const parts = filePath.split('/');
+
+    return parts[parts.length - 1];
+}
+
+const maxLength = 20;
+
+function truncateFileName(fileName, maxLength) {
+    if (fileName.length <= maxLength) {
+        return fileName;
+    } else {
+        return '...' + fileName.substr(fileName.length - maxLength);
+    }
+}
+
 
 const visibleRef = ref(false)
 const indexRef = ref(0)
