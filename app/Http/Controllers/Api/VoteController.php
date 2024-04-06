@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\VotingChoice;
 use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
+use App\Models\Vote;
 use App\Models\VotingRoom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 
 class VoteController extends Controller
 {
+    public function broadcastChoice(VotingRoom $room, Request $request)
+    {
+        broadcast(new VotingChoice($room, $request->questionId, $request->candidateId));
+    }
+
     public function startVote(VotingRoom $room)
     {
         if (Auth::user()->id !== $room->user_id) {
@@ -22,43 +31,30 @@ class VoteController extends Controller
 
         return response()->json(['message' => 'Vote started successfully']);
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function getVoteResults(VotingRoom $room)
     {
-        //
-    }
+        $questions = $room->questions;
+        $vote_results = [];
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(VotingRoom $votingRoom)
-    {
-        //
-    }
+        foreach ($questions as $question) {
+            $results = DB::table('votes')
+                ->join('candidates', 'votes.candidate_id', '=', 'candidates.id')
+                ->where('candidates.question_id', $question->id)
+                ->select('candidates.id', 'candidates.candidate_title', DB::raw('COUNT(*) as vote_count'))
+                ->groupBy('candidates.id', 'candidates.candidate_title')
+                ->get();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, VotingRoom $votingRoom)
-    {
-        //
-    }
+            $candidates = $results->map(function ($result) {
+                $result->candidate_title = Crypt::decryptString($result->candidate_title);
+                return $result;
+            });
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(VotingRoom $votingRoom)
-    {
-        //
+            $vote_results[$question->id] = $candidates;
+        }
+
+//        $vote_results = Vote::getQuestionResults($room->questions);
+
+        return response()->json(compact('vote_results'));
     }
 }

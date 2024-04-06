@@ -37,3 +37,7 @@ Broadcast::channel('voting.{room}', function (User $user, VotingRoom $room) {
 Broadcast::channel('voting.chat.{room}', function ($room) {
     return true;
 });
+
+Broadcast::channel('voting.choice.{room}', function ($room) {
+    return true;
+});

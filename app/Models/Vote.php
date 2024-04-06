@@ -36,7 +36,7 @@ class Vote extends Model
 
             $questionArray = [
                 'question_title' => Crypt::decryptString($question->question_title),
-                'question_description' => Crypt::decryptString($question->question_description),
+//                'question_description' => Crypt::decryptString($question->question_description),
                 'candidates' => $candidates->pluck('candidate_title')->toArray(),
                 'vote_counts' => $candidates->pluck('vote_count')->toArray(),
             ];

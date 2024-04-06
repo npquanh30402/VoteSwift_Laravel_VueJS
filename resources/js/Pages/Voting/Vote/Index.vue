@@ -111,7 +111,7 @@ import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
 
 const props = defineProps(['questions', 'room', 'roomSettings', 'invitedUsers', 'roomAttachments'])
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
-const currentTab = ref('Welcome');
+const currentTab = ref('StartVoting');
 const isChatEnable = ref(props.roomSettings?.chat_enabled === 1)
 
 const tabs = {

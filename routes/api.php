@@ -11,17 +11,16 @@ use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
-
-Route::post('/images/{room}/upload', [FileUploadController::class, 'storeAttachment'])->name('api.room.attachment.store');
-
-Route::get('/search', [UserController::class, 'search'])->name('user.search');
-
-Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('invitation.get');
-
-Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('api.room.vote.start')->middleware('web');
-
 Route::group(['middleware' => 'web'], function () {
+    Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
+
+    Route::post('/images/{room}/upload', [FileUploadController::class, 'storeAttachment'])->name('api.room.attachment.store');
+
+    Route::get('/search', [UserController::class, 'search'])->name('user.search');
+
+    Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('invitation.get');
+
+
     Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');
     Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
     Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
@@ -35,4 +34,8 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::get('/voting/{room}/chat/', [VotingChatController::class, 'index'])->name('api.vote.chat.index');
     Route::post('/voting/{room}/chat/', [VotingChatController::class, 'store'])->name('api.vote.chat.store');
+
+    Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('api.room.vote.start');
+    Route::get('/room/{room}/results', [VoteController::class, 'getVoteResults'])->name('api.room.vote.results');
+    Route::post('/room/{room}/choice', [VoteController::class, 'broadcastChoice'])->name('api.room.vote.broadcast.choice');
 });
