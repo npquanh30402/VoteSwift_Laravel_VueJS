@@ -38,6 +38,7 @@ import {router} from "@inertiajs/vue3";
 import VoterPage from "@/Pages/Voting/VotingRoom/VoterPage.vue";
 import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
 import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
+import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
 
 const props = defineProps(['room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
 
@@ -52,6 +53,7 @@ const tabs = {
     AttachmentPage,
     VotingResult,
     UpdatePassword,
+    UpdateChat,
     VoterPage,
     RoomPublish,
     DeleteRoom

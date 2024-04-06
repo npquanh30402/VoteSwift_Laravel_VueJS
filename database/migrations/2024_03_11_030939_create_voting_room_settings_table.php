@@ -23,8 +23,12 @@ return new class extends Migration {
             $table->enum('results_visibility', ['after_voting', 'participants_only', 'restricted'])->default('restricted');
 
             // General voting room settings
-            $table->boolean('allow_voting')->default(true);
             $table->boolean('allow_anonymous_voting')->default(false);
+
+            // Chat Features
+            $table->boolean('chat_enabled')->default(false);
+            $table->boolean('chat_messages_saved')->default(false);
+            $table->boolean('allow_voters_upload')->default(false);
 
             $table->timestamps();
 

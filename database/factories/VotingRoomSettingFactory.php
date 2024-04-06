@@ -20,7 +20,6 @@ class VotingRoomSettingFactory extends Factory
             'public_visibility' => fake()->boolean,
             'password' => null,
             'results_visibility' => fake()->randomElement(['after_voting', 'restricted']),
-            'allow_voting' => fake()->boolean,
             'allow_anonymous_voting' => fake()->boolean,
         ];
     }

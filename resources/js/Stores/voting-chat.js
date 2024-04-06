@@ -7,6 +7,10 @@ export const useVotingChatStore = defineStore('votingChat', () => {
     const messages = ref({});
     const unreadCounts = ref({});
 
+    const clearMessages = (roomId) => {
+        messages.value[roomId] = []
+        unreadCounts.value[roomId] = 0
+    }
     const markRead = (roomId) => {
         unreadCounts.value[roomId] = 0;
     }
@@ -34,5 +38,5 @@ export const useVotingChatStore = defineStore('votingChat', () => {
         }
     };
 
-    return {messages, fetchMessages, storeMessage, unreadCounts, markRead};
+    return {messages, fetchMessages, storeMessage, unreadCounts, markRead, clearMessages};
 });

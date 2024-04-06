@@ -30,7 +30,7 @@
                                      alt="avatar 3" style="width: 40px; height: 100%;">
                                 <input type="text" class="form-control form-control-lg" id="exampleFormControlInput1"
                                        placeholder="Type message" v-model="newMessage">
-                                <div>
+                                <div v-if="isChatUpload">
                                     <label for="fileInput" style="cursor:pointer;">
                                         <i class="bi bi-paperclip"></i>
                                     </label>
@@ -53,7 +53,7 @@ import {usePage} from "@inertiajs/vue3";
 import VotingMessage from "@/Pages/Voting/Vote/Chat/VotingMessage.vue";
 import {useVotingChatStore} from "@/Stores/voting-chat.js";
 
-const props = defineProps(['room'])
+const props = defineProps(['room', 'roomSettings'])
 const votingChatStore = useVotingChatStore()
 const showChatForm = ref(false)
 const authUser = computed(() => usePage().props.authUser.user);
@@ -61,15 +61,19 @@ const messages = computed(() => votingChatStore.messages);
 const newMessage = ref(null)
 const unreadMessagesCount = computed(() => votingChatStore.unreadCounts)
 
+const isChatUpload = ref(props.roomSettings?.allow_voters_upload === 1)
+
 function toggleChatForm() {
     showChatForm.value = !showChatForm.value;
     votingChatStore.markRead(props.room.id)
 }
 
 const handleFileUpload = (event) => {
-    const uploadedFile = event.target.files[0];
+    if (isChatUpload) {
+        const uploadedFile = event.target.files[0];
 
-    sendMessage(null, uploadedFile);
+        sendMessage(null, uploadedFile);
+    }
 };
 
 const sendMessage = async (msg, file = null) => {
@@ -105,7 +109,12 @@ const setupEchoListeners = () => {
 
 onMounted(async () => {
     setupEchoListeners()
-    await votingChatStore.fetchMessages(props.room.id);
+
+    if (props.roomSettings?.chat_messages_saved === 1) {
+        await votingChatStore.fetchMessages(props.room.id);
+    } else {
+        votingChatStore.clearMessages(props.room.id);
+    }
 })
 </script>
 

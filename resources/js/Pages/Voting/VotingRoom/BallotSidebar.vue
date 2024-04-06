@@ -31,8 +31,8 @@
                 @click="switchTab('UpdatePassword')">Password
         </button>
 
-        <button class="list-group-item list-group-item-action"
-                @click="switchTab('')">Chat Feature
+        <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'UpdateChat'}"
+                @click="switchTab('UpdateChat')">Chat Feature
         </button>
 
         <button class="list-group-item list-group-item-action"

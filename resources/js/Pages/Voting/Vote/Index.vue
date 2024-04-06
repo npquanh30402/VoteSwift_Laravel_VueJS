@@ -81,7 +81,7 @@
         <MdPreview :editorId="'room_' + room.id" :modelValue="room.room_description"/>
     </BaseModal>
 
-    <VotingChat :room="room" style="z-index: 999"/>
+    <VotingChat :room="room" :roomSettings="roomSettings" style="z-index: 999" v-if="isChatEnable"/>
     <h3>Time remaining: </h3>
     <VotingClock :date="room.end_time"/>
 
@@ -112,6 +112,7 @@ import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
 const props = defineProps(['questions', 'room', 'roomSettings', 'invitedUsers', 'roomAttachments'])
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
 const currentTab = ref('Welcome');
+const isChatEnable = ref(props.roomSettings?.chat_enabled === 1)
 
 const tabs = {
     Welcome,

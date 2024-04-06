@@ -7,6 +7,21 @@ use Illuminate\Http\Request;
 
 class VotingRoomSettingController extends Controller
 {
+    public function updateChatSetting(VotingRoom $room, Request $request)
+    {
+        if (isset($request->chat_enabled)) {
+            $room->settings()->update(['chat_enabled' => $request->chat_enabled]);
+        }
+
+        if (isset($request->chat_messages_saved)) {
+            $room->settings()->update(['chat_messages_saved' => $request->chat_messages_saved]);
+        }
+
+        if (isset($request->allow_voters_upload)) {
+            $room->settings()->update(['allow_voters_upload' => $request->allow_voters_upload]);
+        }
+    }
+
     public function updateInvitationSetting(VotingRoom $room, Request $request)
     {
         $room->settings()->update(['invitation_only' => $request->invitation_only]);

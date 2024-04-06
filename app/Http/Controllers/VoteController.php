@@ -147,7 +147,7 @@ class VoteController extends Controller
         $room->room_name = Crypt::decryptString($room->room_name);
         $room->room_description = Crypt::decryptString($room->room_description);
 
-        $roomSettings = $room->settings->only('invitation_only', 'wait_for_voters', 'allow_anonymous_voting');
+        $roomSettings = $room->settings->only('invitation_only', 'wait_for_voters', 'allow_anonymous_voting', 'chat_enabled', 'chat_messages_saved', 'allow_voters_upload');
 
         $roomAttachments = $room->attachments;
 

@@ -30,6 +30,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
         Route::put('/{room}/settings/invitations/update', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('room.settings.invitation.update');
         Route::put('/{room}/settings/waitForVoters/update', [VotingRoomSettingController::class, 'updateWaitForVotersSetting'])->name('room.settings.waitForVoters.update');
         Route::put('/{room}/settings/password/update', [VotingRoomSettingController::class, 'updatePasswordSetting'])->name('room.settings.password.update');
+        Route::put('/{room}/settings/chat/update', [VotingRoomSettingController::class, 'updateChatSetting'])->name('room.settings.chat.update');
 
         Route::post('/{room}/question', [QuestionController::class, 'store'])->name('question.store');
 
