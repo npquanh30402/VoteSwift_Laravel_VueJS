@@ -112,7 +112,13 @@ onMounted(async () => {
 
 const selectedOptions = ref({});
 
-const onClickCheck = (questionId, candidateId) => {
+const onClickCheck = async (questionId, candidateId) => {
+    const formData = new FormData();
+    formData.append('questionId', questionId);
+    formData.append('candidateId', candidateId);
+
+    await axios.post(route('api.room.vote.broadcast.choice', props.room.id), formData);
+
     if (!selectedOptions.value.hasOwnProperty(questionId)) {
         selectedOptions.value[questionId] = [candidateId];
     } else {
@@ -131,7 +137,6 @@ const onClickRadio = async (questionId, candidateId) => {
     formData.append('questionId', questionId);
     formData.append('candidateId', candidateId);
 
-    await axios.post(route('api.room.vote.broadcast.choice', props.room.id), formData);
 
     if (selectedOptions.value.hasOwnProperty(questionId)) {
         const index = selectedOptions.value[questionId].indexOf(candidateId);
@@ -141,20 +146,38 @@ const onClickRadio = async (questionId, candidateId) => {
     } else {
         selectedOptions.value[questionId] = [candidateId];
     }
+    await axios.post(route('api.room.vote.broadcast.choice', props.room.id), formData);
 };
 
 const handleReceivedChoice = (e) => {
     const questionId = e.question_id;
     const candidateId = parseInt(e.candidate_id);
 
-    const oldCandidateId = currentChoice.value[questionId];
-    if (oldCandidateId) {
-        updateVoteCount(questionId, oldCandidateId, -1);
+    if (e.question_type.allow_multiple_votes === 1) {
+        if (!selectedOptions.value.hasOwnProperty(questionId)) {
+            selectedOptions.value[questionId] = [];
+        }
+
+        const isSelected = selectedOptions.value[questionId].includes(candidateId);
+        if (isSelected === false) {
+            updateVoteCount(questionId, candidateId, 1);
+        } else {
+            selectedOptions.value[questionId].forEach((oldCandidateId) => {
+                if (oldCandidateId === candidateId) {
+                    updateVoteCount(questionId, oldCandidateId, -1);
+                }
+            });
+        }
+    } else {
+        const oldCandidateId = currentChoice.value[questionId];
+        if (oldCandidateId) {
+            updateVoteCount(questionId, oldCandidateId, -1);
+        }
+
+        currentChoice.value[questionId] = candidateId;
+
+        updateVoteCount(questionId, candidateId, 1);
     }
-
-    currentChoice.value[questionId] = candidateId;
-
-    updateVoteCount(questionId, candidateId, 1);
 };
 
 const setupEchoListeners = () => {
