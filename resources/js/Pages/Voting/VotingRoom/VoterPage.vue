@@ -6,13 +6,13 @@
                 <div class="hstack gap-3 align-items-center justify-content-between">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="SpecificVoterSwitch"
-                               @change="toggleInvitation" :checked="onlyInvitation">
+                               @change="toggleInvitation" v-model="onlyInvitation">
                         <label class="form-check-label" for="musicPlayerSwitch">Only Voters I invite Can Join and
                             Vote</label>
                     </div>
                     <div class="form-check form-switch" :class="[onlyInvitation ? '' : 'un-interactive']">
                         <input class="form-check-input" type="checkbox" role="switch" id="waitVoterSwitch"
-                               @change="toggleWaitForVoters" :checked="waitForVoters">
+                               @change="toggleWaitForVoters" v-model="waitForVoters">
                         <label class="form-check-label" for="waitVoterSwitch">Wait Until Voters Joined to Start
                             Voting</label>
                     </div>
@@ -98,34 +98,56 @@
 <script setup>
 import axios from 'axios';
 import {route} from "ziggy-js";
-import {router, usePage} from "@inertiajs/vue3";
-import {computed, ref} from "vue";
+import {usePage} from "@inertiajs/vue3";
+import {computed, onMounted, ref, watch} from "vue";
+import {useVotingSettingStore} from "@/Stores/voting-settings.js";
+import {useInvitationStore} from "@/Stores/invitations.js";
 
-const props = defineProps(['room', 'room_settings'])
+const props = defineProps(['room'])
 
 const authUser = computed(() => usePage().props.authUser.user);
 
-const onlyInvitation = ref(props.room_settings?.invitation_only === 1);
-const waitForVoters = ref(props.room_settings?.wait_for_voters === 1);
+const votingSettingStore = useVotingSettingStore();
+const invitationStore = useInvitationStore();
+const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);
+const userInvitationList = computed(() => invitationStore.invitations[props.room.id]);
 
-const toggleInvitation = () => {
-    onlyInvitation.value = !onlyInvitation.value
-    router.put(route('room.settings.invitation.update', props.room.id), {
-        invitation_only: onlyInvitation.value
-    })
-}
+const onlyInvitation = ref(false);
+const waitForVoters = ref(false);
 
-const toggleWaitForVoters = () => {
-    waitForVoters.value = !waitForVoters.value
-    router.put(route('room.settings.waitForVoters.update', props.room.id), {
-        wait_for_voters: waitForVoters.value
-    })
-}
+watch(() => roomSettings.value, () => {
+    onlyInvitation.value = roomSettings.value?.invitation_only === 1;
+    waitForVoters.value = roomSettings.value?.wait_for_voters === 1;
+})
 
 const search_query = ref('');
 const users = ref([]);
 
-const searchUsers = async (specificUserId) => {
+onMounted(() => {
+    votingSettingStore.fetchSettings(props.room.id)
+    invitationStore.fetchInvitations(props.room.id)
+})
+
+const toggleInvitation = () => {
+    const formData = new FormData();
+    formData.append('invitation_only', onlyInvitation.value);
+
+    votingSettingStore.updateSettings(props.room.id, formData)
+
+    if (waitForVoters.value === true) {
+        waitForVoters.value = false
+        toggleWaitForVoters()
+    }
+}
+
+const toggleWaitForVoters = () => {
+    const formData = new FormData();
+    formData.append('wait_for_voters', waitForVoters.value);
+
+    votingSettingStore.updateSettings(props.room.id, formData)
+}
+
+const searchUsers = async () => {
     if (search_query.value.length >= 3) {
         try {
             const response = await axios.get(route('user.search'), {
@@ -144,15 +166,6 @@ const searchUsers = async (specificUserId) => {
         users.value = [];
     }
 };
-
-let userInvitationList = ref([]);
-
-axios.get(route('invitation.get', props.room.id))
-    .then(function (response) {
-        response.data.invitedUsers.forEach(invitation => {
-            userInvitationList.value.push(invitation);
-        });
-    });
 
 const addToInvite = (userToAdd) => {
     const userExistsInInvitationListIndex = userInvitationList.value.findIndex(user => user.id === userToAdd.id);
@@ -176,9 +189,10 @@ const removeFromInvite = (userIdToRemove) => {
 };
 
 const submit = () => {
-    router.post(route('invitation.store', props.room.id), {
+    const data = {
         user_ids: userInvitationList.value
-    })
-}
+    }
 
+    invitationStore.storeInvitations(props.room.id, data)
+}
 </script>

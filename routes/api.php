@@ -5,20 +5,26 @@ use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\ImageUploadController;
+use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
-use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\Api\VotingRoomSettingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/images/{room}/upload', [FileUploadController::class, 'storeAttachment'])->name('api.room.attachment.store');
 
 Route::group(['middleware' => 'web'], function () {
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
 
-    Route::post('/images/{room}/upload', [FileUploadController::class, 'storeAttachment'])->name('api.room.attachment.store');
 
     Route::get('/search', [UserController::class, 'search'])->name('user.search');
 
-    Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('invitation.get');
+    Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('api.room.invitation.index');
+    Route::post('/room/{room}/invitations', [InvitationController::class, 'store'])->name('api.room.invitation.store');
+
+    Route::get('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'getSettings'])->name('api.room.setting.invitation.index');
+    Route::put('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('api.room.setting.invitation.update');
 
 
     Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');

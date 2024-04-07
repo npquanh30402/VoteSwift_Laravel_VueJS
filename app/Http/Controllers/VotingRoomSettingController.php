@@ -22,17 +22,6 @@ class VotingRoomSettingController extends Controller
         }
     }
 
-    public function updateInvitationSetting(VotingRoom $room, Request $request)
-    {
-        $room->settings()->update(['invitation_only' => $request->invitation_only]);
-    }
-
-    public function updateWaitForVotersSetting(VotingRoom $room, Request $request)
-    {
-
-        $room->settings()->update(['wait_for_voters' => $request->wait_for_voters]);
-    }
-
     public function updatePasswordSetting(VotingRoom $room, Request $request)
     {
         $settings = $room->settings;

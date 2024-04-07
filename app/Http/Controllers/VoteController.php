@@ -131,7 +131,7 @@ class VoteController extends Controller
 
     public function main(VotingRoom $room, Request $request)
     {
-        $this->authorize('joinInvitation', [$room, $request->query('token')]);
+//        $this->authorize('joinInvitation', [$room, $request->query('token')]);
 
         $questions = $room->questions()->with('candidates')->get()->map(function ($question) {
             $question->question_title = Crypt::decryptString($question->question_title);
