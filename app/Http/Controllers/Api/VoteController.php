@@ -16,7 +16,7 @@ class VoteController extends Controller
 {
     public function broadcastChoice(VotingRoom $room, Request $request)
     {
-        broadcast(new VotingChoice($room, $request->questionId, $request->candidateId));
+        broadcast(new VotingChoice(Auth::user(), $room, $request->questionId, $request->candidateId));
     }
 
     public function startVote(VotingRoom $room)

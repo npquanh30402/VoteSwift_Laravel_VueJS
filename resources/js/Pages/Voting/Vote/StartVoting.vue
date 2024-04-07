@@ -137,7 +137,6 @@ const onClickRadio = async (questionId, candidateId) => {
     formData.append('questionId', questionId);
     formData.append('candidateId', candidateId);
 
-
     if (selectedOptions.value.hasOwnProperty(questionId)) {
         const index = selectedOptions.value[questionId].indexOf(candidateId);
         if (index === -1) {
@@ -149,40 +148,85 @@ const onClickRadio = async (questionId, candidateId) => {
     await axios.post(route('api.room.vote.broadcast.choice', props.room.id), formData);
 };
 
+const userChoicesInRoom = ref({})
 const handleReceivedChoice = (e) => {
     const questionId = e.question_id;
     const candidateId = parseInt(e.candidate_id);
 
-    if (e.question_type.allow_multiple_votes === 1) {
-        if (!selectedOptions.value.hasOwnProperty(questionId)) {
-            selectedOptions.value[questionId] = [];
-        }
+    if (!userChoicesInRoom.value[e.user.id]) {
+        userChoicesInRoom.value[e.user.id] = {};
+    }
 
-        const isSelected = selectedOptions.value[questionId].includes(candidateId);
-        if (isSelected === false) {
+    if (!userChoicesInRoom.value[e.user.id][questionId]) {
+        userChoicesInRoom.value[e.user.id][questionId] = [];
+    }
+
+    // For checkbox
+    if (e.question_type.allow_multiple_votes === 1) {
+        const isSelected = userChoicesInRoom.value[e.user.id][questionId].includes(candidateId);
+        console.log(isSelected)
+        if (!isSelected) {
+            userChoicesInRoom.value[e.user.id][questionId].push(candidateId);
             updateVoteCount(questionId, candidateId, 1);
         } else {
-            selectedOptions.value[questionId].forEach((oldCandidateId) => {
-                if (oldCandidateId === candidateId) {
-                    updateVoteCount(questionId, oldCandidateId, -1);
-                }
-            });
+            userChoicesInRoom.value[e.user.id][questionId] = userChoicesInRoom.value[e.user.id][questionId].filter((oldCandidateId) => oldCandidateId !== candidateId);
+            updateVoteCount(questionId, candidateId, -1);
         }
-    } else {
-        const oldCandidateId = currentChoice.value[questionId];
+    } else { // For Radio
+        const oldCandidateId = userChoicesInRoom.value[e.user.id][questionId];
         if (oldCandidateId) {
             updateVoteCount(questionId, oldCandidateId, -1);
         }
 
-        currentChoice.value[questionId] = candidateId;
+        userChoicesInRoom.value[e.user.id][questionId] = candidateId;
 
         updateVoteCount(questionId, candidateId, 1);
     }
 };
 
+const handleDisconnect = (user) => {
+    const userId = user.id;
+
+    if (userChoicesInRoom.value[userId]) {
+        for (const questionId in userChoicesInRoom.value[userId]) {
+            const candidateIds = userChoicesInRoom.value[userId][questionId];
+
+            if (!Array.isArray(candidateIds)) {
+                updateVoteCount(questionId, candidateIds, -1);
+            } else {
+                for (const candidateId of candidateIds) {
+                    updateVoteCount(questionId, candidateId, -1);
+                }
+            }
+        }
+
+        delete userChoicesInRoom.value[userId];
+    }
+
+    onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
+};
+
+const onlineUsers = ref([]);
+const handleHere = (users) => {
+    onlineUsers.value = users
+};
+
+const handleJoining = (user) => {
+    onlineUsers.value.push(user);
+
+    const oldestUser = onlineUsers.value.reduce((oldest, currentUser) => {
+        return oldest.id < currentUser.id ? oldest : currentUser;
+    });
+};
+
 const setupEchoListeners = () => {
     if (authUser.value) {
         Echo.private(`voting.choice.${props.room.id}`).listen("VotingChoice", handleReceivedChoice);
+
+        Echo.join(`voting.choice.${props.room.id}`)
+            .here(handleHere)
+            .joining(handleJoining)
+            .leaving(handleDisconnect)
     }
 };
 

@@ -3,9 +3,11 @@
 namespace App\Events;
 
 use App\Models\Question;
+use App\Models\User;
 use App\Models\VotingRoom;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -15,6 +17,7 @@ class VotingChoice implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $user;
     public $room;
     public $question_type;
     public $question_id;
@@ -23,8 +26,9 @@ class VotingChoice implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public function __construct(VotingRoom $room, $question_id, $candidate_id)
+    public function __construct(User $user, VotingRoom $room, $question_id, $candidate_id)
     {
+        $this->user = $user;
         $this->room = $room;
         $this->question_type = Question::find($question_id)->only(['allow_multiple_votes']);
         $this->question_id = $question_id;
@@ -40,6 +44,8 @@ class VotingChoice implements ShouldBroadcastNow
     {
         $privateChannel = new PrivateChannel('voting.choice.' . $this->room->id);
 
-        return [$privateChannel];
+        $presenceChannel = new PresenceChannel('voting.choice.' . $this->room->id);
+
+        return [$privateChannel, $presenceChannel];
     }
 }
