@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\InvitationController;
+use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
 use App\Http\Controllers\Api\VotingRoomSettingController;
@@ -31,6 +32,11 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
     Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
     Route::post('/chat/{user}/read', [ChatController::class, 'markRead'])->name('api.user.chat.read.all');
+
+    Route::get('/room/{room}/questions', [QuestionController::class, 'index'])->name('api.room.question.index');
+    Route::post('/room/{room}/questions', [QuestionController::class, 'store'])->name('api.room.question.store');
+    Route::put('/room/questions/{question}', [QuestionController::class, 'update'])->name('api.room.question.update');
+    Route::delete('/question/{question}', [QuestionController::class, 'delete'])->name('api.room.question.destroy');
 
     Route::get('/question/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidate.index');
     Route::get('/room/{room}/candidates', [CandidateController::class, 'RoomCandidates'])->name('api.room.candidate.index');

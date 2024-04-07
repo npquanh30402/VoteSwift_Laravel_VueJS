@@ -17,14 +17,15 @@
 </template>
 
 <script setup>
-import {router} from "@inertiajs/vue3";
-import {route} from "ziggy-js";
+import {useQuestionStore} from "@/Stores/questions.js";
 
-const props = defineProps(['question'])
+const props = defineProps(['room', 'question'])
 const emit = defineEmits(['view-question'])
 
-const deleteQuestion = () => {
-    router.delete(route('question.delete', props.question.id));
+const questionStore = useQuestionStore()
+
+const deleteQuestion = async () => {
+    await questionStore.deleteQuestion(props.room.id, props.question.id)
 }
 
 function openModal(question = null) {

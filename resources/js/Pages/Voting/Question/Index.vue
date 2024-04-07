@@ -16,8 +16,8 @@
                             <div class="d-flex gap-5">
                                 <img class="img-fluid" :src="question.question_image" width="128"
                                      v-if="question.question_image" style="cursor: pointer"
-                                     alt="Imagquestion_descriptione" @click="showSingle">
-                                <QuestionAction :question="question" @view-question="handleViewQuestion"/>
+                                     alt="" @click="showImage">
+                                <QuestionAction :room="room" :question="question" @view-question="handleViewQuestion"/>
                             </div>
                         </div>
                         <QuestionSidebar @switch-tab="tabName => handleSwitchTab(tabName, index)"/>
@@ -33,7 +33,7 @@
         </div>
         <div class="d-flex justify-content-end">
             <vue-awesome-paginate
-                :total-items="questions.length"
+                :total-items="questions?.length || 0"
                 :items-per-page="5"
                 :max-pages-shown="5"
                 v-model="currentPage"
@@ -41,14 +41,9 @@
             />
         </div>
         <teleport to="body">
-            <vue-easy-lightbox
-                :visible="visibleRef"
-                :imgs="imgsRef"
-                :index="indexRef"
-                @hide="onHide"
-            ></vue-easy-lightbox>
+            <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
         </teleport>
-        <ViewQuestion :id="'viewQuestionModal' + room.id" :question="modalQuestion"/>
+        <ViewQuestion :id="'viewQuestionModal' + room.id" :room="room" :question="modalQuestion"/>
     </div>
 </template>
 
@@ -63,16 +58,38 @@ import AddQuestion from "@/Pages/Voting/Question/AddQuestion.vue";
 import * as bootstrap from "bootstrap";
 import QuestionAction from "@/Pages/Voting/Question/QuestionAction.vue";
 import ViewQuestion from "@/Pages/Voting/Question/ViewQuestion.vue";
-import VueEasyLightbox from "vue-easy-lightbox";
+import {useQuestionStore} from "@/Stores/questions.js";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['room', 'questions'])
+const questionStore = useQuestionStore()
+const CandidateStore = useCandidateStore()
+const questions = computed(() => questionStore.questions[props.room.id])
+const roomCandidates = computed(() => CandidateStore.candidates)
+const currentImageDisplay = ref(null)
+const currentTabs = ref(props.questions.map(() => 'CandidateList'))
+const currentPage = ref(1);
+const paginatedQuestions = computed(() => {
+    const startIndex = (currentPage.value - 1) * 5;
+    const endIndex = startIndex + 5;
+    return questions.value?.slice(startIndex, endIndex);
+});
 
+const tabs = {
+    CandidateList,
+    QuestionRule
+}
+
+let modalQuestion = ref(null);
 const modals = reactive({
     addQuestionModal: 'addQuestionModal',
     viewQuestionModal: 'viewQuestionModal' + props.room.id,
 })
 
-onMounted(() => {
+onMounted(async () => {
+    await questionStore.fetchQuestions(props.room.id)
+    await CandidateStore.fetchCandidates(props.room.id)
+
     modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
     modals.viewQuestionModal = new bootstrap.Modal(document.getElementById(modals.viewQuestionModal));
 })
@@ -81,17 +98,9 @@ function openModal(modal, question = null) {
     modal.show()
 }
 
-let modalQuestion = ref(null);
 const handleViewQuestion = (question) => {
     modalQuestion.value = question;
     modals.viewQuestionModal.show();
-}
-
-const currentTabs = ref(props.questions.map(() => 'CandidateList'))
-
-const tabs = {
-    CandidateList,
-    QuestionRule
 }
 
 const handleSwitchTab = (tabName, index) => {
@@ -102,34 +111,7 @@ const onClickHandler = (page) => {
     currentPage.value = page
 };
 
-const currentPage = ref(1);
-const paginatedQuestions = computed(() => {
-    const startIndex = (currentPage.value - 1) * 5;
-    const endIndex = startIndex + 5;
-    return props.questions.slice(startIndex, endIndex);
-});
-
-const CandidateStore = useCandidateStore()
-const roomCandidates = computed(() => CandidateStore.candidates)
-
-onMounted(() => {
-    CandidateStore.fetchCandidates(props.room.id)
-})
-
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
+const showImage = (e) => {
+    currentImageDisplay.value = e;
 }
 </script>

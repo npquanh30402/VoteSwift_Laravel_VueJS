@@ -39,14 +39,9 @@
                     <img :src="imgSrc"
                          class="img-fluid"
                          style="cursor: pointer"
-                         alt="Image" @click="showSingle"/>
+                         alt="Image" @click="showImage"/>
                     <teleport to="body">
-                        <vue-easy-lightbox
-                            :visible="visibleRef"
-                            :imgs="imgsRef"
-                            :index="indexRef"
-                            @hide="onHide"
-                        ></vue-easy-lightbox>
+                        <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
                     </teleport>
                 </div>
             </div>
@@ -56,32 +51,23 @@
 
 <script setup>
 import BaseModal from "@/Components/BaseModal.vue";
-import {router, useForm} from "@inertiajs/vue3";
+import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {computed, onMounted, ref} from "vue";
-import VueEasyLightbox from "vue-easy-lightbox";
+import {ref} from "vue";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
+import {useQuestionStore} from "@/Stores/questions.js";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['room'])
 
+const candidateStore = useCandidateStore()
+const questionStore = useQuestionStore()
+const currentImageDisplay = ref(null)
 const imgSrc = ref(null);
 
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
+const showImage = (e) => {
+    currentImageDisplay.value = e;
 }
 
 const form = useForm({
@@ -91,6 +77,31 @@ const form = useForm({
     allow_multiple_votes: null,
     allow_skipping: null
 });
+
+const submit = async () => {
+    const formData = new FormData();
+    formData.append('question_title', form.question_title);
+
+    if (form.question_description) {
+        formData.append('question_description', form.question_description);
+    }
+
+    if (form.question_image) {
+        formData.append('question_image', form.question_image);
+    }
+
+    if (form.allow_multiple_votes) {
+        formData.append('allow_multiple_votes', form.allow_multiple_votes);
+    }
+
+    if (form.allow_skipping) {
+        formData.append('allow_skipping', form.allow_skipping);
+    }
+
+    await questionStore.storeQuestion(props.room.id, formData);
+
+    await candidateStore.fetchCandidates(props.room.id, true)
+}
 
 function handleFileChange(event) {
     const file = event.target.files[0];
@@ -123,15 +134,4 @@ const onUploadImg = async (files, callback) => {
     );
     callback(res.map((item) => item.data.image));
 }
-
-const CandidateStore = useCandidateStore()
-
-const submit = () => {
-    router.post(route('question.store', props.room.id), {
-        ...form,
-    });
-
-    CandidateStore.fetchCandidates(props.room.id)
-}
-
 </script>

@@ -39,14 +39,9 @@
                     <img :src="imgSrc"
                          class="img-fluid"
                          style="cursor: pointer"
-                         alt="Image" @click="showSingle"/>
+                         alt="Image" @click="showImage"/>
                     <teleport to="body">
-                        <vue-easy-lightbox
-                            :visible="visibleRef"
-                            :imgs="imgsRef"
-                            :index="indexRef"
-                            @hide="onHide"
-                        ></vue-easy-lightbox>
+                        <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
                     </teleport>
                 </div>
             </div>
@@ -56,13 +51,18 @@
 
 <script setup>
 import BaseModal from "@/Components/BaseModal.vue";
-import {router, useForm} from "@inertiajs/vue3";
+import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {ref, watch} from "vue";
-import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
+import {useQuestionStore} from "@/Stores/questions.js";
 
-const props = defineProps(['question'])
+const props = defineProps(['room', 'question'])
+
+const questionStore = useQuestionStore()
+const currentImageDisplay = ref(null)
+const imgSrc = ref(null);
 
 const form = useForm({
     question_title: props.question?.question_title,
@@ -71,7 +71,6 @@ const form = useForm({
     allow_multiple_votes: props.question?.allow_multiple_votes,
     allow_skipping: props.question?.allow_skipping
 });
-const imgSrc = ref(null);
 
 watch(() => props.question, (newQuestion) => {
     form.question_title = newQuestion?.question_title;
@@ -87,27 +86,28 @@ watch(() => props.question, (newQuestion) => {
 });
 
 const submit = async () => {
-    router.post(route('question.update', props.question.id), {
-        _method: 'put',
-        ...form,
-    });
+    const formData = new FormData();
+
+    formData.append('question_title', form.question_title);
+    formData.append('question_description', form.question_description);
+
+    if (form.question_image) {
+        formData.append('question_image', form.question_image);
+    }
+
+    if (form.allow_multiple_votes) {
+        formData.append('allow_multiple_votes', form.allow_multiple_votes);
+    }
+
+    if (form.allow_skipping) {
+        formData.append('allow_skipping', form.allow_skipping);
+    }
+
+    await questionStore.updateQuestion(props.room.id, props.question.id, formData);
 }
 
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
+const showImage = (e) => {
+    currentImageDisplay.value = e;
 }
 
 function handleFileChange(event) {

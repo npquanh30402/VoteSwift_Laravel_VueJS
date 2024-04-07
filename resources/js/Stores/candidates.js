@@ -5,7 +5,11 @@ import {route} from "ziggy-js";
 export const useCandidateStore = defineStore('candidate', () => {
     const candidates = ref([])
 
-    const fetchCandidates = async (roomId) => {
+    const fetchCandidates = async (roomId, flag = null) => {
+        if (candidates.value[roomId]?.length > 0 && flag === null) {
+            return;
+        }
+
         const response = await axios.get(route('api.room.candidate.index', roomId))
         candidates.value = response.data
     }

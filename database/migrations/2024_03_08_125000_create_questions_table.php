@@ -13,7 +13,7 @@ return new class extends Migration {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->string('question_title');
-            $table->string('question_description');
+            $table->string('question_description')->nullable();
             $table->boolean('allow_multiple_votes')->default(false);
             $table->boolean('allow_skipping')->default(false);
             $table->string('question_image')->nullable();
