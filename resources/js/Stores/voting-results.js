@@ -15,6 +15,10 @@ export const useVotingResultStore = defineStore('votingResult', () => {
         }
     };
 
+    const broadCastChoice = async (roomId, formData) => {
+        await axios.post(route('api.room.vote.broadcast.choice', roomId), formData);
+    }
+
     // const storeMessage = async (roomId, formData) => {
     //     try {
     //         await window.axios.post(route('api.vote.chat.store', roomId), formData, {
@@ -27,5 +31,5 @@ export const useVotingResultStore = defineStore('votingResult', () => {
     //     }
     // };
 
-    return {results, fetchResults};
+    return {results, fetchResults, broadCastChoice};
 });
