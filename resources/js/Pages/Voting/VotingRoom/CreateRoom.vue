@@ -41,7 +41,11 @@ import {MdEditor} from 'md-editor-v3';
 import 'md-editor-v3/lib/style.css';
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {useToast} from "vue-toast-notification";
+import {useVotingRoomStore} from "@/Stores/voting-room.js";
 
+const roomStore = useVotingRoomStore()
+const $toast = useToast();
 const form = useForm({
     room_name: '',
     room_description: '',
@@ -68,9 +72,29 @@ const onUploadImg = async (files, callback) => {
     callback(res.map((item) => item.data.image));
 }
 
-const submit = () => {
-    router.post(route('room.store'), {
-        ...form
-    });
+const submit = async () => {
+    const formData = new FormData();
+    formData.append('room_name', form.room_name);
+    formData.append('room_description', form.room_description);
+
+    try {
+        const response = await roomStore.storeRoom(formData)
+
+        if (response) {
+            router.get(route('dashboard.user'))
+        }
+
+        $toast.open({
+            message: "<strong>Room created successfully</strong><br>Click here to go to the room dashboard",
+            type: 'success',
+            duration: 5000,
+            onClick: () => {
+                router.get(route('room.dashboard', response.data.id))
+            }
+        })
+    } catch (error) {
+        console.log(error)
+        $toast.error('Error occurred while creating the room');
+    }
 }
 </script>

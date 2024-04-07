@@ -11,6 +11,8 @@ import {ZiggyVue} from "ziggy-js";
 import MainLayout from "./Layouts/MainLayout.vue";
 import AudioPlayer from '@liripeng/vue-audio-player'
 import {createPinia} from 'pinia'
+import ToastPlugin from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-bootstrap.css';
 
 var elem = document.getElementById("app");
 elem.className += "d-flex flex-column min-vh-100";
@@ -30,6 +32,7 @@ createInertiaApp({
         createApp({render: () => h(App, props)})
             .use(plugin)
             .use(ZiggyVue)
+            .use(ToastPlugin)
             .use(pinia)
             .use(AudioPlayer)
             .mount(el);

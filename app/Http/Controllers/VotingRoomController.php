@@ -158,7 +158,7 @@ class VotingRoomController extends Controller
 
             $room->user->notify(new RoomCreation($room));
 
-            return redirect()->route('dashboard.user')->with('success', 'Voting room created successfully!');
+            return redirect()->route('dashboard.user');
         } catch (Exception $e) {
             return back()->with('error', $e->getMessage());
         }

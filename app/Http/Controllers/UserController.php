@@ -90,23 +90,8 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-//        $rooms = auth()->user()->rooms()->paginate(5);
-//
-//        $rooms->each(function ($room) {
-//            $room->room_name = Crypt::decryptString($room->room_name);
-//            $room->room_description = Crypt::decryptString($room->room_description);
-//
-//            return $room;
-//        });
-
-        $rooms = auth()->user()->rooms()->get()->transform(function ($room) {
-            $room->room_name = Crypt::decryptString(strip_tags($room->room_name));
-            $room->room_description = Crypt::decryptString(strip_tags($room->room_description));
-            return $room;
-        });
-
         $authUserFriends = $this->friendService->getFriends(auth()->user());
 
-        return Inertia::render('Users/Dashboard', compact('rooms', 'authUserFriends'));
+        return Inertia::render('Users/Dashboard', compact('authUserFriends'));
     }
 }

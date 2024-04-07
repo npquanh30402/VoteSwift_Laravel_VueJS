@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
+use App\Http\Controllers\Api\VotingRoomController;
 use App\Http\Controllers\Api\VotingRoomSettingController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -18,6 +19,9 @@ Route::post('/images/{room}/upload', [FileUploadController::class, 'storeAttachm
 Route::group(['middleware' => 'web'], function () {
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
 
+    Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');
+    Route::post('/room/', [VotingRoomController::class, 'store'])->name('api.room.store');
+    Route::delete('/room/{room}', [VotingRoomController::class, 'delete'])->name('api.room.destroy');
 
     Route::get('/search', [UserController::class, 'search'])->name('user.search');
 

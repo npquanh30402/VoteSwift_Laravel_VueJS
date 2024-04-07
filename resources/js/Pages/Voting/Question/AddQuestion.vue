@@ -58,6 +58,7 @@ import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
 import {useQuestionStore} from "@/Stores/questions.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
+import {useToast} from "vue-toast-notification";
 
 const props = defineProps(['room'])
 
@@ -65,6 +66,7 @@ const candidateStore = useCandidateStore()
 const questionStore = useQuestionStore()
 const currentImageDisplay = ref(null)
 const imgSrc = ref(null);
+const $toast = useToast();
 
 const showImage = (e) => {
     currentImageDisplay.value = e;
@@ -77,7 +79,6 @@ const form = useForm({
     allow_multiple_votes: null,
     allow_skipping: null
 });
-
 const submit = async () => {
     const formData = new FormData();
     formData.append('question_title', form.question_title);
@@ -98,9 +99,15 @@ const submit = async () => {
         formData.append('allow_skipping', form.allow_skipping);
     }
 
-    await questionStore.storeQuestion(props.room.id, formData);
+    try {
+        await questionStore.storeQuestion(props.room.id, formData);
 
-    await candidateStore.fetchCandidates(props.room.id, true)
+        await candidateStore.fetchCandidates(props.room.id, true)
+
+        $toast.success('Question created successfully');
+    } catch (error) {
+        $toast.error('Error occurred while creating the question');
+    }
 }
 
 function handleFileChange(event) {

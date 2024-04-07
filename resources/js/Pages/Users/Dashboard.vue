@@ -18,16 +18,19 @@
 
 <script setup>
 import UserSidebar from "@/Pages/Users/UserSidebar.vue";
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import RoomList from "@/Pages/Voting/VotingRoom/RoomList.vue";
 import UserSettings from "@/Pages/Users/UserSettings.vue";
 import MusicPlayerSettings from "@/Pages/Users/MusicPlayerSettings.vue";
 import Friend from "@/Pages/Users/Friend/Index.vue";
 import {router} from "@inertiajs/vue3";
 import UserCalendar from "@/Pages/Users/UserCalendar.vue";
+import {useVotingRoomStore} from "@/Stores/voting-room.js";
 
-const props = defineProps(['rooms', 'authUserFriends']);
+const props = defineProps(['authUserFriends']);
 
+const roomStore = useVotingRoomStore()
+const rooms = computed(() => roomStore.rooms)
 const currentTab = ref('RoomList')
 
 const tabs = {
@@ -41,4 +44,8 @@ const tabs = {
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
+
+onMounted(async () => {
+    await roomStore.fetchRooms()
+})
 </script>
