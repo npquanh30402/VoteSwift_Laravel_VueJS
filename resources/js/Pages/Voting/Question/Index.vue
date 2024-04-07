@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, reactive, ref} from "vue";
+import {computed, onMounted, reactive, ref, watch} from "vue";
 import {VueAwesomePaginate} from "vue-awesome-paginate";
 import QuestionSidebar from "@/Pages/Voting/Question/QuestionSidebar.vue";
 import CandidateList from "@/Pages/Voting/Question/Candidate/CandidateList.vue";
@@ -61,18 +61,24 @@ import ViewQuestion from "@/Pages/Voting/Question/ViewQuestion.vue";
 import {useQuestionStore} from "@/Stores/questions.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
-const props = defineProps(['room', 'questions'])
+const props = defineProps(['room'])
 const questionStore = useQuestionStore()
 const CandidateStore = useCandidateStore()
 const questions = computed(() => questionStore.questions[props.room.id])
 const roomCandidates = computed(() => CandidateStore.candidates)
 const currentImageDisplay = ref(null)
-const currentTabs = ref(props.questions.map(() => 'CandidateList'))
+const currentTabs = ref(['CandidateList']);
 const currentPage = ref(1);
 const paginatedQuestions = computed(() => {
     const startIndex = (currentPage.value - 1) * 5;
     const endIndex = startIndex + 5;
     return questions.value?.slice(startIndex, endIndex);
+});
+
+watch(() => questions, () => {
+    if (questions && questions.value.length > 0) {
+        currentTabs.value = questions.value.map(() => 'CandidateList');
+    }
 });
 
 const tabs = {

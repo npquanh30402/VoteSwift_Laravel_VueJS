@@ -14,7 +14,6 @@
             <div class="col-md-9">
                 <transition name="fade" mode="out-in">
                     <component :is="tabs[currentTab]" :room="room" :room_settings="room_settings"
-                               :questions="room_questions"
                                :attachments="room_attachments" :nestedResults="nestedResults"
                                :voteCountsInTimeInterval="voteCountsInTimeInterval"></component>
                 </transition>
@@ -40,7 +39,7 @@ import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
 import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
 import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
 
-const props = defineProps(['room', 'room_settings', 'room_questions', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
+const props = defineProps(['room', 'room_settings', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
 
 const currentTab = ref('RoomDetails')
 
