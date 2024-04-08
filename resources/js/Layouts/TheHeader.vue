@@ -62,9 +62,9 @@
                             </div>
                             <div class="vr text-white"></div>
                             <div v-if="authUser.user">
-                                <Link :href="route('logout')" class="btn btn-sm btn-warning" as="button" method="POST">
+                                <button class="btn btn-sm btn-warning" @click="handleLogout">
                                     <i class="bi bi-power"></i>
-                                </Link>
+                                </button>
                             </div>
                             <div class="d-flex gap-3" v-else>
                                 <Link :href="route('register')" @click="registerOrLoginShow" v-if="registerOrLogin"
@@ -85,22 +85,27 @@
 </template>
 
 <script setup>
-import {Link, usePage} from "@inertiajs/vue3";
+import {Link, router, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {computed, ref} from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
 import {format} from "date-fns";
+import {useToast} from "vue-toast-notification";
 
 const props = defineProps(['authUser'])
 
+const $toast = useToast();
 const notificationCount = computed(() => Math.min(props.authUser.notificationCount, 9))
-
 const isMusicPlayerEnable = computed(() => props.authUser.settings?.music_player_enabled === 1)
-
 const registerOrLogin = ref(false);
 
 function registerOrLoginShow() {
     registerOrLogin.value = !registerOrLogin.value;
+}
+
+const handleLogout = () => {
+    router.post(route('logout'))
+    $toast.success('Logout successfully');
 }
 </script>

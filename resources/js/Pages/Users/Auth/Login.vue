@@ -26,7 +26,9 @@
 <script setup>
 import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {useToast} from "vue-toast-notification";
 
+const $toast = useToast();
 const form = useForm({
     username: '',
     email: '',
@@ -35,6 +37,14 @@ const form = useForm({
 })
 
 function login() {
-    form.post(route('login.store'), form);
+    form.post(route('login.store'), {
+        onSuccess: () => {
+            $toast.success('Login successfully');
+        },
+        onError: (errors) => {
+            $toast.error(errors.login);
+        }
+    }, form);
+
 }
 </script>

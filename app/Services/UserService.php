@@ -80,21 +80,19 @@ class UserService
             return $user;
         } catch (Exception $e) {
             Log::debug('Error during user registration: ' . $e->getMessage());
-            return null;
+            return false;
         }
     }
 
     public function logout($requestData)
     {
         try {
-            $friendIds = $this->getFriendIds($requestData->user());
-
             Auth::logout();
             $requestData->session()->invalidate();
             $requestData->session()->regenerateToken();
-
         } catch (Exception $e) {
             Log::debug('Error during logout: ' . $e->getMessage());
+            throw $e;
         }
     }
 

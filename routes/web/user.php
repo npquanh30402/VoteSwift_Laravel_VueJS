@@ -54,21 +54,12 @@ Route::group(['prefix' => '/user'], function () {
         Route::post('/chat/message/{user}', [ChatController::class, 'messageReceived'])->name('chat.message');
 
     });
+    
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    Route::get('/email/verify', function () {
-        return Inertia::render('Users/Auth/VerifyEmail');
-    })->name('verification.notice');
+    Route::get('/email/verify', [AuthController::class, 'getVerifyPage'])->name('verification.notice');
 
-    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-        $request->fulfill();
+    Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware(['auth', 'signed'])->name('verification.verify');
 
-        return redirect()->route('dashboard.user')->with('success', 'Email successfully verified!');
-    })->middleware(['auth', 'signed'])->name('verification.verify');
-
-    Route::post('/email/verification-notification', function (Request $request) {
-        $request->user()->sendEmailVerificationNotification();
-
-        return back()->with('success', 'Verification link sent!');
-    })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+    Route::post('/email/verification-notification', [AuthController::class, 'sendEmailVerificationNotification'])->middleware(['auth', 'throttle:6,1'])->name('verification.send');
 });

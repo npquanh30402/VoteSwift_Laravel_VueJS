@@ -6,7 +6,9 @@ use App\Http\Requests\UserRequest;
 use App\Services\UserService;
 use Exception;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use RuntimeException;
 
@@ -19,13 +21,32 @@ class AuthController extends Controller
         $this->userService = $userService;
     }
 
+    public function getVerifyPage()
+    {
+        return Inertia::render('Users/Auth/VerifyEmail');
+    }
+
+    public function verifyEmail(EmailVerificationRequest $request)
+    {
+        $request->fulfill();
+
+        return redirect()->route('dashboard.user');
+    }
+
+    public function sendEmailVerificationNotification(Request $request)
+    {
+        $request->user()->sendEmailVerificationNotification();
+    }
+
     public function logout(Request $request)
     {
         try {
             $this->userService->logout($request);
-            return redirect()->route('homepage')->with('success', 'Logout successfully!');
+            return redirect()->route('homepage');
         } catch (Exception $e) {
-            return back()->with('error', 'Logout failed!');
+            return back()->withErrors([
+                'logout' => $e->getMessage()
+            ]);
         }
     }
 
@@ -35,16 +56,16 @@ class AuthController extends Controller
             $user = $this->userService->register($request);
 
             if (!$user) {
-                throw new RuntimeException("User registration failed.");
+                throw new RuntimeException("Registration failed.");
             }
 
             auth()->login($user);
 
-            event(new Registered($user));
-
-            return redirect()->route('homepage')->with('success', 'Registration successfully!');
+            return redirect()->route('homepage');
         } catch (Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return back()->withErrors([
+                'register' => $e->getMessage()
+            ]);
         }
     }
 
@@ -52,13 +73,15 @@ class AuthController extends Controller
     {
         try {
             if ($this->userService->login($request)) {
-                return redirect()->intended()->with('success', 'Login successfully!');
+                return redirect()->intended();
             }
+            throw new RuntimeException("Login failed.");
         } catch (Exception $e) {
-            return back()->with('error', 'An error occurred during login.');
+            return back()->withErrors([
+                'login' => $e->getMessage()
+            ]);
         }
 
-        return back()->with('error', 'Login failed!');
     }
 
     public function getRegistrationForm()

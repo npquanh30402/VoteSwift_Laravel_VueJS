@@ -31,7 +31,9 @@
 <script setup>
 import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {useToast} from "vue-toast-notification";
 
+const $toast = useToast();
 const form = useForm({
     username: null,
     email: null,
@@ -40,6 +42,13 @@ const form = useForm({
 })
 
 function register() {
-    form.post(route('register.store'), form);
+    form.post(route('register.store'), {
+        onSuccess: () => {
+            $toast.success('Registration successfully');
+        },
+        onError: (errors) => {
+            $toast.error(errors.register);
+        }
+    }, form);
 }
 </script>
