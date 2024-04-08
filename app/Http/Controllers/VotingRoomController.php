@@ -116,9 +116,7 @@ class VotingRoomController extends Controller
         $nestedResults = Vote::getQuestionResults($room->questions);
         $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
 
-        $room_attachments = $room->attachments;
-
-        return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'));
+        return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'nestedResults', 'voteCountsInTimeInterval'));
     }
 
     public function create()

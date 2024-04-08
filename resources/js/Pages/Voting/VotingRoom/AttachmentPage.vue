@@ -17,9 +17,8 @@
             <div class="card">
                 <div class="card-header text-bg-dark d-flex justify-content-between">
                     <span>Uploaded Attachments</span>
-                    <i class="bi bi-arrow-clockwise icon" @click="refresh"></i>
                 </div>
-                <div class="card-body">
+                <div class="card-body" v-if="attachments">
                     <div
                         class="list-group vstack justify-content-between align-items-center">
                         <div v-for="file in attachments" :key="file.path"
@@ -30,9 +29,10 @@
                                     class="hstack gap-3 justify-content-center align-items-center">
                                     <i v-if="isImageFile(file.file_name)"
                                        class="bi bi-eye icon text-success"
-                                       @click="showSingle(file.file_path)"></i>
+                                       @click="showImage(file.file_path)"></i>
                                     <a :href="file.file_path"><i
                                         class="bi bi-download icon text-dark"></i></a>
+                                    <i class="bi bi-trash icon text-danger" @click="handleDelete(file)"></i>
                                 </div>
                             </div>
                         </div>
@@ -41,12 +41,7 @@
             </div>
         </div>
         <teleport to="body">
-            <vue-easy-lightbox
-                :visible="visibleRef"
-                :imgs="imgsRef"
-                :index="indexRef"
-                @hide="onHide"
-            ></vue-easy-lightbox>
+            <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
         </teleport>
     </div>
 </template>
@@ -61,51 +56,38 @@ import "@uppy/image-editor/dist/style.min.css";
 
 import Uppy from "@uppy/core";
 import Webcam from "@uppy/webcam";
-import XHRUpload from "@uppy/xhr-upload";
 import ImageEditor from "@uppy/image-editor";
-import {onBeforeUnmount, ref} from "vue";
-import {route} from "ziggy-js";
-import VueEasyLightbox from "vue-easy-lightbox";
+import {computed, onBeforeUnmount, onMounted, ref} from "vue";
 import {router} from "@inertiajs/vue3";
+import {useAttachmentStore} from "@/Stores/attachments.js";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
+import {useToast} from "vue-toast-notification";
 
-const props = defineProps(['room', 'attachments'])
+const props = defineProps(['room'])
+const $toast = useToast();
 
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
+const attachmentStore = useAttachmentStore()
 
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (filePath) => {
-    imgsRef.value = filePath
-    console.log(filePath)
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
-}
+const attachments = computed(() => attachmentStore.attachments[props.room.id]);
+const currentImageDisplay = ref(null)
 
 const imageFiles = ref([]);
-const documentFiles = ref([]);
 const otherFiles = ref([]);
 
+onMounted(async () => {
+    await attachmentStore.fetchAttachments(props.room.id)
+})
+
 const getFileType = (fileName) => {
-    return fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+    return fileName?.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
 };
 const isImageFile = (fileName) => {
     const fileType = getFileType(fileName);
     return ['jpg', 'jpeg', 'png', 'gif'].includes(fileType);
 };
 
-const isDocumentFile = (fileType) => {
-    return ['docx', 'pptx', 'xlsx', 'odt', 'odp', 'ods', 'pdf'].includes(fileType);
-};
-
-for (let i = 0; i < props.attachments.length; i++) {
-    const file = props.attachments[i];
+for (let i = 0; i < attachments.value?.length; i++) {
+    const file = attachments?.value[i];
     const fileType = getFileType(file.file_name);
 
     if (isImageFile(fileType)) {
@@ -115,25 +97,51 @@ for (let i = 0; i < props.attachments.length; i++) {
     }
 }
 
+const uppy = new Uppy()
+    .use(Webcam)
+    .use(ImageEditor, {
+        quality: 0.8,
+    });
 
-const uppy = new Uppy();
+const fileQueue = [];
 
-uppy.use(XHRUpload, {
-    endpoint: route('api.room.attachment.store', props.room.id),
-    fieldName: "file",
+uppy.on('upload', () => {
+    while (fileQueue.length > 0) {
+        const formData = new FormData();
+        const file = fileQueue.shift();
+        formData.append('file', file.data);
+        attachmentStore.storeAttachment(props.room.id, formData);
+    }
 });
-uppy.use(Webcam);
 
-uppy.use(ImageEditor, {
-    quality: 0.8,
+uppy.on('file-added', (file) => {
+    fileQueue.push(file);
+});
+
+uppy.on('complete', (result) => {
+    if (result.successful) {
+        $toast.success('Attachments uploaded successfully');
+    }
+
+    if (result.failed) {
+        $toast.error('Failed to upload attachments');
+    }
 });
 
 onBeforeUnmount(() => {
     uppy.close();
 });
 
-function refresh() {
-    router.reload();
+const handleDelete = (file) => {
+    attachmentStore.destroyAttachment(props.room.id, file.id);
+};
+
+const showImage = (filePath) => {
+    currentImageDisplay.value = {
+        target: {
+            src: filePath
+        }
+    };
 }
 </script>
 
