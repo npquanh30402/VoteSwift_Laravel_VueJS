@@ -96,15 +96,6 @@ class VotingRoomController extends Controller
         }
 
         $room->save();
-
-        $settings = $room->settings;
-
-        if (isset($request->require_password) && $request->require_password !== null) {
-            $settings->password = bcrypt($request->require_password);
-        } else {
-            $settings->password = null;
-        }
-        $settings->save();
     }
 
     public function dashboard(VotingRoom $room)

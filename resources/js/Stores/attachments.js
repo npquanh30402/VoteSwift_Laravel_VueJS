@@ -13,7 +13,6 @@ export const useAttachmentStore = defineStore('attachment', () => {
 
         const response = await axios.get(route('api.room.attachment.index', roomId))
         attachments.value[roomId] = response.data
-        console.log(attachments.value)
     }
 
     const storeAttachment = async (roomId, formData) => {

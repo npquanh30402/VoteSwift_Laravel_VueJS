@@ -16,7 +16,8 @@ return new class extends Migration {
             $table->longText('room_description')->nullable();
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
-            $table->string('timezone')->default('UTC');
+//            $table->string('timezone')->default('UTC');
+            $table->string('timezone')->nullable();
             $table->unsignedBigInteger('user_id')->comment('Room creator');
             $table->boolean('is_published')->default(false);
             $table->boolean('vote_started')->default(false);

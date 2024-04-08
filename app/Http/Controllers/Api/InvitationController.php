@@ -52,5 +52,16 @@ class InvitationController extends Controller
                 'invited_user_id' => $invitationData['id'] ?? null,
             ]);
         }
+
+        $invitations = $room->invitations;
+
+        $invitedUsers = [];
+
+        foreach ($invitations as $invitation) {
+            $invitedUser = User::find($invitation->invited_user_id);
+            $invitedUsers[] = $invitedUser;
+        }
+
+        return response()->json($invitedUsers);
     }
 }

@@ -22,6 +22,7 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');
     Route::post('/room/', [VotingRoomController::class, 'store'])->name('api.room.store');
+    Route::put('/room/{room}', [VotingRoomController::class, 'update'])->name('api.room.update');
     Route::delete('/room/{room}', [VotingRoomController::class, 'delete'])->name('api.room.destroy');
 
     Route::get('/room/{room}/attachments', [VotingRoomAttachmentController::class, 'index'])->name('api.room.attachment.index');

@@ -32,15 +32,30 @@
 
 <script setup>
 import {MdEditor} from "md-editor-v3";
-import {router, useForm} from "@inertiajs/vue3";
+import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
+import {useToast} from "vue-toast-notification";
+import {useVotingRoomStore} from "@/Stores/voting-room.js";
+import {computed, onMounted, watch} from "vue";
 
 const props = defineProps(['room'])
+const $toast = useToast();
+const votingRoomStore = useVotingRoomStore()
+const room = computed(() => votingRoomStore.rooms.find(room => room.id === props.room.id))
 
 const form = useForm({
-    room_name: props.room?.room_name,
-    room_description: props.room?.room_description,
+    room_name: room.value?.room_name,
+    room_description: room.value?.room_description,
 });
+
+watch(() => room.value, () => {
+    form.room_name = room.value?.room_name
+    form.room_description = room.value?.room_description
+})
+
+onMounted(async () => {
+    await votingRoomStore.fetchRooms()
+})
 
 const onUploadImg = async (files, callback) => {
     const res = await Promise.all(
@@ -64,9 +79,16 @@ const onUploadImg = async (files, callback) => {
 }
 
 const submit = () => {
-    router.post(route('room.update', props.room.id), {
-        _method: 'put',
-        ...form
-    })
+    try {
+        const formData = new FormData();
+        formData.append('room_name', form.room_name);
+        formData.append('room_description', form.room_description);
+
+        votingRoomStore.updateRoom(props.room.id, formData)
+
+        $toast.success('Room updated successfully');
+    } catch (e) {
+        $toast.error('Failed to update room');
+    }
 }
 </script>

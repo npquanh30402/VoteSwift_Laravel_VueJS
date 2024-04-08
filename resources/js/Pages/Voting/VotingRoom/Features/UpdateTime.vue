@@ -48,13 +48,15 @@
 </template>
 
 <script setup>
-import {router, useForm} from "@inertiajs/vue3";
-import {route} from "ziggy-js";
+import {useForm} from "@inertiajs/vue3";
 import VueDatePicker from '@vuepic/vue-datepicker';
 import {computed, onMounted, ref} from "vue";
+import {useVotingRoomStore} from "@/Stores/voting-room.js";
+import {useToast} from "vue-toast-notification";
 
 const props = defineProps(['room'])
-
+const $toast = useToast();
+const votingRoomStore = useVotingRoomStore()
 const selectedTz = ref(11);
 
 const timezone = ref({timezone: undefined})
@@ -99,7 +101,14 @@ const form = useForm({
 });
 
 function updateSelectedTz() {
-    const timezoneIndex = timezones.findIndex(tz => tz.tz === props.room?.timezone);
+    let timezoneIndex;
+
+    if (props.room && props.room.timezone !== null) {
+        timezoneIndex = timezones.findIndex(tz => tz.tz === props.room.timezone);
+    } else {
+        const defaultTimezoneOffset = (-new Date().getTimezoneOffset()) / 60;
+        timezoneIndex = timezones.findIndex(tz => tz.offset === defaultTimezoneOffset);
+    }
 
     if (timezoneIndex !== -1) {
         selectedTz.value = timezoneIndex;
@@ -111,10 +120,17 @@ onMounted(() => {
 })
 
 const submit = () => {
-    router.post(route('room.update', props.room.id), {
-        _method: 'put',
-        ...form,
-        activeTz: activeTz.value
-    })
+    try {
+        const formData = new FormData();
+        formData.append('start_time', form.date[0].toJSON());
+        formData.append('end_time', form.date[1].toJSON());
+        formData.append('activeTz', activeTz.value.tz);
+
+        votingRoomStore.updateRoom(props.room.id, formData)
+
+        $toast.success('Room updated successfully');
+    } catch (e) {
+        $toast.error('Failed to update room');
+    }
 }
 </script>

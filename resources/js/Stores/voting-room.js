@@ -30,6 +30,24 @@ export const useVotingRoomStore = defineStore('room', () => {
         }
     };
 
+    const updateRoom = async (roomId, formData) => {
+        try {
+            formData.append('_method', 'PUT');
+
+            const response = await axios.post(route('api.room.update', roomId), formData)
+
+            if (response.status === 200) {
+                const index = rooms.value.findIndex(room => room.id === roomId);
+                if (index !== -1) {
+                    rooms.value[index] = response.data;
+                }
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            throw error;
+        }
+    }
+
     const deleteRoom = async (roomId) => {
         const response = await axios.delete(route('api.room.destroy', roomId))
 
@@ -40,5 +58,5 @@ export const useVotingRoomStore = defineStore('room', () => {
         return response
     };
 
-    return {rooms, fetchRooms, storeRoom, deleteRoom}
+    return {rooms, fetchRooms, storeRoom, updateRoom, deleteRoom}
 })
