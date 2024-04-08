@@ -102,6 +102,7 @@ import {usePage} from "@inertiajs/vue3";
 import {computed, onMounted, ref, watch} from "vue";
 import {useVotingSettingStore} from "@/Stores/voting-settings.js";
 import {useInvitationStore} from "@/Stores/invitations.js";
+import {useToast} from "vue-toast-notification";
 
 const props = defineProps(['room'])
 
@@ -114,6 +115,8 @@ const userInvitationList = computed(() => invitationStore.invitations[props.room
 
 const onlyInvitation = ref(false);
 const waitForVoters = ref(false);
+
+const $toast = useToast();
 
 watch(() => roomSettings.value, () => {
     onlyInvitation.value = roomSettings.value?.invitation_only === 1;
@@ -128,11 +131,17 @@ onMounted(() => {
     invitationStore.fetchInvitations(props.room.id)
 })
 
-const toggleInvitation = () => {
+const updateSetting = (key, value) => {
     const formData = new FormData();
-    formData.append('invitation_only', onlyInvitation.value);
+    formData.append(key, value);
 
     votingSettingStore.updateSettings(props.room.id, formData)
+
+    $toast.success('Updated successfully')
+}
+
+const toggleInvitation = () => {
+    updateSetting('invitation_only', onlyInvitation.value);
 
     if (waitForVoters.value === true) {
         waitForVoters.value = false
@@ -141,10 +150,7 @@ const toggleInvitation = () => {
 }
 
 const toggleWaitForVoters = () => {
-    const formData = new FormData();
-    formData.append('wait_for_voters', waitForVoters.value);
-
-    votingSettingStore.updateSettings(props.room.id, formData)
+    updateSetting('wait_for_voters', waitForVoters.value);
 }
 
 const searchUsers = async () => {
@@ -194,5 +200,7 @@ const submit = () => {
     }
 
     invitationStore.storeInvitations(props.room.id, data)
+
+    $toast.success('Saved successfully')
 }
 </script>

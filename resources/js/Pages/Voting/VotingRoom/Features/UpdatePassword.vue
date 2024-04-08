@@ -7,7 +7,7 @@
                     <div class="hstack gap-3 align-items-center">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" id="passwordSwitch"
-                                   @change="togglePassword" :checked="isPasswordEnable">
+                                   @change="togglePassword" v-model="isPasswordEnable">
                             <label class="form-check-label" for="passwordSwitch">Enable Password</label>
                         </div>
                     </div>
@@ -35,32 +35,43 @@
 <script setup>
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {ref} from "vue";
+import {computed, ref, watch} from "vue";
+import {useToast} from "vue-toast-notification";
+import {useVotingSettingStore} from "@/Stores/voting-settings.js";
 
-const props = defineProps(['room', 'room_settings'])
+const props = defineProps(['room'])
 
-const isPasswordEnable = ref(props.room_settings?.password !== null);
+const votingSettingStore = useVotingSettingStore()
+
+const $toast = useToast();
+const roomSettings = computed(() => votingSettingStore.settings[props.room.id])
+
+const isPasswordEnable = ref(false);
 
 const form = useForm({
-    require_password: props.room_settings?.password,
+    require_password: roomSettings.value?.password,
 });
 
-const togglePassword = () => {
-    isPasswordEnable.value = !isPasswordEnable.value
+watch(() => roomSettings.value, () => {
+    isPasswordEnable.value = roomSettings.value?.password !== null
+})
 
+const updateSetting = (key, value) => {
+    const formData = new FormData();
+    formData.append(key, value);
+
+    votingSettingStore.updateSettings(props.room.id, formData)
+
+    $toast.success('Updated successfully')
+}
+
+const togglePassword = () => {
     if (isPasswordEnable.value === false) {
-        router.post(route('room.settings.password.update', props.room.id), {
-            _method: 'put',
-            ...form,
-            require_password: null,
-        })
+        updateSetting('require_password', null)
     }
 }
 
 const submit = () => {
-    router.post(route('room.update', props.room.id), {
-        _method: 'put',
-        ...form
-    })
+    updateSetting('require_password', form.require_password)
 }
 </script>

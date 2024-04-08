@@ -35,6 +35,10 @@
                 @click="switchTab('UpdateChat')">Chat Feature
         </button>
 
+        <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'RoomRealtime'}"
+                @click="switchTab('RoomRealtime')">Realtime Feature
+        </button>
+
         <button class="list-group-item list-group-item-action"
                 @click="switchTab('')">Extra Settings
         </button>

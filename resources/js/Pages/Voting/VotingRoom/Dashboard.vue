@@ -13,8 +13,8 @@
             </div>
             <div class="col-md-9">
                 <transition name="fade" mode="out-in">
-                    <component :is="tabs[currentTab]" :room="room" :room_settings="room_settings"
-                               :attachments="room_attachments" :nestedResults="nestedResults"
+                    <component :is="tabs[currentTab]" :room="room" :attachments="room_attachments"
+                               :nestedResults="nestedResults"
                                :voteCountsInTimeInterval="voteCountsInTimeInterval"></component>
                 </transition>
             </div>
@@ -38,8 +38,9 @@ import VoterPage from "@/Pages/Voting/VotingRoom/VoterPage.vue";
 import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
 import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
 import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
+import RoomRealtime from "@/Pages/Voting/VotingRoom/RoomRealtime.vue";
 
-const props = defineProps(['room', 'room_settings', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
+const props = defineProps(['room', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'])
 
 const currentTab = ref('RoomDetails')
 
@@ -53,6 +54,7 @@ const tabs = {
     VotingResult,
     UpdatePassword,
     UpdateChat,
+    RoomRealtime,
     VoterPage,
     RoomPublish,
     DeleteRoom

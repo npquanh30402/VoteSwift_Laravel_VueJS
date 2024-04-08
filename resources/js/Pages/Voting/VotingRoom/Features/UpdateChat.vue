@@ -7,7 +7,7 @@
                     <div class="hstack gap-3 align-items-center justify-content-between">
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" id="chatSwitch"
-                                   @change="toggleChat" :checked="isChatEnable">
+                                   @change="toggleChat" v-model="isChatEnable">
                             <label class="form-check-label" for="passwordSwitch">Enable Chat</label>
                         </div>
                         <div :class="[isChatEnable ? '' : 'un-interactive']">
@@ -27,7 +27,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" role="switch"
                                                id="chatHistorySwitch"
-                                               @change="toggleChatHistory" :checked="isChatHistory">
+                                               @change="toggleChatHistory" v-model="isChatHistory">
                                         <label class="form-check-label" for="passwordSwitch">Save Chat History</label>
                                     </div>
                                     <span data-bs-toggle="popover" data-bs-trigger="hover focus"
@@ -39,7 +39,7 @@
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" role="switch"
                                                id="chatUploadSwitch"
-                                               @change="toggleChatUpload" :checked="isChatUpload">
+                                               @change="toggleChatUpload" v-model="isChatUpload">
                                         <label class="form-check-label" for="passwordSwitch">Allow Voters To
                                             Upload</label>
                                     </div>
@@ -59,35 +59,48 @@
 <script setup>
 import {router, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
 import VotingMessage from "@/Pages/Voting/Vote/Chat/VotingMessage.vue";
 import {useVotingChatStore} from "@/Stores/voting-chat.js";
+import {useVotingSettingStore} from "@/Stores/voting-settings.js";
+import {useToast} from "vue-toast-notification";
 
-const props = defineProps(['room', 'room_settings'])
+const props = defineProps(['room'])
 
-const isChatEnable = ref(props.room_settings?.chat_enabled === 1)
-const isChatHistory = ref(props.room_settings?.chat_messages_saved === 1)
-const isChatUpload = ref(props.room_settings?.allow_voters_upload === 1)
-
+const $toast = useToast();
+const roomSettings = computed(() => votingSettingStore.settings[props.room.id])
 const votingChatStore = useVotingChatStore()
+const votingSettingStore = useVotingSettingStore()
+
 const authUser = computed(() => usePage().props.authUser.user);
 const messages = computed(() => votingChatStore.messages);
 
-const toggleChat = () => {
-    isChatEnable.value = !isChatEnable.value
+const isChatEnable = ref(false)
+const isChatHistory = ref(false)
+const isChatUpload = ref(false)
 
-    router.put(route('room.settings.chat.update', props.room.id), {
-        chat_enabled: isChatEnable.value
-    })
+watch(() => roomSettings.value, () => {
+    isChatEnable.value = roomSettings.value?.chat_enabled === 1
+    isChatHistory.value = roomSettings.value?.chat_messages_saved === 1
+    isChatUpload.value = roomSettings.value?.allow_voters_upload === 1
+})
+
+const updateSetting = (key, value) => {
+    const formData = new FormData();
+    formData.append(key, value);
+
+    votingSettingStore.updateSettings(props.room.id, formData)
+
+    $toast.success('Updated successfully')
+}
+
+const toggleChat = () => {
+    updateSetting('chat_enabled', isChatEnable.value)
 }
 
 const toggleChatHistory = () => {
-    isChatHistory.value = !isChatHistory.value
-
-    router.put(route('room.settings.chat.update', props.room.id), {
-        chat_messages_saved: isChatHistory.value
-    })
+    updateSetting('chat_messages_saved', isChatHistory.value)
 
     if (isChatHistory.value) {
         votingChatStore.fetchMessages(props.room.id);
@@ -97,11 +110,7 @@ const toggleChatHistory = () => {
 }
 
 const toggleChatUpload = () => {
-    isChatUpload.value = !isChatUpload.value
-
-    router.put(route('room.settings.chat.update', props.room.id), {
-        allow_voters_upload: isChatUpload.value
-    })
+    updateSetting('allow_voters_upload', isChatUpload.value)
 }
 const initializePopover = () => {
     const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
@@ -126,8 +135,9 @@ onMounted(async () => {
 
     setupEchoListeners()
 
-    if (props.room_settings?.chat_messages_saved === 1) {
-        await votingChatStore.fetchMessages(props.room.id);
+    await votingSettingStore.fetchSettings(props.room.id)
+    if (roomSettings?.chat_messages_saved === 1) {
+        await votingChatStore.fetchMessages(props.room.id)
     }
 })
 </script>

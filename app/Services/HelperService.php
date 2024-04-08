@@ -23,4 +23,9 @@ class HelperService
     {
         return Crypt::encryptString(strip_tags($input));
     }
+
+    public static function convertNullStringToNull($value)
+    {
+        return strtolower(trim($value)) === "null" ? null : $value;
+    }
 }

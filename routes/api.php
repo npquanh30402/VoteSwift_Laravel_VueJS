@@ -28,8 +28,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('api.room.invitation.index');
     Route::post('/room/{room}/invitations', [InvitationController::class, 'store'])->name('api.room.invitation.store');
 
-    Route::get('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'getSettings'])->name('api.room.setting.invitation.index');
-    Route::put('/room/{room}/settings/invitations', [VotingRoomSettingController::class, 'updateInvitationSetting'])->name('api.room.setting.invitation.update');
+    Route::get('/room/{room}/settings/', [VotingRoomSettingController::class, 'getSettings'])->name('api.room.setting.index');
+    Route::put('/room/{room}/settings/', [VotingRoomSettingController::class, 'updateSettings'])->name('api.room.setting.update');
 
 
     Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');

@@ -105,17 +105,6 @@ class VotingRoomController extends Controller
             $settings->password = null;
         }
         $settings->save();
-
-//        $settings->update([
-//            'allow_multiple_votes' => (bool)($request->allow_multiple_votes ?? false),
-//            'public_visibility' => (bool)($request->public_visibility ?? false),
-//            'results_visibility' => $request->results_visibility,
-//            'allow_voting' => (bool)($request->allow_voting ?? false),
-//            'allow_skipping' => (bool)($request->allow_skipping ?? false),
-//            'allow_anonymous_voting' => (bool)($request->allow_anonymous_voting ?? false),
-//        ]);
-
-//        return back()->with('success', 'Room updated successfully!');
     }
 
     public function dashboard(VotingRoom $room)
@@ -124,14 +113,12 @@ class VotingRoomController extends Controller
 
         $room->decryptVotingRoom();
 
-        $room_settings = $room->settings;
-
         $nestedResults = Vote::getQuestionResults($room->questions);
         $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
 
         $room_attachments = $room->attachments;
 
-        return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'room_settings', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'));
+        return Inertia::render('Voting/VotingRoom/Dashboard', compact('room', 'room_attachments', 'nestedResults', 'voteCountsInTimeInterval'));
     }
 
     public function create()
