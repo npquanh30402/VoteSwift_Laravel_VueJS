@@ -58,7 +58,6 @@ import Uppy from "@uppy/core";
 import Webcam from "@uppy/webcam";
 import ImageEditor from "@uppy/image-editor";
 import {computed, onBeforeUnmount, onMounted, ref} from "vue";
-import {router} from "@inertiajs/vue3";
 import {useAttachmentStore} from "@/Stores/attachments.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import {useToast} from "vue-toast-notification";
@@ -121,9 +120,7 @@ uppy.on('file-added', (file) => {
 uppy.on('complete', (result) => {
     if (result.successful) {
         $toast.success('Attachments uploaded successfully');
-    }
-
-    if (result.failed) {
+    } else {
         $toast.error('Failed to upload attachments');
     }
 });
