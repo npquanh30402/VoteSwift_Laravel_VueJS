@@ -6,7 +6,7 @@ export const useQuestionStore = defineStore('question', () => {
     const questions = ref([])
 
     const fetchQuestions = async (roomId) => {
-        if (questions.value[roomId]?.length > 0) {
+        if (!!questions.value[roomId]) {
             return;
         }
 

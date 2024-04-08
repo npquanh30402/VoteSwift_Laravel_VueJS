@@ -6,7 +6,7 @@ export const useCandidateStore = defineStore('candidate', () => {
     const candidates = ref([])
 
     const fetchCandidates = async (roomId, flag = null) => {
-        if (candidates.value[roomId]?.length > 0 && flag === null) {
+        if (!!candidates.value[roomId] && flag === null) {
             return;
         }
 

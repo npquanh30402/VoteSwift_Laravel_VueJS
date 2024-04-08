@@ -7,7 +7,7 @@ export const useVotingSettingStore = defineStore('votingSetting', () => {
     const settings = ref({})
 
     const fetchSettings = async (roomId) => {
-        if (settings.value[roomId]?.length > 0) {
+        if (!!settings.value[roomId]) {
             return;
         }
 

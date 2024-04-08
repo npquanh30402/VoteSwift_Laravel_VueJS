@@ -7,7 +7,7 @@ export const useAttachmentStore = defineStore('attachment', () => {
     const attachments = ref({})
 
     const fetchAttachments = async (roomId) => {
-        if (attachments.value[roomId]?.length > 0) {
+        if (!!attachments.value[roomId]) {
             return;
         }
 
