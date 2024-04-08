@@ -8,8 +8,8 @@
     </BaseModal>
 
     <VotingChat :room="room" :roomSettings="roomSettings" style="z-index: 999" v-if="isChatEnable"/>
-    <h3>Time remaining: </h3>
-    <VotingClock :date="room.end_time"/>
+    <!--    <h3>Time remaining: </h3>-->
+    <!--    <VotingClock :date="room.end_time"/>-->
 
     <transition name="fade" mode="out-in">
         <component :is="tabs[currentTab]" :room="room" :roomSettings="roomSettings" :questions="questions"

@@ -35,7 +35,7 @@
 <script setup>
 import {router, useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {computed, ref, watch} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useToast} from "vue-toast-notification";
 import {useVotingSettingStore} from "@/Stores/voting-settings.js";
 
@@ -54,6 +54,12 @@ const form = useForm({
 
 watch(() => roomSettings.value, () => {
     isPasswordEnable.value = roomSettings.value?.password !== null
+})
+
+onMounted(() => {
+    if (roomSettings.value) {
+        isPasswordEnable.value = roomSettings.value?.password !== null
+    }
 })
 
 const updateSetting = (key, value) => {

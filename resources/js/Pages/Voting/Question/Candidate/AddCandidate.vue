@@ -32,14 +32,9 @@
                     <img :src="imgSrc"
                          class="img-fluid"
                          style="cursor: pointer"
-                         alt="Image" @click="showSingle"/>
+                         alt="Image" @click="showImage"/>
                     <teleport to="body">
-                        <vue-easy-lightbox
-                            :visible="visibleRef"
-                            :imgs="imgsRef"
-                            :index="indexRef"
-                            @hide="onHide"
-                        ></vue-easy-lightbox>
+                        <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
                     </teleport>
                 </div>
             </div>
@@ -55,6 +50,7 @@ import {computed, reactive, ref, watch} from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['question'])
 
@@ -71,6 +67,8 @@ const errorMessages = reactive({
     candidate_description: '',
     candidate_image: '',
 });
+const currentImageDisplay = ref(null)
+const imgSrc = ref(null);
 
 function updateErrorMessage(fieldName, value) {
     switch (fieldName) {
@@ -113,22 +111,8 @@ const submit = async () => {
     await CandidateStore.storeCandidate(props.question.id, formData);
 }
 
-const imgSrc = ref(null);
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
+const showImage = (e) => {
+    currentImageDisplay.value = e;
 }
 
 function handleFileChange(event) {

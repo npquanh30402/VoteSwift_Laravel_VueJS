@@ -10,8 +10,8 @@
                     <div class="card-header fw-bold d-flex flex-column gap-2">
                         <div class="d-flex justify-content-between">
                             <div class="vstack w-50">
-                                <p class="fs-5">#{{ index + 1 }}: {{ question.question_title }}</p>
-                                <p class="text-muted text-truncate w-75">{{ question.question_description }}</p>
+                                <p class="fs-5 text-truncate pe-5">#{{ index + 1 }}: {{ question.question_title }}</p>
+                                <p class="text-muted text-truncate pe-5">{{ question.question_description }}</p>
                             </div>
                             <div class="d-flex gap-5">
                                 <img class="img-fluid" :src="question.question_image" width="128"

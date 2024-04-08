@@ -13,6 +13,8 @@ import AudioPlayer from '@liripeng/vue-audio-player'
 import {createPinia} from 'pinia'
 import ToastPlugin from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-bootstrap.css';
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css'
 
 var elem = document.getElementById("app");
 elem.className += "d-flex flex-column min-vh-100";
@@ -33,6 +35,7 @@ createInertiaApp({
             .use(plugin)
             .use(ZiggyVue)
             .use(ToastPlugin)
+            .use(FloatingVue)
             .use(pinia)
             .use(AudioPlayer)
             .mount(el);

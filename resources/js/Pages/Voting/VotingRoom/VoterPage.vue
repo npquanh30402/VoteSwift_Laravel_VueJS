@@ -119,8 +119,8 @@ const waitForVoters = ref(false);
 const $toast = useToast();
 
 watch(() => roomSettings.value, () => {
-    onlyInvitation.value = roomSettings.value?.invitation_only === 1;
-    waitForVoters.value = roomSettings.value?.wait_for_voters === 1;
+    onlyInvitation.value = roomSettings.value.invitation_only === 1;
+    waitForVoters.value = roomSettings.value.wait_for_voters === 1;
 })
 
 const search_query = ref('');
@@ -129,6 +129,11 @@ const users = ref([]);
 onMounted(() => {
     votingSettingStore.fetchSettings(props.room.id)
     invitationStore.fetchInvitations(props.room.id)
+
+    if (roomSettings.value) {
+        onlyInvitation.value = roomSettings.value.invitation_only === 1;
+        waitForVoters.value = roomSettings.value.wait_for_voters === 1;
+    }
 })
 
 const updateSetting = (key, value) => {

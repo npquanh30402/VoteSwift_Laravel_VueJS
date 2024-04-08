@@ -31,19 +31,14 @@
                                                 class="hstack gap-3 justify-content-center align-items-center">
                                                 <i v-if="imageFiles.includes(file)"
                                                    class="bi bi-eye icon text-success"
-                                                   @click="showSingle(file.file_path)"></i>
+                                                   @click="showImage(file.file_path)"></i>
                                                 <a :href="file.file_path"><i
                                                     class="bi bi-download icon text-dark"></i></a>
                                             </div>
                                         </div>
                                     </div>
                                     <teleport to="body">
-                                        <vue-easy-lightbox
-                                            :visible="visibleRef"
-                                            :imgs="imgsRef"
-                                            :index="indexRef"
-                                            @hide="onHide"
-                                        ></vue-easy-lightbox>
+                                        <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
                                     </teleport>
                                 </div>
                             </div>
@@ -87,12 +82,13 @@ import VueEasyLightbox from "vue-easy-lightbox";
 import BaseOffcanvas from "@/Components/BaseOffcanvas.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import * as bootstrap from "bootstrap";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['room', 'roomSettings', 'invitedUsers', 'roomAttachments', 'onlineUsers', 'isUserOnline'])
 
 const onlineUsers = computed(() => props.onlineUsers)
 const isUserOnline = computed(() => props.isUserOnline)
-
+const currentImageDisplay = ref(null)
 const bsOffcanvas = ref(null);
 const modals = reactive({
     RoomDescriptionModal: 'RoomDescriptionModal'
@@ -111,22 +107,12 @@ function openSidebar(modal) {
     modal.show();
 }
 
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (filePath) => {
-    imgsRef.value = filePath
-    console.log(filePath)
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
+const showImage = (filePath) => {
+    currentImageDisplay.value = {
+        target: {
+            src: filePath
+        }
+    };
 }
 
 const imageFiles = ref([]);

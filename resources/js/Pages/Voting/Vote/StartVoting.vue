@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="submitVotes" class="vstack gap-5 align-items-center">
+    <form @submit.prevent="submitVotes">
         <VotingOptions :room="room" :questions="questions" :voteCounts="combinedCounts"/>
 
         <div class="text-center my-5">
@@ -76,7 +76,7 @@ const handleReceivedChoice = (e) => {
     }
 
     // For checkbox
-    if (e.question_type.allow_multiple_votes === 1) {
+    if (e.question_type.allow_multiple_votes === 'true') {
         const isSelected = userChoicesInRoom.value[e.user.id][questionId].includes(candidateId);
 
         if (!isSelected) {

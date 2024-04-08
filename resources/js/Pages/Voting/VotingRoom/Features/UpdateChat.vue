@@ -139,5 +139,11 @@ onMounted(async () => {
     if (roomSettings?.chat_messages_saved === 1) {
         await votingChatStore.fetchMessages(props.room.id)
     }
+
+    if (roomSettings.value) {
+        isChatEnable.value = roomSettings.value?.chat_enabled === 1
+        isChatHistory.value = roomSettings.value?.chat_messages_saved === 1
+        isChatUpload.value = roomSettings.value?.allow_voters_upload === 1
+    }
 })
 </script>

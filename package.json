@@ -30,6 +30,7 @@
         "datatables.net-vue3": "^3.0.1",
         "date-and-time": "^3.1.1",
         "date-fns": "^3.6.0",
+        "floating-vue": "^5.2.2",
         "laravel-echo": "^1.16.0",
         "laravel-vite-plugin": "^1.0",
         "luxon": "^3.4.4",

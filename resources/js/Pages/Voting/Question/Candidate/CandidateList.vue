@@ -9,7 +9,9 @@
                     <img class="img-fluid" :src="candidate.candidate_image" width="128"
                          v-if="candidate.candidate_image" style="cursor: pointer"
                          alt="Image" @click="showSingle">
-                    <span><strong>{{ candidate.candidate_title }}</strong></span>
+                    <span class="text-truncate" style="width: 50rem"><strong>{{
+                            candidate.candidate_title
+                        }}</strong></span>
                 </div>
                 <CandidateAction :candidate="candidate" @view-candidate="handleViewCandidate"/>
             </div>
