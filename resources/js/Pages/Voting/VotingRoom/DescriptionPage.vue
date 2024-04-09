@@ -1,10 +1,5 @@
 <template>
-    <div class="card shadow-sm border-0 mb-3 overflow-auto">
-        <div class="card-header text-bg-dark text-center">Room Description</div>
-        <div class="card-body">
-            <MdPreview :editorId="'room_' + room?.id" :modelValue="room?.room_description"/>
-        </div>
-    </div>
+    <MdPreview :editorId="'room_' + room?.id" :modelValue="room?.room_description"/>
 </template>
 
 <script setup>
@@ -17,8 +12,7 @@ const votingRoomStore = useVotingRoomStore()
 
 const room = computed(() => votingRoomStore.rooms.find(room => room.id === props.room.id))
 
-onMounted(async () => {
-    await votingRoomStore.fetchRooms()
+onMounted(() => {
+    votingRoomStore.fetchRooms()
 })
-
 </script>

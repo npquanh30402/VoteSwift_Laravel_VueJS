@@ -70,7 +70,6 @@
 <script setup>
 import {computed, onMounted, onUpdated, ref} from 'vue';
 import {usePage} from "@inertiajs/vue3";
-import date from 'date-and-time';
 import VueEasyLightbox from 'vue-easy-lightbox'
 import {route} from "ziggy-js";
 
@@ -88,7 +87,7 @@ const isYou = (msgUserId) => {
 
 function formatHour(dt) {
     const fdt = new Date(dt);
-    return date.format(fdt, 'HH:mm');
+    return fdt.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true});
 }
 
 function isImage(file) {

@@ -8,7 +8,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <img class="img-fluid" :src="candidate.candidate_image" width="128"
                          v-if="candidate.candidate_image" style="cursor: pointer"
-                         alt="Image" @click="showSingle">
+                         alt="Image" @click="showImage">
                     <span class="text-truncate" style="width: 50rem"><strong>{{
                             candidate.candidate_title
                         }}</strong></span>
@@ -17,12 +17,7 @@
             </div>
         </div>
         <teleport to="body">
-            <vue-easy-lightbox
-                :visible="visibleRef"
-                :imgs="imgsRef"
-                :index="indexRef"
-                @hide="onHide"
-            ></vue-easy-lightbox>
+            <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
         </teleport>
         <ViewCandidate :id="'viewCandidateModal' + question.id" :candidate="modalCandidate"/>
     </div>
@@ -33,12 +28,13 @@ import CandidateAction from "@/Pages/Voting/Question/Candidate/CandidateAction.v
 import {onMounted, reactive, ref} from "vue";
 import * as bootstrap from "bootstrap";
 import AddCandidate from "@/Pages/Voting/Question/Candidate/AddCandidate.vue";
-import VueEasyLightbox from "vue-easy-lightbox";
 import ViewCandidate from "@/Pages/Voting/Question/Candidate/ViewCandidate.vue";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['question', 'candidates'])
 
-let modalCandidate = ref(null);
+const modalCandidate = ref(null);
+const currentImageDisplay = ref(null)
 const modals = reactive({
     addCandidateModal: 'addCandidateModal' + props.question.id,
     viewCandidateModal: 'viewCandidateModal' + props.question.id,
@@ -59,20 +55,7 @@ const handleViewCandidate = (candidate) => {
     modals.viewCandidateModal.show();
 }
 
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
+const showImage = (e) => {
+    currentImageDisplay.value = e;
 }
 </script>

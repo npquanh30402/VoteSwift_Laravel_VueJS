@@ -8,9 +8,11 @@ import './realtime-setup.js'
 import {createApp, h} from "vue";
 import {createInertiaApp} from "@inertiajs/vue3";
 import {ZiggyVue} from "ziggy-js";
-import MainLayout from "./Layouts/MainLayout.vue";
 import AudioPlayer from '@liripeng/vue-audio-player'
 import {createPinia} from 'pinia'
+
+import MainLayout from "./Layouts/MainLayout.vue";
+
 import ToastPlugin from 'vue-toast-notification';
 import 'vue-toast-notification/dist/theme-bootstrap.css';
 import FloatingVue from 'floating-vue'
@@ -33,10 +35,10 @@ createInertiaApp({
     setup({el, App, props, plugin}) {
         createApp({render: () => h(App, props)})
             .use(plugin)
+            .use(pinia)
             .use(ZiggyVue)
             .use(ToastPlugin)
             .use(FloatingVue)
-            .use(pinia)
             .use(AudioPlayer)
             .mount(el);
     },

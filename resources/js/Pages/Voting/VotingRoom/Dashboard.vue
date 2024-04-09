@@ -12,10 +12,15 @@
                 <BallotSidebar :room="room" @switch-tab="handleSwitchTab"></BallotSidebar>
             </div>
             <div class="col-md-9">
-                <transition name="fade" mode="out-in">
-                    <component :is="tabs[currentTab]" :room="room" :nestedResults="nestedResults"
-                               :voteCountsInTimeInterval="voteCountsInTimeInterval"></component>
-                </transition>
+                <div class="card shadow-sm border-0 mb-3 overflow-auto">
+                    <div class="card-header text-bg-dark text-center">{{ tabData[currentTab].name }}</div>
+                    <div class="card-body">
+                        <transition name="fade" mode="out-in">
+                            <component :is="tabData[currentTab].component" :room="room" :nestedResults="nestedResults"
+                                       :voteCountsInTimeInterval="voteCountsInTimeInterval"></component>
+                        </transition>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -26,7 +31,6 @@ import {ref} from "vue";
 import DescriptionPage from "@/Pages/Voting/VotingRoom/DescriptionPage.vue";
 import QuestionsPage from "@/Pages/Voting/Question/Index.vue";
 import AttachmentPage from "@/Pages/Voting/VotingRoom/AttachmentPage.vue";
-import RoomDetails from "@/Pages/Voting/VotingRoom/RoomDetails.vue";
 import VotingResult from "@/Pages/Voting/Vote/VotingResult.vue";
 import BallotSidebar from "@/Pages/Voting/VotingRoom/BallotSidebar.vue";
 import UpdateTitleDesc from "@/Pages/Voting/VotingRoom/Features/UpdateTitleDesc.vue";
@@ -38,29 +42,29 @@ import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
 import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
 import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
 import RoomRealtime from "@/Pages/Voting/VotingRoom/RoomRealtime.vue";
+import RoomOverview from "@/Pages/Voting/VotingRoom/RoomOverview.vue";
 
 const props = defineProps(['room', 'nestedResults', 'voteCountsInTimeInterval'])
 
-const currentTab = ref('RoomDetails')
+const currentTab = ref('RoomOverview');
 
-const tabs = {
-    RoomDetails,
-    DescriptionPage,
-    QuestionsPage,
-    UpdateTitleDesc,
-    UpdateTime,
-    AttachmentPage,
-    VotingResult,
-    UpdatePassword,
-    UpdateChat,
-    RoomRealtime,
-    VoterPage,
-    RoomPublish,
-    DeleteRoom
-}
+const tabData = {
+    RoomOverview: {component: RoomOverview, name: 'Overview'},
+    DescriptionPage: {component: DescriptionPage, name: 'Description'},
+    QuestionsPage: {component: QuestionsPage, name: 'Questions & Candidates'},
+    UpdateTitleDesc: {component: UpdateTitleDesc, name: 'Update Title & Description'},
+    UpdateTime: {component: UpdateTime, name: 'Update Time'},
+    AttachmentPage: {component: AttachmentPage, name: 'Attachment'},
+    VotingResult: {component: VotingResult, name: 'Voting Result'},
+    UpdatePassword: {component: UpdatePassword, name: 'Update Password'},
+    UpdateChat: {component: UpdateChat, name: 'Update Chat'},
+    RoomRealtime: {component: RoomRealtime, name: 'Realtime'},
+    VoterPage: {component: VoterPage, name: 'Voters'},
+    RoomPublish: {component: RoomPublish, name: 'Publish'},
+    DeleteRoom: {component: DeleteRoom, name: 'Delete Room'}
+};
 
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
-
 </script>

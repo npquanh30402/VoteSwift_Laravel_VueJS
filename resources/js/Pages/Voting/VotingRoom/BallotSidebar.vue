@@ -2,7 +2,7 @@
     <div class="list-group shadow-sm small mb-3">
         <div class="list-group-item text-bg-dark">Actions</div>
         <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'RoomDetails'}"
-                @click="switchTab('RoomDetails')">Room Details
+                @click="switchTab('RoomOverview')">Room Overview
         </button>
         <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'DescriptionPage'}"
                 @click="switchTab('DescriptionPage')">Room Description
@@ -61,10 +61,8 @@
 <script setup>
 import {ref} from "vue";
 
-defineProps(['room']);
-
 const emit = defineEmits(['switch-tab'])
-let currentTab = ref('RoomDetails');
+const currentTab = ref('RoomOverview');
 
 const switchTab = (tabName) => {
     currentTab.value = tabName;

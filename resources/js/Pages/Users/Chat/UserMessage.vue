@@ -125,7 +125,6 @@
 <script setup>
 import {computed, onMounted, onUpdated, ref} from 'vue';
 import {router, usePage} from "@inertiajs/vue3";
-import date from 'date-and-time';
 import VueEasyLightbox from 'vue-easy-lightbox'
 import {route} from "ziggy-js";
 import {useChatStore} from "@/Stores/chat.js";
@@ -169,7 +168,7 @@ function goToProfile(userId) {
 
 function formatHour(dt) {
     const fdt = new Date(dt);
-    return date.format(fdt, 'HH:mm');
+    return fdt.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true});
 }
 
 function isImage(file) {

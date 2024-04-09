@@ -1,50 +1,47 @@
 <template>
-    <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header text-bg-dark text-center">Change Time</div>
-        <form @submit.prevent="submit" class="card-body">
-            <div class="row gx-3">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label for="room_name" class="mb-2">Date/Time:</label>
-                        <VueDatePicker v-model="form.date" :min-date="new Date(Date.now() - 86400000)"
+    <form @submit.prevent="submit">
+        <div class="row gx-3">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label for="room_name" class="mb-2">Date/Time:</label>
+                    <VueDatePicker v-model="form.date" :min-date="new Date(Date.now() - 86400000)"
+                                   range
+                                   multi-calendars disabled/>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <div class="mb-3 row row-cols-2">
+                    <div>
+                        <div>
+                            <span>Timezone: {{ activeTz.tz }}</span>
+                            <br/>
+                            <span>Offset: {{ activeTz.offset > 0 ? `+${activeTz.offset}` : activeTz.offset }}</span>
+                        </div>
+                        <div>
+                            <input class="tz-range-slider" type="range" v-model="selectedTz" min="0" max="22"/>
+                        </div>
+                        <div>
+                            <span>Time preview:</span>
+                            <VueDatePicker v-model="form.date" :timezone="tz" range disabled/>
+                        </div>
+                    </div>
+                    <div>
+                        <VueDatePicker v-model="form.date" inline
+                                       :min-date="new Date(Date.now() - 86400000)"
                                        range
-                                       multi-calendars disabled/>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="mb-3 row row-cols-2">
-                        <div>
-                            <div>
-                                <span>Timezone: {{ activeTz.tz }}</span>
-                                <br/>
-                                <span>Offset: {{ activeTz.offset > 0 ? `+${activeTz.offset}` : activeTz.offset }}</span>
-                            </div>
-                            <div>
-                                <input class="tz-range-slider" type="range" v-model="selectedTz" min="0" max="22"/>
-                            </div>
-                            <div>
-                                <span>Time preview:</span>
-                                <VueDatePicker v-model="form.date" :timezone="tz" range disabled/>
-                            </div>
-                        </div>
-                        <div>
-                            <VueDatePicker v-model="form.date" inline
-                                           :min-date="new Date(Date.now() - 86400000)"
-                                           range
-                                           multi-calendars/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-sm btn-success p-3">Update</button>
+                                       multi-calendars/>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+
+            <div class="col-md-12">
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-sm btn-success p-3">Update</button>
+                </div>
+            </div>
+        </div>
+    </form>
 </template>
 
 <script setup>

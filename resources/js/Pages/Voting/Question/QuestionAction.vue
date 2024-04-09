@@ -1,19 +1,14 @@
 <template>
-    <div class="dropdown">
-        <div class="dropdown-action" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-three-dots"></i>
-        </div>
-        <ul class="dropdown-menu">
-            <li>
-                <button class="dropdown-item text-success" @click="openModal(question)">
-                    Details
-                </button>
-            </li>
-            <li>
-                <button class="dropdown-item text-danger" @click="deleteQuestion">Delete</button>
-            </li>
-        </ul>
-    </div>
+    <VMenu :triggers="['click', 'focus']" :distance="-50">
+        <div class="dropdown-action"><i class="bi bi-three-dots"></i></div>
+
+        <template #popper>
+            <div class="list-group">
+                <button class="list-group-item text-success" @click="openModal(question)">Details</button>
+                <button class="text-danger list-group-item" @click="deleteQuestion">Delete</button>
+            </div>
+        </template>
+    </VMenu>
 </template>
 
 <script setup>

@@ -18,10 +18,8 @@
 <script setup>
 import {ref} from "vue";
 
-defineProps(['room']);
-
 const emit = defineEmits(['switch-tab'])
-let currentTab = ref('CandidateList');
+const currentTab = ref('CandidateList');
 
 const switchTab = (tabName) => {
     currentTab.value = tabName;

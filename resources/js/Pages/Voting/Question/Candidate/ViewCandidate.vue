@@ -27,14 +27,9 @@
                     <img :src="imgSrc"
                          class="img-fluid"
                          style="cursor: pointer"
-                         alt="Image" @click="showSingle"/>
+                         alt="Image" @click="showImage"/>
                     <teleport to="body">
-                        <vue-easy-lightbox
-                            :visible="visibleRef"
-                            :imgs="imgsRef"
-                            :index="indexRef"
-                            @hide="onHide"
-                        ></vue-easy-lightbox>
+                        <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
                     </teleport>
                 </div>
             </div>
@@ -47,9 +42,9 @@ import BaseModal from "@/Components/BaseModal.vue";
 import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {ref, watch} from "vue";
-import VueEasyLightbox from "vue-easy-lightbox";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['candidate'])
 
@@ -60,7 +55,12 @@ const form = useForm({
     candidate_description: props.candidate?.candidate_description,
     candidate_image: props.candidate?.candidate_image,
 });
+const currentImageDisplay = ref(null)
 const imgSrc = ref(null);
+
+const showImage = (e) => {
+    currentImageDisplay.value = e;
+}
 
 watch(() => props.candidate, (newQuestion) => {
     form.candidate_title = newQuestion?.candidate_title;
@@ -88,23 +88,6 @@ const submit = async () => {
     // };
 
     await CandidateStore.updateCandidate(props.candidate.id, formData);
-}
-
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
-
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
 }
 
 function handleFileChange(event) {

@@ -1,8 +1,6 @@
 <template>
-    <div class="card shadow-sm border-0 mb-3 overflow-auto">
-        <div class="card-header text-bg-dark text-center">Add Question/Candidate
-        </div>
-        <div class="card-body">
+    <div>
+        <div>
             <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
             <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
             <div class="mt-3 d-flex flex-column gap-3">
@@ -31,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="d-flex justify-content-end">
+        <div class="mt-3 d-flex justify-content-end">
             <vue-awesome-paginate
                 :total-items="questions?.length || 0"
                 :items-per-page="5"
@@ -40,10 +38,12 @@
                 :on-click="onClickHandler"
             />
         </div>
-        <teleport to="body">
-            <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
-        </teleport>
-        <ViewQuestion :id="'viewQuestionModal' + room.id" :room="room" :question="modalQuestion"/>
+        <div class="others">
+            <teleport to="body">
+                <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
+            </teleport>
+            <ViewQuestion :id="'viewQuestionModal' + room.id" :room="room" :question="modalQuestion"/>
+        </div>
     </div>
 </template>
 
@@ -86,7 +86,7 @@ const tabs = {
     QuestionRule
 }
 
-let modalQuestion = ref(null);
+const modalQuestion = ref(null);
 const modals = reactive({
     addQuestionModal: 'addQuestionModal',
     viewQuestionModal: 'viewQuestionModal' + props.room.id,
