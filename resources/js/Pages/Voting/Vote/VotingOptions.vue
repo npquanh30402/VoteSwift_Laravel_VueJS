@@ -91,6 +91,7 @@ import QuestionInfo from "@/Pages/Voting/Vote/QuestionInfo.vue";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import {useHelper} from "@/Services/helper.js";
 import CandidateInfo from "@/Pages/Voting/Vote/CandidateInfo.vue";
+import {route} from "ziggy-js";
 
 const props = defineProps(['room', 'questions', 'voteCounts'])
 const votingResultStore = useVotingResultStore()
@@ -108,15 +109,20 @@ const onClickCheck = async (questionId, candidateId) => {
     await votingResultStore.broadCastChoice(props.room.id, formData)
 
     if (!selectedOptions.value.hasOwnProperty(questionId)) {
-        selectedOptions.value[questionId] = [candidateId];
+        selectedOptions.value[questionId] = [candidateId, -1];
     } else {
         const index = selectedOptions.value[questionId].indexOf(candidateId);
         if (index !== -1) {
             selectedOptions.value[questionId].splice(index, 1);
+            if (selectedOptions.value[questionId].length === 1 && selectedOptions.value[questionId][0] === -1) {
+                delete selectedOptions.value[questionId];
+            }
         } else {
             selectedOptions.value[questionId].push(candidateId);
         }
     }
+
+    await axios.post(route('api.room.vote.store.choices', props.room.id), selectedOptions.value)
 };
 
 const onClickRadio = async (questionId, candidateId) => {
@@ -125,14 +131,16 @@ const onClickRadio = async (questionId, candidateId) => {
     formData.append('candidateId', candidateId);
 
     if (selectedOptions.value.hasOwnProperty(questionId)) {
-        const index = selectedOptions.value[questionId].indexOf(candidateId);
-        if (index === -1) {
-            selectedOptions.value[questionId].push(candidateId);
+        const oldCandidateId = selectedOptions.value[questionId][0];
+        if (oldCandidateId !== candidateId) {
+            selectedOptions.value[questionId] = [candidateId];
         }
     } else {
         selectedOptions.value[questionId] = [candidateId];
     }
-    await votingResultStore.broadCastChoice(props.room.id, formData)
+
+    await votingResultStore.broadCastChoice(props.room.id, formData);
+    await axios.post(route('api.room.vote.store.choices', props.room.id), selectedOptions.value);
 };
 
 function trimText(textArray, length) {

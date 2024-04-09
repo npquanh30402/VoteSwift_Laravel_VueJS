@@ -5,15 +5,88 @@ namespace App\Http\Controllers\Api;
 use App\Events\VotingChoice;
 use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Models\UserJoinTime;
 use App\Models\Vote;
 use App\Models\VotingRoom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 
 class VoteController extends Controller
 {
+    public function deleteUserChoices(VotingRoom $room, User $user)
+    {
+        Cache::forget('room_' . $room->id . '_user_choices_' . $user->id);
+
+        return response()->json(['message' => 'User choices deleted successfully']);
+    }
+
+    public function getUserChoices(VotingRoom $room)
+    {
+        $allUserChoices = [];
+
+        $userIds = UserJoinTime::where('room_id', $room->id)->pluck('user_id')->unique()->toArray();
+
+        foreach ($userIds as $userId) {
+            $serializedChoices = Cache::get('room_' . $room->id . '_user_choices_' . $userId);
+
+            if ($serializedChoices) {
+                $choices = json_decode($serializedChoices, true);
+
+                $allUserChoices[$userId] = $choices;
+            }
+        }
+
+        return response()->json($allUserChoices);
+    }
+
+
+    public function storeUserChoices(Request $request, VotingRoom $room)
+    {
+        $choices = $request->all();
+
+        $serializedChoices = json_encode($choices);
+
+        Cache::put('room_' . $room->id . '_user_choices_' . Auth::user()->id, $serializedChoices, now()->addHours(24));
+
+        return response()->json(['message' => 'User choices stored successfully']);
+    }
+
+    public function deleteJoinTime(VotingRoom $room, User $user)
+    {
+//        $joinTimes = Cache::get('room_' . $room->id . '_user_join_times', []);
+//        unset($joinTimes[$user->id]);
+//        Cache::put('room_' . $room->id . '_user_join_times', $joinTimes, now()->addHours(24));
+
+        return response()->json(['message' => 'Join time removed successfully']);
+    }
+
+    public function getJoinTimes(VotingRoom $room)
+    {
+        $joinTimes = Cache::get('room_' . $room->id . '_user_join_times');
+        return response()->json($joinTimes);
+    }
+
+    public function storeJoinTime(Request $request, VotingRoom $room)
+    {
+        // Store the user's join time in cache
+        $joinTimes = Cache::get('room_' . $room->id . '_user_join_times', []);
+        $joinTimes[Auth::user()->id] = $request->join_time;
+        Cache::put('room_' . $room->id . '_user_join_times', $joinTimes, now()->addHours(24));
+
+        // Store the user's join time in the database
+        $userJoinTime = new UserJoinTime();
+        $userJoinTime->user_id = Auth::user()->id;
+        $userJoinTime->room_id = $room->id;
+        $userJoinTime->join_time = $request->join_time;
+        $userJoinTime->save();
+
+        return response()->json(['message' => 'Join time stored successfully']);
+    }
+
     public function broadcastChoice(VotingRoom $room, Request $request)
     {
         broadcast(new VotingChoice(Auth::user(), $room, $request->questionId, $request->candidateId));

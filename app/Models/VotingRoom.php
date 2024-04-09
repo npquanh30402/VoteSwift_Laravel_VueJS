@@ -48,6 +48,11 @@ class VotingRoom extends Model
         return $this->hasMany(Invitation::class, 'voting_room_id', 'id');
     }
 
+    public function userJoinTimes()
+    {
+        return $this->hasMany(UserJoinTime::class, 'room_id', 'id');
+    }
+
     public function userHasAccess($user)
     {
         if ($this->user_id === $user->id) {

@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import {computed, onMounted, ref} from "vue";
 import Welcome from "@/Pages/Voting/Vote/Welcome.vue";
 import StartVoting from "@/Pages/Voting/Vote/StartVoting.vue";
 import {route} from "ziggy-js";
@@ -32,8 +32,11 @@ import BaseModal from "@/Components/BaseModal.vue";
 import {MdPreview} from "md-editor-v3";
 import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
 import VotingSidebar from "@/Pages/Voting/Vote/VotingSidebar.vue";
+import {usePage} from "@inertiajs/vue3";
 
 const props = defineProps(['questions', 'room', 'roomSettings', 'invitedUsers', 'roomAttachments'])
+const authUser = computed(() => usePage().props.authUser.user);
+
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
 const currentTab = ref('StartVoting');
 const isChatEnable = ref(props.roomSettings?.chat_enabled === 1)
@@ -84,4 +87,14 @@ if (props.roomSettings.wait_for_voters === 1) {
         }
     })
 }
+
+onMounted(async () => {
+    const response = await axios.post(route('api.room.vote.store.join.time', {
+        'room': props.room.id,
+        'user': authUser.value.id
+    }), {
+        'user_id': authUser.value.id,
+        'join_time': new Date(Date.now())
+    });
+})
 </script>

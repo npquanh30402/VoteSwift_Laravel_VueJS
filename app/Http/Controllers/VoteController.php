@@ -7,6 +7,7 @@ use App\Events\VotingProcess;
 use App\Models\Candidate;
 use App\Models\Question;
 use App\Models\User;
+use App\Models\UserJoinTime;
 use App\Models\Vote;
 use App\Models\VotingRoom;
 use App\Services\VoteService;
@@ -159,6 +160,24 @@ class VoteController extends Controller
             if ($user) {
                 $invitedUsers[] = $user;
             }
+        }
+
+        $allUserChoices = [];
+
+        $userIds = UserJoinTime::where('room_id', $room->id)->pluck('user_id')->unique()->toArray();
+
+        foreach ($userIds as $userId) {
+            $serializedChoices = Cache::get('room_' . $room->id . '_user_choices_' . $userId);
+
+            if ($serializedChoices) {
+                $choices = json_decode($serializedChoices, true);
+
+                $allUserChoices[$userId] = $choices;
+            }
+        }
+        
+        if (count($allUserChoices) === 1 && isset($allUserChoices[Auth::user()->id])) {
+            Cache::forget('room_' . $room->id . '_user_choices_' . Auth::user()->id);
         }
 
         return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'roomSettings', 'roomAttachments', 'invitedUsers'));

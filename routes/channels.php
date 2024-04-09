@@ -3,6 +3,7 @@
 use App\Models\User;
 use App\Models\VotingRoom;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Cache;
 
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int)$user->id === (int)$id;
@@ -38,7 +39,7 @@ Broadcast::channel('voting.chat.{room}', function ($room) {
     return true;
 });
 
-Broadcast::channel('voting.choice.{room}', function (User $user, VotingRoom $room) {
+Broadcast::channel('voting.choice.{room}', function (User $user) {
     return [
         'id' => $user->id,
         'username' => $user->username,

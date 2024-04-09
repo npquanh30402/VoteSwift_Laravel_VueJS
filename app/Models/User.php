@@ -77,6 +77,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Message::class, 'sender_id', 'id');
     }
 
+    public function userJoinTimes()
+    {
+        return $this->hasMany(UserJoinTime::class, 'user_id', 'id');
+    }
+
     public function getPublicRooms()
     {
         return $this->rooms()->whereHas('settings', function ($query) {

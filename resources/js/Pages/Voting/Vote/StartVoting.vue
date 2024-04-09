@@ -19,7 +19,7 @@ const props = defineProps(['questions', 'room'])
 const votingResultStore = useVotingResultStore()
 const votingResult = computed(() => votingResultStore.results[props.room.id])
 const authUser = computed(() => usePage().props.authUser.user);
-
+const userChoicesInRoom = ref({})
 const combinedCounts = ref({});
 
 const updateVoteCount = (questionId, candidateId, change) => {
@@ -62,7 +62,6 @@ onMounted(async () => {
     updateCombinedCounts(votingResultStore.results[props.room.id])
 })
 
-const userChoicesInRoom = ref({})
 const handleReceivedChoice = (e) => {
     const questionId = e.question_id;
     const candidateId = parseInt(e.candidate_id);
@@ -75,30 +74,37 @@ const handleReceivedChoice = (e) => {
         userChoicesInRoom.value[e.user.id][questionId] = [];
     }
 
-    // For checkbox
     if (e.question_type.allow_multiple_votes === 'true') {
-        const isSelected = userChoicesInRoom.value[e.user.id][questionId].includes(candidateId);
-
-        if (!isSelected) {
-            userChoicesInRoom.value[e.user.id][questionId].push(candidateId);
-            updateVoteCount(questionId, candidateId, 1);
-        } else {
-            userChoicesInRoom.value[e.user.id][questionId] = userChoicesInRoom.value[e.user.id][questionId].filter((oldCandidateId) => oldCandidateId !== candidateId);
-            updateVoteCount(questionId, candidateId, -1);
-        }
-    } else { // For Radio
-        const oldCandidateId = userChoicesInRoom.value[e.user.id][questionId];
-        if (oldCandidateId) {
-            updateVoteCount(questionId, oldCandidateId, -1);
-        }
-
-        userChoicesInRoom.value[e.user.id][questionId] = candidateId;
-
-        updateVoteCount(questionId, candidateId, 1);
+        handleCheckbox(e.user.id, questionId, candidateId);
+    } else {
+        handleRadio(e.user.id, questionId, candidateId);
     }
 };
 
-const handleDisconnect = (user) => {
+const handleCheckbox = (userId, questionId, candidateId) => {
+    const isSelected = userChoicesInRoom.value[userId][questionId].includes(candidateId);
+
+    if (!isSelected) {
+        userChoicesInRoom.value[userId][questionId].push(candidateId);
+        updateVoteCount(questionId, candidateId, 1);
+    } else {
+        userChoicesInRoom.value[userId][questionId] = userChoicesInRoom.value[userId][questionId].filter((oldCandidateId) => oldCandidateId !== candidateId);
+        updateVoteCount(questionId, candidateId, -1);
+    }
+};
+
+const handleRadio = (userId, questionId, candidateId) => {
+    const oldCandidateId = userChoicesInRoom.value[userId][questionId];
+    if (oldCandidateId) {
+        updateVoteCount(questionId, oldCandidateId, -1);
+    }
+
+    userChoicesInRoom.value[userId][questionId] = candidateId;
+
+    updateVoteCount(questionId, candidateId, 1);
+};
+
+const handleDisconnect = async (user) => {
     const userId = user.id;
 
     if (userChoicesInRoom.value[userId]) {
@@ -117,26 +123,53 @@ const handleDisconnect = (user) => {
         delete userChoicesInRoom.value[userId];
     }
 
-    // onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
+    await axios.delete(route('api.room.vote.delete.choices', {
+        'room': props.room.id,
+        'user': userId
+    }));
 };
 
-// const onlineUsers = ref([]);
-// const handleHere = (users) => {
-//     onlineUsers.value = users
-// };
-//
-// const handleJoining = (user) => {
-//     onlineUsers.value.push(user);
-// };
+const handleSubscribe = async () => {
+    const choicesResponse = await axios.get(route('api.room.vote.get.choices', props.room.id));
+
+    const responseData = choicesResponse.data
+
+    for (const userId in responseData) {
+        if (Object.prototype.hasOwnProperty.call(responseData, userId)) {
+            const userChoices = responseData[userId];
+
+            if (!userChoicesInRoom.value[userId]) {
+                userChoicesInRoom.value[userId] = {};
+            }
+
+            for (const questionId in userChoices) {
+                if (Object.prototype.hasOwnProperty.call(userChoices, questionId)) {
+                    const candidateIds = userChoices[questionId];
+
+                    if (!userChoicesInRoom.value[userId][questionId]) {
+                        userChoicesInRoom.value[userId][questionId] = [];
+                    }
+
+                    if (candidateIds.length > 1) {
+                        for (const candidateId of candidateIds) {
+                            handleCheckbox(userId, questionId, candidateId);
+                        }
+                    } else {
+                        handleRadio(userId, questionId, candidateIds[0]);
+                    }
+                }
+            }
+        }
+    }
+};
 
 const setupEchoListeners = () => {
     if (authUser.value) {
         Echo.private(`voting.choice.${props.room.id}`).listen("VotingChoice", handleReceivedChoice);
 
         Echo.join(`voting.choice.${props.room.id}`)
-            // .here(handleHere)
-            // .joining(handleJoining)
             .leaving(handleDisconnect)
+            .subscribed(handleSubscribe)
     }
 };
 
@@ -145,9 +178,14 @@ onMounted(() => {
     window.scrollTo({top: 0, left: 0, behavior: 'smooth'});
 })
 
-function submitVotes() {
-    router.post(route('vote.store', props.room.id), {
-        selectedOptions: selectedOptions.value
-    })
+async function submitVotes() {
+    // router.post(route('vote.store', props.room.id), {
+    //     selectedOptions: selectedOptions.value
+    // })
+
+    await axios.delete(route('api.room.vote.delete.choices', {
+        'room': props.room.id,
+        'user': authUser.value.id
+    }));
 }
 </script>
