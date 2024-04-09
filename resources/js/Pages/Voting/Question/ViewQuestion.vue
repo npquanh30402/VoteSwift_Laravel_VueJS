@@ -57,8 +57,10 @@ import {ref, watch} from "vue";
 import {MdEditor} from "md-editor-v3";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import {useQuestionStore} from "@/Stores/questions.js";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['room', 'question'])
+const helper = useHelper()
 
 const questionStore = useQuestionStore()
 const currentImageDisplay = ref(null)
@@ -88,8 +90,8 @@ watch(() => props.question, (newQuestion) => {
 const submit = async () => {
     const formData = new FormData();
 
-    formData.append('question_title', form.question_title);
-    formData.append('question_description', form.question_description);
+    formData.append('question_title', helper.sanitizeAndTrim(form.question_title));
+    formData.append('question_description', helper.sanitizeAndTrim(form.question_description));
 
     if (form.question_image) {
         formData.append('question_image', form.question_image);

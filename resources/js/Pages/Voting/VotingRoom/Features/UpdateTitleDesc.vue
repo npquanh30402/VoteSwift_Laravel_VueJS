@@ -7,6 +7,8 @@
                     <input type="text" id="room_name" name="room_name"
                            class="form-control form-control-sm"
                            v-model="form.room_name" required>
+                    <p class="m-0 small text-danger" v-if="errorMessages.room_name">
+                        {{ errorMessages.room_name }}</p>
                 </div>
             </div>
 
@@ -20,7 +22,9 @@
 
             <div class="col-md-12">
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-sm btn-success p-3">Update</button>
+                    <button type="submit" class="btn btn-sm btn-success p-3"
+                            :class="{'disabled': errorMessages.room_name}">Update
+                    </button>
                 </div>
             </div>
         </div>
@@ -33,9 +37,11 @@ import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {useToast} from "vue-toast-notification";
 import {useVotingRoomStore} from "@/Stores/voting-room.js";
-import {computed, onMounted, watch} from "vue";
+import {computed, onMounted, reactive, watch} from "vue";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['room'])
+const helper = useHelper()
 const $toast = useToast();
 const votingRoomStore = useVotingRoomStore()
 const room = computed(() => votingRoomStore.rooms.find(room => room.id === props.room.id))
@@ -50,8 +56,23 @@ watch(() => room.value, () => {
     form.room_description = room.value?.room_description
 })
 
-onMounted(async () => {
-    await votingRoomStore.fetchRooms()
+const errorMessages = reactive({
+    room_name: '',
+});
+
+watch(() => form.room_name, (newValue) => {
+    const titleLength = newValue.length;
+    if (titleLength < 10) {
+        errorMessages.room_name = 'Room title must be at least 10 characters.';
+    } else if (titleLength > 100) {
+        errorMessages.room_name = 'Room title cannot exceed 100 characters.';
+    } else {
+        errorMessages.room_name = '';
+    }
+});
+
+onMounted(() => {
+    votingRoomStore.fetchRooms()
 })
 
 const onUploadImg = async (files, callback) => {
@@ -78,8 +99,8 @@ const onUploadImg = async (files, callback) => {
 const submit = () => {
     try {
         const formData = new FormData();
-        formData.append('room_name', form.room_name);
-        formData.append('room_description', form.room_description);
+        formData.append('room_name', helper.sanitizeAndTrim(form.room_name));
+        formData.append('room_description', helper.sanitizeAndTrim(form.room_description));
 
         votingRoomStore.updateRoom(props.room.id, formData)
 

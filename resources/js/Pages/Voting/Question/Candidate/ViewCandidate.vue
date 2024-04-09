@@ -45,8 +45,10 @@ import {ref, watch} from "vue";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['candidate'])
+const helper = useHelper()
 
 const CandidateStore = useCandidateStore()
 
@@ -75,17 +77,11 @@ watch(() => props.candidate, (newQuestion) => {
 
 const submit = async () => {
     const formData = new FormData();
-    formData.append('candidate_title', form.candidate_title);
-    formData.append('candidate_description', form.candidate_description);
+    formData.append('candidate_title', helper.sanitizeAndTrim(form.candidate_title));
+    formData.append('candidate_description', helper.sanitizeAndTrim(form.candidate_description));
     formData.append('candidate_image', form.candidate_image);
 
     formData.append('_method', 'PUT');
-
-    // const candidateData = {
-    //     candidate_title: form.candidate_title,
-    //     candidate_description: form.candidate_description,
-    //     candidate_image: form.candidate_image,
-    // };
 
     await CandidateStore.updateCandidate(props.candidate.id, formData);
 }

@@ -20,7 +20,7 @@
         </button>
 
         <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'VoterPage'}"
-                @click="switchTab('VoterPage')">Voters
+                @click="switchTab('InvitationPage')">Invitations
         </button>
 
         <button class="list-group-item list-group-item-action" :class="{'active': currentTab === 'AttachmentPage'}"

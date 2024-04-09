@@ -59,8 +59,10 @@ import {useCandidateStore} from "@/Stores/candidates.js";
 import {useQuestionStore} from "@/Stores/questions.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import {useToast} from "vue-toast-notification";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['room'])
+const helper = useHelper()
 
 const candidateStore = useCandidateStore()
 const questionStore = useQuestionStore()
@@ -81,10 +83,10 @@ const form = useForm({
 });
 const submit = async () => {
     const formData = new FormData();
-    formData.append('question_title', form.question_title);
+    formData.append('question_title', helper.sanitizeAndTrim(form.question_title));
 
     if (form.question_description) {
-        formData.append('question_description', form.question_description);
+        formData.append('question_description', helper.sanitizeAndTrim(form.question_description));
     }
 
     if (form.question_image) {

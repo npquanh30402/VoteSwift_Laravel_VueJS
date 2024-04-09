@@ -37,12 +37,12 @@ import UpdateTitleDesc from "@/Pages/Voting/VotingRoom/Features/UpdateTitleDesc.
 import UpdateTime from "@/Pages/Voting/VotingRoom/Features/UpdateTime.vue";
 import UpdatePassword from "@/Pages/Voting/VotingRoom/Features/UpdatePassword.vue";
 import {router} from "@inertiajs/vue3";
-import VoterPage from "@/Pages/Voting/VotingRoom/VoterPage.vue";
 import RoomPublish from "@/Pages/Voting/VotingRoom/RoomPublish.vue";
 import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
 import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
 import RoomRealtime from "@/Pages/Voting/VotingRoom/RoomRealtime.vue";
 import RoomOverview from "@/Pages/Voting/VotingRoom/RoomOverview.vue";
+import InvitationPage from "@/Pages/Voting/VotingRoom/InvitationPage.vue";
 
 const props = defineProps(['room', 'nestedResults', 'voteCountsInTimeInterval'])
 
@@ -59,7 +59,7 @@ const tabData = {
     UpdatePassword: {component: UpdatePassword, name: 'Update Password'},
     UpdateChat: {component: UpdateChat, name: 'Update Chat'},
     RoomRealtime: {component: RoomRealtime, name: 'Realtime'},
-    VoterPage: {component: VoterPage, name: 'Voters'},
+    InvitationPage: {component: InvitationPage, name: 'Invitations'},
     RoomPublish: {component: RoomPublish, name: 'Publish'},
     DeleteRoom: {component: DeleteRoom, name: 'Delete Room'}
 };

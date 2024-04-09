@@ -96,7 +96,11 @@ for (let i = 0; i < attachments.value?.length; i++) {
     }
 }
 
-const uppy = new Uppy()
+const uppy = new Uppy({
+    restrictions: {
+        maxFileSize: 5000000,
+    }
+})
     .use(Webcam)
     .use(ImageEditor, {
         quality: 0.8,
@@ -130,7 +134,13 @@ onBeforeUnmount(() => {
 });
 
 const handleDelete = (file) => {
-    attachmentStore.destroyAttachment(props.room.id, file.id);
+    try {
+        attachmentStore.destroyAttachment(props.room.id, file.id);
+
+        $toast.success('Attachment deleted successfully');
+    } catch (error) {
+        $toast.error('Failed to delete attachment');
+    }
 };
 
 const showImage = (filePath) => {

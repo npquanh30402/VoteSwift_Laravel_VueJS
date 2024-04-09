@@ -52,8 +52,11 @@ import {computed, onMounted, ref} from "vue";
 import {usePage} from "@inertiajs/vue3";
 import VotingMessage from "@/Pages/Voting/Vote/Chat/VotingMessage.vue";
 import {useVotingChatStore} from "@/Stores/voting-chat.js";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['room', 'roomSettings'])
+const helper = useHelper()
+
 const votingChatStore = useVotingChatStore()
 const showChatForm = ref(false)
 const authUser = computed(() => usePage().props.authUser.user);
@@ -78,7 +81,7 @@ const handleFileUpload = (event) => {
 
 const sendMessage = async (msg, file = null) => {
     const formData = new FormData();
-    formData.append('message', msg);
+    formData.append('message', helper.sanitizeAndTrim(msg));
 
     if (file) {
         formData.append('file', file);
@@ -98,7 +101,6 @@ const handleReceivedMessage = (e) => {
     if (showChatForm.value === false) {
         votingChatStore.unreadCounts[props.room.id] = votingChatStore.unreadCounts[props.room.id] + 1;
     }
-
 };
 
 const setupEchoListeners = () => {

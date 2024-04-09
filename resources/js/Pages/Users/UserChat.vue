@@ -55,13 +55,14 @@
 
 <script setup>
 import {usePage} from "@inertiajs/vue3";
-import {computed, onMounted, ref, watch} from "vue";
-import {route} from "ziggy-js";
+import {computed, onMounted, ref} from "vue";
 import UserChatList from "@/Pages/Users/Chat/UserChatList.vue";
 import UserMessage from "@/Pages/Users/Chat/UserMessage.vue";
 import {useChatStore} from "@/Stores/chat.js";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['friends']);
+const helper = useHelper()
 
 const authUser = computed(() => usePage().props.authUser);
 const messages = ref([]);
@@ -87,7 +88,7 @@ const handleFileUpload = (event) => {
 
 const sendMessage = (msg, file = null) => {
     const formData = new FormData();
-    formData.append('message', msg);
+    formData.append('message', helper.sanitizeAndTrim(msg));
 
     // const data = {
     //     id: null,

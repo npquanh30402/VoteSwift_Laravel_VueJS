@@ -7,6 +7,8 @@
                     <VueDatePicker v-model="form.date" :min-date="new Date(Date.now() - 86400000)"
                                    range
                                    multi-calendars disabled/>
+                    <p class="m-0 small text-danger" v-if="errorMessage">
+                        {{ errorMessage }}</p>
                 </div>
             </div>
 
@@ -37,7 +39,9 @@
 
             <div class="col-md-12">
                 <div class="d-grid">
-                    <button type="submit" class="btn btn-sm btn-success p-3">Update</button>
+                    <button type="submit" class="btn btn-sm btn-success p-3"
+                            :class="{'disabled': errorMessage}">Update
+                    </button>
                 </div>
             </div>
         </div>
@@ -47,7 +51,7 @@
 <script setup>
 import {useForm} from "@inertiajs/vue3";
 import VueDatePicker from '@vuepic/vue-datepicker';
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useVotingRoomStore} from "@/Stores/voting-room.js";
 import {useToast} from "vue-toast-notification";
 
@@ -96,6 +100,29 @@ const form = useForm({
         props.room?.end_time ? new Date(props.room.end_time) : new Date()
     ]
 });
+
+const errorMessage = ref(null);
+
+watch(() => form.date, () => {
+    const startTime = form.date[0];
+    const endTime = form.date[1];
+    const currentTime = new Date(Date.now());
+
+    switch (true) {
+        case startTime > endTime:
+            errorMessage.value = 'End time must be greater than start time';
+            break;
+        case startTime < currentTime:
+            errorMessage.value = 'Start time must be greater than current time';
+            break;
+        case endTime < currentTime:
+            errorMessage.value = 'End time must be greater than current time';
+            break;
+        default:
+            errorMessage.value = null;
+            break;
+    }
+})
 
 function updateSelectedTz() {
     let timezoneIndex;

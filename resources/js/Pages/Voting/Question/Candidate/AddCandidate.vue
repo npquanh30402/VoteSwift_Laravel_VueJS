@@ -46,13 +46,14 @@
 import BaseModal from "@/Components/BaseModal.vue";
 import {useForm} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
-import {computed, reactive, ref, watch} from "vue";
-import VueEasyLightbox from "vue-easy-lightbox";
+import {reactive, ref, watch} from "vue";
 import {MdEditor} from "md-editor-v3";
 import {useCandidateStore} from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
+import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['question'])
+const helper = useHelper()
 
 const CandidateStore = useCandidateStore()
 
@@ -98,10 +99,10 @@ watch(() => form.candidate_image, (newValue) => {
 
 const submit = async () => {
     const formData = new FormData();
-    formData.append('candidate_title', form.candidate_title);
+    formData.append('candidate_title', helper.sanitizeAndTrim(form.candidate_title));
 
     if (form.candidate_description) {
-        formData.append('candidate_description', form.candidate_description);
+        formData.append('candidate_description', helper.sanitizeAndTrim(form.candidate_description));
     }
 
     if (form.candidate_image) {
