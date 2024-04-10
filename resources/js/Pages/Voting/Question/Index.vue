@@ -75,10 +75,8 @@ const paginatedQuestions = computed(() => {
     return questions.value?.slice(startIndex, endIndex);
 });
 
-watch(() => questions, () => {
-    if (questions && questions.value.length > 0) {
-        currentTabs.value = questions.value.map(() => 'CandidateList');
-    }
+watch(() => questions.value, () => {
+    currentTabs.value = questions.value.map(() => 'CandidateList');
 });
 
 const tabs = {
@@ -92,9 +90,9 @@ const modals = reactive({
     viewQuestionModal: 'viewQuestionModal' + props.room.id,
 })
 
-onMounted(async () => {
-    await questionStore.fetchQuestions(props.room.id)
-    await CandidateStore.fetchCandidates(props.room.id)
+onMounted(() => {
+    questionStore.fetchQuestions(props.room.id)
+    CandidateStore.fetchCandidates(props.room.id)
 
     modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
     modals.viewQuestionModal = new bootstrap.Modal(document.getElementById(modals.viewQuestionModal));
