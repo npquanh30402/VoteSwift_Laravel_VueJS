@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\User;
 use App\Models\VotingRoom;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -16,13 +17,15 @@ class VotingProcess implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public $user;
     public $room;
 
     /**
      * Create a new event instance.
      */
-    public function __construct(VotingRoom $room)
+    public function __construct(User $user, VotingRoom $room)
     {
+        $this->user = $user->only(['id', 'username', 'avatar']);
         $this->room = $room;
     }
 

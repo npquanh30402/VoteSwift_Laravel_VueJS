@@ -120,6 +120,10 @@ class VotingRoomSettingController extends Controller
                 $updates['allow_voters_upload'] = $request->allow_voters_upload === 'true';
             }
 
+            if (isset($request->realtime_enabled)) {
+                $updates['realtime_enabled'] = $request->realtime_enabled === 'true';
+            }
+
             $room->settings()->update($updates);
 
             $updatedSettings = $room->settings()->first();

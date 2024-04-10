@@ -145,42 +145,9 @@ class VoteController extends Controller
             return $question;
         });
 
-        $room->room_name = Crypt::decryptString($room->room_name);
-        $room->room_description = Crypt::decryptString($room->room_description);
+        $room->decryptVotingRoom();
 
-        $roomSettings = $room->settings->only('invitation_only', 'wait_for_voters', 'allow_anonymous_voting', 'chat_enabled', 'chat_messages_saved', 'allow_voters_upload');
-
-        $roomAttachments = $room->attachments;
-
-        $invitedUserIds = $room->invitations()->pluck('invited_user_id');
-        $invitedUsers = [User::findOrFail($room->user_id)];
-        foreach ($invitedUserIds as $userId) {
-            $user = User::find($userId);
-
-            if ($user) {
-                $invitedUsers[] = $user;
-            }
-        }
-
-        $allUserChoices = [];
-
-        $userIds = UserJoinTime::where('room_id', $room->id)->pluck('user_id')->unique()->toArray();
-
-        foreach ($userIds as $userId) {
-            $serializedChoices = Cache::get('room_' . $room->id . '_user_choices_' . $userId);
-
-            if ($serializedChoices) {
-                $choices = json_decode($serializedChoices, true);
-
-                $allUserChoices[$userId] = $choices;
-            }
-        }
-
-        if (count($allUserChoices) === 1 && isset($allUserChoices[Auth::user()->id])) {
-            Cache::forget('room_' . $room->id . '_user_choices_' . Auth::user()->id);
-        }
-
-        return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'roomSettings', 'roomAttachments', 'invitedUsers'));
+        return Inertia::render('Voting/Vote/Index', compact('questions', 'room'));
     }
 
     public function store(VotingRoom $room, Request $request)

@@ -44,47 +44,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="accordion-item" v-if="roomSettings.invitation_only">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#VoterCollapse" aria-expanded="false" aria-controls="VoterCollapse">
-                                <span class="me-3">Voters</span>
-                                <span style="font-size: 0.8rem">
-                                <i class="bi bi-circle-fill text-success animate__animated animate__flash animate__infinite animate__slow"
-                                   style="font-size: 0.6rem"></i>
-                                {{ onlineUsers.length }} Online / {{ invitedUsers.length }} Invited
-                            </span>
-                            </button>
-                        </h2>
-
-                        <div id="VoterCollapse" class="accordion-collapse collapse" data-bs-parent="#SidebarAccordion">
-                            <div class="accordion-body">
-                                <div v-for="user in invitedUsers" :key="user.id"
-                                     :class="{ 'opacity-100': isUserOnline(user), 'opacity-50': !isUserOnline(user) }"
-                                     class="mb-4">
-                                    <a :href="route('user.profile', user.id)" target="_blank"
-                                       class="d-flex text-decoration-none align-items-center text-dark">
-                                        <img class="rounded-circle me-2 img-fluid" :src="user.avatar" alt="" width="48">
-                                        <p><strong>{{ user.username }}</strong></p>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </BaseOffcanvas>
     </div>
 </template>
 <script setup>
-import {route} from "ziggy-js";
-import VueEasyLightbox from "vue-easy-lightbox";
 import BaseOffcanvas from "@/Components/BaseOffcanvas.vue";
 import {computed, onMounted, reactive, ref} from "vue";
 import * as bootstrap from "bootstrap";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
-const props = defineProps(['room', 'roomSettings', 'invitedUsers', 'roomAttachments', 'onlineUsers', 'isUserOnline'])
+const props = defineProps(['room', 'roomSettings', 'roomAttachments'])
 
 const onlineUsers = computed(() => props.onlineUsers)
 const isUserOnline = computed(() => props.isUserOnline)

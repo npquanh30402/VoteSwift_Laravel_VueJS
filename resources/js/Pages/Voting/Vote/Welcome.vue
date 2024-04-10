@@ -42,6 +42,4 @@ const switchTab = () => {
         emit('start-voting')
     }
 }
-
-
 </script>

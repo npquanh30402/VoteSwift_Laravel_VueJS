@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\UserJoinTime;
 use App\Models\VotingRoom;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -82,15 +83,20 @@ class VoteController extends Controller
 
     public function startVote(VotingRoom $room)
     {
-        if (Auth::user()->id !== $room->user_id) {
-            abort(403, 'You are not authorized to start the vote.');
+        try {
+            $user = Auth::user();
+            if ($user->id !== $room->user_id) {
+                abort(403, 'You are not authorized to start the vote.');
+            }
+
+            $room->startVote();
+
+            broadcast(new VotingProcess($user, $room))->toOthers();
+
+            return response()->json(['message' => 'Vote started successfully']);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
         }
-
-        $room->startVote();
-
-        broadcast(new VotingProcess($room));
-
-        return response()->json(['message' => 'Vote started successfully']);
     }
 
     public function getVoteResults(VotingRoom $room)

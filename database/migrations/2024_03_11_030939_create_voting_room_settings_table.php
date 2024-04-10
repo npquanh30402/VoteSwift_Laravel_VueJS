@@ -15,13 +15,20 @@ return new class extends Migration {
             $table->unsignedBigInteger('voting_room_id');
             $table->foreign('voting_room_id')->references('id')->on('voting_rooms')->cascadeOnDelete();
 
-            // Extra settings
+            // Invitation settings
             $table->boolean('invitation_only')->default(false);
             $table->boolean('wait_for_voters')->default(false);
-            $table->boolean('public_visibility')->default(false);
+
+            // Password settings
             $table->string('password')->nullable();
             $table->string('password_qrcode')->nullable();
+
+            // Extra settings
+            $table->boolean('public_visibility')->default(false);
             $table->enum('results_visibility', ['after_voting', 'participants_only', 'restricted'])->default('restricted');
+
+            // Realtime settings
+            $table->boolean('realtime_enabled')->default(false);
 
             // General voting room settings
             $table->boolean('allow_anonymous_voting')->default(false);
