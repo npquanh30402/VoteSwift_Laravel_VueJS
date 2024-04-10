@@ -20,6 +20,7 @@ return new class extends Migration {
             $table->boolean('wait_for_voters')->default(false);
             $table->boolean('public_visibility')->default(false);
             $table->string('password')->nullable();
+            $table->string('password_qrcode')->nullable();
             $table->enum('results_visibility', ['after_voting', 'participants_only', 'restricted'])->default('restricted');
 
             // General voting room settings

@@ -130,7 +130,7 @@ class VoteController extends Controller
         return back()->with('error', 'Incorrect password.');
     }
 
-    public function main(VotingRoom $room, Request $request)
+    public function main(VotingRoom $room)
     {
 //        $this->authorize('joinInvitation', [$room, $request->query('token')]);
 
@@ -175,7 +175,7 @@ class VoteController extends Controller
                 $allUserChoices[$userId] = $choices;
             }
         }
-        
+
         if (count($allUserChoices) === 1 && isset($allUserChoices[Auth::user()->id])) {
             Cache::forget('room_' . $room->id . '_user_choices_' . Auth::user()->id);
         }

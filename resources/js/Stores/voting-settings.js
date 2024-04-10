@@ -18,10 +18,12 @@ export const useVotingSettingStore = defineStore('votingSetting', () => {
     const updateSettings = async (roomId, formData) => {
         formData.append('_method', 'PUT');
 
-        const response = await axios.post(route('api.room.setting.update', roomId), formData)
+        const response = await axios.post(route('api.room.setting.update', roomId), formData);
 
         if (response.status === 200) {
-            settings.value[roomId] = response.data
+            settings.value[roomId] = response.data;
+        } else {
+            throw new Error('Update failed: ' + response.statusText);
         }
     }
 

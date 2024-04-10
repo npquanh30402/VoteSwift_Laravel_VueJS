@@ -7,10 +7,7 @@ use App\Http\Controllers\MusicController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationSeenController;
 use App\Http\Controllers\UserController;
-use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::group(['prefix' => '/user'], function () {
     Route::group(['middleware' => 'guest'], function () {
@@ -54,7 +51,7 @@ Route::group(['prefix' => '/user'], function () {
         Route::post('/chat/message/{user}', [ChatController::class, 'messageReceived'])->name('chat.message');
 
     });
-    
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/email/verify', [AuthController::class, 'getVerifyPage'])->name('verification.notice');
