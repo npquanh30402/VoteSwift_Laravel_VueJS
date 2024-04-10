@@ -65,8 +65,8 @@ const downloadFileName = computed(() => (baseFileName, url) => {
 })
 
 const updatePasswordSettings = () => {
-    isPasswordEnable.value = roomSettings.value.password !== null;
-    form.require_password = roomSettings.value.password;
+    isPasswordEnable.value = roomSettings.value?.password !== null;
+    form.require_password = roomSettings.value?.password;
 };
 
 watch(roomSettings, updatePasswordSettings);
