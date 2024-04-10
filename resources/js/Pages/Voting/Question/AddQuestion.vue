@@ -62,6 +62,7 @@ import {useToast} from "vue-toast-notification";
 import {useHelper} from "@/Services/helper.js";
 
 const props = defineProps(['room'])
+const emit = defineEmits(['handleTab'])
 const helper = useHelper()
 
 const candidateStore = useCandidateStore()
@@ -107,6 +108,8 @@ const submit = async () => {
         await candidateStore.fetchCandidates(props.room.id, true)
 
         $toast.success('Question created successfully');
+
+        emit('handleTab')
     } catch (error) {
         $toast.error('Error occurred while creating the question');
     }

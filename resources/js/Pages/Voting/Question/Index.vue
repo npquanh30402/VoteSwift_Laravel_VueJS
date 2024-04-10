@@ -2,7 +2,7 @@
     <div>
         <div>
             <button class="btn btn-primary" @click="openModal(modals.addQuestionModal)">Add</button>
-            <AddQuestion id="addQuestionModal" :room="room"></AddQuestion>
+            <AddQuestion id="addQuestionModal" :room="room" @handleTab="populateTabs"></AddQuestion>
             <div class="mt-3 d-flex flex-column gap-3">
                 <div v-for="(question, index) in paginatedQuestions" :key="question.id" class="card">
                     <div class="card-header fw-bold d-flex flex-column gap-2">
@@ -76,7 +76,7 @@ const paginatedQuestions = computed(() => {
 });
 
 watch(() => questions.value, () => {
-    currentTabs.value = questions.value.map(() => 'CandidateList');
+    populateTabs()
 });
 
 const tabs = {
@@ -90,9 +90,17 @@ const modals = reactive({
     viewQuestionModal: 'viewQuestionModal' + props.room.id,
 })
 
+const populateTabs = () => {
+    if (questions.value) {
+        currentTabs.value = questions.value.map(() => 'CandidateList');
+    }
+}
+
 onMounted(() => {
     questionStore.fetchQuestions(props.room.id)
     CandidateStore.fetchCandidates(props.room.id)
+
+    populateTabs()
 
     modals.addQuestionModal = new bootstrap.Modal(document.getElementById(modals.addQuestionModal));
     modals.viewQuestionModal = new bootstrap.Modal(document.getElementById(modals.viewQuestionModal));
