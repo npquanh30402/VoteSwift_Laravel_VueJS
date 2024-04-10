@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, onUnmounted, ref} from "vue";
 import {usePage} from "@inertiajs/vue3";
 import VotingMessage from "@/Pages/Voting/Vote/Chat/VotingMessage.vue";
 import {useVotingChatStore} from "@/Stores/voting-chat.js";
@@ -81,13 +81,18 @@ const handleFileUpload = (event) => {
 
 const sendMessage = async (msg, file = null) => {
     const formData = new FormData();
-    formData.append('message', helper.sanitizeAndTrim(msg));
+
+    if (msg) {
+        formData.append('message', helper.sanitizeAndTrim(msg));
+    }
 
     if (file) {
         formData.append('file', file);
     }
 
-    votingChatStore.storeMessage(props.room.id, formData);
+    if (msg || file) {
+        votingChatStore.storeMessage(props.room.id, formData);
+    }
 
     newMessage.value = null;
 };
@@ -117,6 +122,10 @@ onMounted(async () => {
     } else {
         votingChatStore.clearMessages(props.room.id);
     }
+})
+
+onUnmounted(() => {
+    Echo.leave(`voting.chat.${props.room.id}`)
 })
 </script>
 

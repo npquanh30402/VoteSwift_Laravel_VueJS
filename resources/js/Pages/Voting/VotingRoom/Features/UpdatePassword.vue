@@ -42,7 +42,7 @@
 
 <script setup>
 import {useForm} from "@inertiajs/vue3";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onActivated, onMounted, ref, watch} from "vue";
 import {useToast} from "vue-toast-notification";
 import {useVotingSettingStore} from "@/Stores/voting-settings.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
@@ -64,10 +64,13 @@ const downloadFileName = computed(() => (baseFileName, url) => {
     return `${baseFileName}.${fileExtension}`;
 })
 
-watch(roomSettings, () => {
-    isPasswordEnable.value = roomSettings.value.password !== null
-    form.require_password = roomSettings.value.password
-})
+const updatePasswordSettings = () => {
+    isPasswordEnable.value = roomSettings.value.password !== null;
+    form.require_password = roomSettings.value.password;
+};
+
+watch(roomSettings, updatePasswordSettings);
+onActivated(updatePasswordSettings);
 
 onMounted(() => {
     votingSettingStore.fetchSettings(props.room.id)

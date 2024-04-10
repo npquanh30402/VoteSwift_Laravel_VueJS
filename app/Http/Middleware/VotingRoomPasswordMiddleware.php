@@ -23,6 +23,10 @@ class VotingRoomPasswordMiddleware
                 return $next($request);
             }
 
+            if ($room->settings->password === null) {
+                return $next($request);
+            }
+
             // Handle access via password QR code and token
             if ($this->canAccessWithToken($room, $request, $user)) {
                 return $next($request);

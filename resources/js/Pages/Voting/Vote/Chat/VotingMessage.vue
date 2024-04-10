@@ -1,5 +1,5 @@
 <template>
-    <div class="card">
+    <div class="card border border-2 border-success rounded p-3">
         <div class="card-body overflow-auto" ref="chatContainer" data-mdb-perfect-scrollbar="true"
              style="position: relative; height: 400px">
             <div v-for="(message, index) in messages" :key="'realtime_' + index">
@@ -14,7 +14,7 @@
                     <div>
                         <div v-if="message.message.file" class="ms-3">
                             <img class="img-fluid" style="width: 10rem" :src="message.message.file"
-                                 alt="file" v-if="isImage(message.message.file)" @click="showSingle">
+                                 alt="file" v-if="isImage(message.message.file)" @click="showImage">
                             <div class="vstack" v-else>
                                 <a :href="message.message.file" class="btn btn-danger" download>Download File</a>
                                 <span class="text-muted">{{
@@ -32,7 +32,7 @@
                     <div>
                         <div v-if="message.message.file" class="me-3">
                             <img class="img-fluid" style="width: 10rem" :src="message.message.file"
-                                 alt="file" v-if="isImage(message.message.file)" @click="showSingle">
+                                 alt="file" v-if="isImage(message.message.file)" @click="showImage">
                             <div class="vstack" v-else>
                                 <a :href="message.message.file" class="btn btn-danger" download>Download File</a>
                                 <span class="text-muted">{{
@@ -57,29 +57,27 @@
             </div>
         </div>
         <teleport to="body">
-            <vue-easy-lightbox
-                :visible="visibleRef"
-                :imgs="imgsRef"
-                :index="indexRef"
-                @hide="onHide"
-            ></vue-easy-lightbox>
+            <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
         </teleport>
     </div>
 </template>
 
 <script setup>
-import {computed, onMounted, onUpdated, ref} from 'vue';
+import {computed, onActivated, onMounted, onUpdated, ref} from 'vue';
 import {usePage} from "@inertiajs/vue3";
-import VueEasyLightbox from 'vue-easy-lightbox'
 import {route} from "ziggy-js";
+import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(['messages'])
-
-const messages = computed(() => props.messages)
-
 const authUser = computed(() => usePage().props.authUser.user);
 
+const messages = computed(() => props.messages)
 const chatContainer = ref(null);
+const currentImageDisplay = ref(null)
+
+const showImage = (e) => {
+    currentImageDisplay.value = e;
+}
 
 const isYou = (msgUserId) => {
     return msgUserId === authUser.value.id
@@ -114,34 +112,11 @@ function truncateFileName(fileName, maxLength) {
     }
 }
 
-const visibleRef = ref(false)
-const indexRef = ref(0)
-const imgsRef = ref([])
+const scrollToBottom = () => chatContainer.value.scrollTop = chatContainer.value.scrollHeight
 
-const onShow = () => {
-    visibleRef.value = true
-}
-
-const showSingle = (e) => {
-    imgsRef.value = e.target.src
-    onShow()
-}
-
-const onHide = () => {
-    visibleRef.value = false
-}
-
-const scrollToBottom = () => {
-    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
-}
-
-onUpdated(() => {
-    scrollToBottom();
-})
-
-onMounted(() => {
-    scrollToBottom()
-})
+onUpdated(scrollToBottom)
+onMounted(scrollToBottom)
+onActivated(scrollToBottom)
 </script>
 
 <style scoped>

@@ -16,8 +16,11 @@
                     <div class="card-header text-bg-dark text-center">{{ tabData[currentTab].name }}</div>
                     <div class="card-body">
                         <transition name="fade" mode="out-in">
-                            <component :is="tabData[currentTab].component" :room="room" :nestedResults="nestedResults"
-                                       :voteCountsInTimeInterval="voteCountsInTimeInterval"></component>
+                            <KeepAlive>
+                                <component :is="tabData[currentTab].component" :room="room"
+                                           :nestedResults="nestedResults"
+                                           :voteCountsInTimeInterval="voteCountsInTimeInterval"></component>
+                            </KeepAlive>
                         </transition>
                     </div>
                 </div>
