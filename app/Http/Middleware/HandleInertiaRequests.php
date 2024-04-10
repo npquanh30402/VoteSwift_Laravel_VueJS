@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -37,6 +38,14 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        if (Auth::user()) {
+            $user = new User();
+            $authUser = Auth::user();
+            $dummyUser = $user->forceFill($authUser->toArray())->decryptUser();
+
+            $dummyUser->avatar = $authUser->getAttributes()['avatar'];
+        }
+
         $authUserRooms = $request->user()?->rooms->each(function ($room) {
             $room->decryptVotingRoom();
         });
@@ -47,7 +56,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'authUser' => [
-                'user' => $request->user()?->decryptUser(),
+                'user' => $dummyUser ?? null,
                 'notificationCount' => $request->user()?->unreadNotifications()->count() ?? null,
                 'settings' => $request->user()?->settings ?? null,
                 'music' => $request->user()?->music ?? null,
