@@ -147,7 +147,9 @@ class VoteController extends Controller
 
         $room->decryptVotingRoom();
 
-        return Inertia::render('Voting/Vote/Index', compact('questions', 'room'));
+        $owner = $room->user->only(['id', 'username', 'avatar']);
+
+        return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'owner'));
     }
 
     public function store(VotingRoom $room, Request $request)

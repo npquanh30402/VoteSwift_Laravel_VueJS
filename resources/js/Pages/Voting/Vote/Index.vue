@@ -8,7 +8,7 @@
             <MdPreview :editorId="'room_' + room.id" :modelValue="room.room_description"/>
         </BaseModal>
 
-        <VotingOnlineUser :room="room" :roomSettings="roomSettings" :invitedUsers="invitedUsers"
+        <VotingOnlineUser :room="room" :invitedUsers="invitedUsers" :owner="owner"
                           :onlineUsers="onlineUsers" :isUserOnline="isUserOnline" style="z-index: 999"
                           v-if="isChatEnable"/>
 
@@ -46,7 +46,7 @@ import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import {useAttachmentStore} from "@/Stores/attachments.js";
 
 const authUser = computed(() => usePage().props.authUser.user);
-const props = defineProps(['questions', 'room']);
+const props = defineProps(['questions', 'room', 'owner']);
 const $toast = useToast();
 
 const votingSettingStore = useVotingSettingStore()
@@ -68,7 +68,7 @@ watch(roomSettings, () => {
     isChatEnable.value = roomSettings.value?.chat_enabled === 1
     isReadyToStart.value = roomSettings.value?.wait_for_voters === 0
 })
-
+console.log(invitedUsers.value, props.room.user_id, props.owner)
 const tabs = {
     Welcome,
     StartVoting,
@@ -147,7 +147,9 @@ onMounted(() => {
         setupPresenceChannel()
     })
 
-    invitationStore.fetchInvitations(props.room.id)
+    invitationStore.fetchInvitations(props.room.id).then(() => {
+        invitedUsers.value.unshift(props.owner)
+    })
 
     attachmentStore.fetchAttachments(props.room.id)
 })
