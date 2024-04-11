@@ -1,7 +1,5 @@
 <template>
-    <h1 class="display-6 text-center fw-bold">User Dashboard
-        <i class="bi bi-arrow-clockwise icon" @click="router.reload()" style="cursor: pointer"></i>
-    </h1>
+    <h1 class="display-6 text-center fw-bold">User Dashboard</h1>
     <div class="my-3">
         <div class="row justify-content-center">
             <div class="col-md-2">
@@ -9,7 +7,11 @@
             </div>
             <div class="col-md-8">
                 <transition name="fade" mode="out-in">
-                    <component :is="tabs[currentTab]" :rooms="rooms" :authUserFriends="authUserFriends"></component>
+                    <component
+                        :is="tabs[currentTab]"
+                        :rooms="rooms"
+                        :authUserFriends="authUserFriends"
+                    ></component>
                 </transition>
             </div>
         </div>
@@ -18,20 +20,19 @@
 
 <script setup>
 import UserSidebar from "@/Pages/Users/UserSidebar.vue";
-import {computed, onMounted, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import RoomList from "@/Pages/Voting/VotingRoom/RoomList.vue";
 import UserSettings from "@/Pages/Users/UserSettings.vue";
 import MusicPlayerSettings from "@/Pages/Users/MusicPlayerSettings.vue";
 import Friend from "@/Pages/Users/Friend/Index.vue";
-import {router} from "@inertiajs/vue3";
 import UserCalendar from "@/Pages/Users/UserCalendar.vue";
-import {useVotingRoomStore} from "@/Stores/voting-room.js";
+import { useVotingRoomStore } from "@/Stores/voting-room.js";
 
-const props = defineProps(['authUserFriends']);
+const props = defineProps(["authUserFriends"]);
 
-const roomStore = useVotingRoomStore()
-const rooms = computed(() => roomStore.rooms)
-const currentTab = ref('RoomList')
+const roomStore = useVotingRoomStore();
+const rooms = computed(() => roomStore.rooms);
+const currentTab = ref("RoomList");
 
 const tabs = {
     RoomList,
@@ -39,13 +40,13 @@ const tabs = {
     UserSettings,
     MusicPlayerSettings,
     UserCalendar,
-}
+};
 
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
 
 onMounted(async () => {
-    await roomStore.fetchRooms()
-})
+    await roomStore.fetchRooms();
+});
 </script>

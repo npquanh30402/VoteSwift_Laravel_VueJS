@@ -1,34 +1,43 @@
 <template>
-    <div class="card shadow-sm border-0 mb-3">
-        <div class="card-header text-bg-dark text-center">Your Requests</div>
-        <div class="card-body">
-            <div class="row row-cols-2 d-flex align-items-center">
-                <div class="col" v-for="sent in authUserFriends['requestSent']" :key="sent.id">
-                    <div class="card" style="border-radius: 15px;">
-                        <div class="card-body p-4">
-                            <div class="d-flex text-black">
-                                <div class="flex-shrink-0">
-                                    <img
-                                        :src="sent.avatar" class="img-fluid"
-                                        style="width: 100px; border-radius: 10px;" alt="avatar">
-                                </div>
-                                <div class="flex-grow-1 ms-3">
-                                    <h5 class="mb-1">{{ sent.username }}</h5>
-                                    <p class="mb-2 pb-1"
-                                       style="color: #2b2a2a;">{{ sent.first_name }}
-                                        {{ sent.last_name }}</p>
-                                    <div class="d-flex flex-column gap-1 pt-1">
-                                        <div class="d-flex justify-content-between gap-1">
-                                            <Link :href="route('user.profile', sent.id)"
-                                                  class="btn btn-primary flex-grow-1">
-                                                Profile
-                                            </Link>
-                                            <Link :href="route('user.abort-request-sent', sent.id)"
-                                                  method="POST" as="button" class="btn btn-danger flex-grow-1">
-                                                Abort
-                                            </Link>
-                                        </div>
-                                    </div>
+    <div class="row row-cols-2 d-flex align-items-center">
+        <div
+            class="col"
+            v-for="sent in authUserFriends.requestSent"
+            :key="sent.id"
+        >
+            <div class="card" style="border-radius: 15px">
+                <div class="card-body p-4">
+                    <div class="d-flex text-black">
+                        <div class="flex-shrink-0">
+                            <img
+                                :src="sent.avatar"
+                                class="img-fluid"
+                                style="width: 100px; border-radius: 10px"
+                                alt="avatar"
+                            />
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="mb-1">{{ sent.username }}</h5>
+                            <p class="mb-2 pb-1" style="color: #2b2a2a">
+                                {{ sent.first_name }}
+                                {{ sent.last_name }}
+                            </p>
+                            <div class="d-flex flex-column gap-1 pt-1">
+                                <div
+                                    class="d-flex justify-content-between gap-1"
+                                >
+                                    <Link
+                                        :href="route('user.profile', sent.id)"
+                                        class="btn btn-primary flex-grow-1"
+                                    >
+                                        Profile
+                                    </Link>
+                                    <button
+                                        @click="abortFriendRequest(sent.id)"
+                                        class="btn btn-danger flex-grow-1"
+                                    >
+                                        Abort
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -40,8 +49,17 @@
 </template>
 
 <script setup>
-import {route} from "ziggy-js";
-import {Link} from "@inertiajs/vue3";
+import { route } from "ziggy-js";
+import { Link } from "@inertiajs/vue3";
+import { useToast } from "vue-toast-notification";
+import { useFriendStore } from "@/Stores/friends.js";
 
-defineProps(['authUserFriends'])
+defineProps(["authUserFriends"]);
+const $toast = useToast();
+const friendStore = useFriendStore();
+
+const abortFriendRequest = (id) => {
+    friendStore.abortFriendRequest(id);
+    $toast.success("Friend request aborted");
+};
 </script>

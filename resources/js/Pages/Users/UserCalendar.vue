@@ -23,21 +23,19 @@
 </template>
 
 <script setup>
-import {Calendar} from 'v-calendar';
 import 'v-calendar/style.css';
-import {computed, ref} from "vue";
-import {usePage} from "@inertiajs/vue3";
+import {computed, onMounted, ref} from "vue";
 
 import {CalendarView, CalendarViewHeader} from "vue-simple-calendar";
 import 'vue-simple-calendar/dist/style.css';
 import 'vue-simple-calendar/dist/css/default.css';
 import 'vue-simple-calendar/dist/css/holidays-us.css';
 import {route} from "ziggy-js";
+import {useVotingRoomStore} from "@/Stores/voting-room.js";
 
 const props = defineProps(['rooms'])
-
-const authUserRooms = computed(() => usePage().props.authUser.rooms);
-
+const roomStore = useVotingRoomStore()
+const authUserRooms = computed(() => roomStore?.rooms);
 const showDate = ref(new Date())
 
 const parseDateString = (dateString) => {
@@ -72,6 +70,10 @@ const items = authUserRooms.value.map(item => ({
 function setShowDate(d) {
     showDate.value = d
 }
+
+onMounted(() => {
+    roomStore.fetchRooms()
+})
 
 // console.log(authUserRooms)
 //

@@ -46,10 +46,6 @@ class HandleInertiaRequests extends Middleware
             $dummyUser->avatar = $authUser->getAttributes()['avatar'];
         }
 
-        $authUserRooms = $request->user()?->rooms->each(function ($room) {
-            $room->decryptVotingRoom();
-        });
-
         return array_merge(parent::share($request), [
             'flash' => [
                 'success' => $request->session()->get('success'),
@@ -60,7 +56,6 @@ class HandleInertiaRequests extends Middleware
                 'notificationCount' => $request->user()?->unreadNotifications()->count() ?? null,
                 'settings' => $request->user()?->settings ?? null,
                 'music' => $request->user()?->music ?? null,
-                'rooms' => $authUserRooms ?? null
             ],
             'urlPrev' => function () {
                 if (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current()) {

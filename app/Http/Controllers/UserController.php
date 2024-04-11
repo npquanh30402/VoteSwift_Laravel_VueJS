@@ -84,8 +84,6 @@ class UserController extends Controller
         $user = auth()->user();
 
         $this->userService->updateInformation($user, $request->validated());
-
-        return back()->with('success', 'Update information successfully!');
     }
 
     public function getDashboard()

@@ -1,36 +1,56 @@
 <template>
-    <div class="row">
+    <div class="row" v-if="friends">
         <div class="col-md-3">
-            <FriendSideBar :authUserFriends="authUserFriends" @switch-tab="handleSwitchTab"/>
+            <FriendSideBar
+                :authUserFriends="friends"
+                @switch-tab="handleSwitchTab"
+            />
         </div>
         <div class="col-md-9">
-            <transition name="fade" mode="out-in">
-                <component :is="tabs[currentTab]" :authUserFriends="authUserFriends"></component>
-            </transition>
+            <div class="card shadow-sm border-0 mb-3 overflow-auto">
+                <div class="card-header text-bg-dark text-center">
+                    {{ tabData[currentTab].name }}
+                </div>
+                <div class="card-body">
+                    <transition name="fade" mode="out-in">
+                        <component
+                            :is="tabData[currentTab].component"
+                            :authUserFriends="friends"
+                        ></component>
+                    </transition>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 n
 <script setup>
 import FriendSideBar from "@/Pages/Users/Friend/FriendSideBar.vue";
-import {computed, ref} from "vue";
+import { computed, onMounted, ref } from "vue";
 import FriendList from "@/Pages/Users/Friend/FriendList.vue";
 import FriendRequest from "@/Pages/Users/Friend/friendRequest.vue";
 import RequestSent from "@/Pages/Users/Friend/RequestSent.vue";
+import { useFriendStore } from "@/Stores/friends.js";
+import { usePage } from "@inertiajs/vue3";
 
-const props = defineProps(['authUserFriends']);
+const authUser = computed(() => usePage().props.authUser.user);
 
-const authUserFriends = computed(() => props.authUserFriends);
+const friendStore = useFriendStore();
+const friends = computed(() => friendStore.friends);
 
-const currentTab = ref('FriendList')
+const currentTab = ref("FriendList");
 
-const tabs = {
-    FriendList,
-    FriendRequest,
-    RequestSent,
-}
+const tabData = {
+    FriendList: { component: FriendList, name: "Friend List" },
+    FriendRequest: { component: FriendRequest, name: "Friend Request" },
+    RequestSent: { component: RequestSent, name: "Request Sent" },
+};
 
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
+
+onMounted(() => {
+    friendStore.fetchFriends(authUser.value.id);
+});
 </script>

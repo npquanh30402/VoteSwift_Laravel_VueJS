@@ -84,7 +84,7 @@
                 </div>
                 <div class="row align-items-center">
                     <div class="form-group col-md-4 d-flex justify-content-center">
-                        <img :src="authUser.user.avatar"
+                        <img :src="authUser.avatar"
                              class="rounded-circle img-fluid"
                              style="width: 10rem;"
                              alt="Avatar"/>
@@ -109,9 +109,10 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 import axios from 'axios';
 import {differenceInYears} from "date-fns";
+import {useToast} from "vue-toast-notification";
 
-const authUser = computed(() => usePage().props.authUser);
-
+const authUser = computed(() => usePage().props.authUser.user);
+const $toast = useToast();
 const countries = ref([]);
 
 axios.get('https://restcountries.com/v3.1/all')
@@ -125,20 +126,20 @@ axios.get('https://restcountries.com/v3.1/all')
 const userAge = computed(() => Math.abs(differenceInYears(new Date(form.birth_date), new Date())))
 
 const form = useForm({
-    username: authUser.value.user.username,
-    email: authUser.value.user.email,
-    first_name: authUser.value.user.first_name,
-    last_name: authUser.value.user.last_name,
+    username: authUser.value.username,
+    email: authUser.value.email,
+    first_name: authUser.value.first_name,
+    last_name: authUser.value.last_name,
 
-    country: authUser.value.user.country,
-    city: authUser.value.user.city,
-    zip_code: authUser.value.user.zip_code,
+    country: authUser.value.country,
+    city: authUser.value.city,
+    zip_code: authUser.value.zip_code,
 
-    birth_date: authUser.value.user.birth_date ? new Date(authUser.value.user.birth_date) : null,
-    gender: authUser.value.user.gender,
+    birth_date: authUser.value.birth_date ? new Date(authUser.value.birth_date) : null,
+    gender: authUser.value.gender,
 
-    phone: authUser.value.user.phone,
-    address: authUser.value.user.address,
+    phone: authUser.value.phone,
+    address: authUser.value.address,
     avatar: null
 })
 
@@ -154,5 +155,7 @@ function updateSettings() {
         ...form,
         avatar: form.avatar,
     })
+
+    $toast.success('Settings updated successfully');
 }
 </script>
