@@ -4,8 +4,10 @@
 use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\FileUploadController;
+use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\InvitationController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
@@ -19,6 +21,8 @@ Route::post('/images/{room}/upload', [VotingRoomAttachmentController::class, 'st
 
 Route::group(['middleware' => 'web'], function () {
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
+
+    Route::get('/notifications/', [NotificationController::class, 'index'])->name('api.notifications.index');
 
     Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');
     Route::post('/room/', [VotingRoomController::class, 'store'])->name('api.room.store');
@@ -41,6 +45,18 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
     Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
     Route::post('/chat/{user}/read', [ChatController::class, 'markRead'])->name('api.user.chat.read.all');
+
+    Route::get('/friends', [FriendController::class, 'getFriends'])->name('api.user.friend.index');
+    Route::post('/{friend}/unfriend', [FriendController::class, 'unfriend'])->name('api.user.unfriend');
+
+    Route::post('/profile/{recipient}/send-friend-request', [FriendController::class, 'sendFriendRequest'])->name('api.user.send-friend-request');
+    Route::post('/profile/{sender}/accept-friend-request', [FriendController::class, 'acceptFriendRequest'])
+        ->name('api.user.accept-friend-request');
+    Route::post('/{sender}/reject-friend-request/', [FriendController::class, 'rejectFriendRequest'])
+        ->name('api.user.reject-friend-request');
+    Route::post('/{recipient}/abort-request-sent/', [FriendController::class, 'abortRequestSent'])
+        ->name('api.user.abort-request-sent');
+
 
     Route::get('/room/{room}/questions', [QuestionController::class, 'index'])->name('api.room.question.index');
     Route::post('/room/{room}/questions', [QuestionController::class, 'store'])->name('api.room.question.store');
