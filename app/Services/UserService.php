@@ -52,8 +52,8 @@ class UserService
     {
         try {
             $credentials = $requestData->only('username', 'password');
-            $remember = $requestData->has('remember_me');
-
+            $remember = $requestData->remember_me;
+            
             if (Auth::attempt($credentials, $remember)) {
                 $requestData->session()->regenerate();
 

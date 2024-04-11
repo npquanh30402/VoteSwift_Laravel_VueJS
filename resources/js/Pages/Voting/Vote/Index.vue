@@ -29,7 +29,7 @@
 </template>
 
 <script setup>
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import Welcome from "@/Pages/Voting/Vote/Welcome.vue";
 import StartVoting from "@/Pages/Voting/Vote/StartVoting.vue";
 import VotingClock from "@/Components/VotingClock.vue";
@@ -68,13 +68,16 @@ watch(roomSettings, () => {
     isChatEnable.value = roomSettings.value?.chat_enabled === 1
     isReadyToStart.value = roomSettings.value?.wait_for_voters === 0
 })
-console.log(invitedUsers.value, props.room.user_id, props.owner)
+
 const tabs = {
     Welcome,
     StartVoting,
 };
 
 const isUserOnline = (user) => onlineUsers.value.some(onlineUser => onlineUser.id === user.id);
+
+const channelName = 'voting.' + props.room.id
+let echoListenerInitialized = false;
 
 function startVoting() {
     voteStore.startVoting(props.room.id).then((response) => {
@@ -125,8 +128,15 @@ const setupPresenceChannel = () => {
                 }
             }
         });
+
+        echoListenerInitialized = true;
     }
 };
+
+const leaveChannel = () => {
+    Echo.leave(channelName)
+    echoListenerInitialized = false
+}
 
 const joinRoom = () => {
     const formData = new FormData();
@@ -152,5 +162,11 @@ onMounted(() => {
     })
 
     attachmentStore.fetchAttachments(props.room.id)
+})
+
+onUnmounted(() => {
+    if (echoListenerInitialized) {
+        leaveChannel()
+    }
 })
 </script>
