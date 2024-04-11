@@ -33,8 +33,10 @@
                     <div class="d-flex">
                         <div class="hstack gap-3">
                             <div class="me-3 hstack align-items-center" v-if="authUser.user">
-                                <MusicPlayer class="me-5" v-if="isMusicPlayerEnable"
-                                             style="transform: scale(0.8)"></MusicPlayer>
+                                <MusicPlayer
+                                    :music="music"
+                                    class="me-5" v-if="isMusicPlayerEnable"
+                                    style="transform: scale(0.8)"/>
 
                                 <div class="d-flex flex-column mt-3">
                                     <Clock class="me-4"></Clock>
@@ -95,6 +97,7 @@ import {useToast} from "vue-toast-notification";
 
 const props = defineProps(['authUser'])
 
+const music = computed(() => usePage().props.authUser.music);
 const $toast = useToast();
 const notificationCount = computed(() => Math.min(props.authUser.notificationCount, 9))
 const isMusicPlayerEnable = computed(() => props.authUser.settings?.music_player_enabled === 1)

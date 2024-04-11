@@ -44,6 +44,7 @@ import {useVotingSettingStore} from "@/Stores/voting-settings.js";
 import {useInvitationStore} from "@/Stores/invitations.js";
 import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import {useAttachmentStore} from "@/Stores/attachments.js";
+import MusicPlayer from "@/Components/MusicPlayer.vue";
 
 const authUser = computed(() => usePage().props.authUser.user);
 const props = defineProps(['questions', 'room', 'owner']);

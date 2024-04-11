@@ -29,10 +29,7 @@
                 <div
                     class="card border border-3 border-success-subtle p-3 shadow-sm form-group d-flex flex-column"
                     style="height: 50vh">
-                    <div class="d-flex justify-content-between">
-                        <span>Music playlist:</span>
-                        <i class="bi bi-arrow-clockwise icon" @click="refresh"></i>
-                    </div>
+                    <span>Music playlist:</span>
                     <div class="card-body overflow-auto">
                         <div
                             class="list-group vstack justify-content-between align-items-center">
@@ -47,9 +44,8 @@
                                         class="hstack gap-3 justify-content-center align-items-center">
                                         <a :href="file.url" class="btn btn-secondary"><i
                                             class="bi bi-download"></i></a>
-                                        <Link :href="route('user.music.settings.delete', file.id)" method="DELETE"
-                                              as="button" class="btn btn-danger"><i
-                                            class="bi bi-trash"></i></Link>
+                                        <button @click="deleteMusic(file.id)" class="btn btn-danger"><i
+                                            class="bi bi-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -66,7 +62,9 @@ import {router, useForm, usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {computed, ref} from "vue";
 import {Link} from "@inertiajs/vue3";
+import {useToast} from "vue-toast-notification";
 
+const $toast = useToast();
 const authUser = computed(() => usePage().props.authUser);
 
 const isMusicPlayerEnable = ref(authUser.value.settings?.music_player_enabled === 1);
@@ -76,6 +74,8 @@ const toggleMusicPlayer = () => {
     router.post(route('user.music.settings'), {
         isMusicPlayerEnable: isMusicPlayerEnable.value
     })
+
+    $toast.success('Settings updated successfully');
 }
 
 const form = useForm({
@@ -95,6 +95,14 @@ function uploadMusic() {
         ...form,
         music: form.music,
     })
+
+    $toast.success('Music uploaded successfully');
+}
+
+const deleteMusic = (id) => {
+    router.delete(route('user.music.settings.delete', id))
+
+    $toast.success('Music deleted successfully');
 }
 </script>
 

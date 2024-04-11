@@ -27,15 +27,11 @@ class MusicController extends Controller
             'title' => $oriFileName,
             'url' => $fileName,
         ]);
-
-        return back()->with('success', 'Upload music successfully!');
     }
 
     public function deleteMusic(Music $music)
     {
         Storage::delete(str_replace('/storage/', 'public/', $music->url));
         $music->delete();
-
-        return back()->with('success', 'Delete music successfully!');
     }
 }

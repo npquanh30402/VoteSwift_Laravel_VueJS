@@ -10,17 +10,34 @@
 </template>
 
 <script setup>
-import {computed, ref} from 'vue';
-import {usePage} from "@inertiajs/vue3";
+import {computed, nextTick, ref, watch} from 'vue';
 
-const music = computed(() => usePage().props.authUser.music);
-
+const props = defineProps(['music', 'currentFile']);
 const audioPlayerRef = ref(null);
 const title = ref("");
-const audioList = ref(music);
-
+const audioList = computed(() => props.music);
+const currentFile = computed(() => props.currentFile);
 const handleBeforePlay = (next) => {
     title.value = audioList.value[audioPlayerRef.value.currentPlayIndex].title;
     next();
 };
+
+const handlePlaySpecify = () => {
+    const index = audioList.value.findIndex(item => item.url === currentFile.value.url);
+    if (index !== -1) {
+        audioPlayerRef.value.currentPlayIndex = index;
+        nextTick(() => {
+            audioPlayerRef.value.play();
+            title.value = audioList.value[index].title;
+        });
+    }
+}
+
+watch(() => props.currentFile, () => {
+    if (props.currentFile === null) {
+        audioPlayerRef.value.pause();
+    } else {
+        handlePlaySpecify();
+    }
+});
 </script>
