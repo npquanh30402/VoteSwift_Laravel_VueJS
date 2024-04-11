@@ -81,7 +81,10 @@ const isChatEnable = ref(false)
 const isChatHistory = ref(false)
 const isChatUpload = ref(false)
 
-const channelName = `voting.chat.${props.room.id}`
+const channelBroadcast = {
+    channelName: 'voting.process.' + props.room.id,
+    eventName: 'VotingProcess'
+}
 let echoListenerInitialized = false;
 
 const toggleChat = () => {
@@ -109,21 +112,23 @@ const toggleChatUpload = () => {
 }
 
 const handleReceivedMessage = (e) => {
-    if (!messages.value[props.room.id]) {
-        messages.value[props.room.id] = [];
+    if (e.broadcast_type === 'voting_chat') {
+        if (!messages.value[props.room.id]) {
+            messages.value[props.room.id] = [];
+        }
+        messages.value[props.room.id].push({user: e.user, message: e.message, plainMessage: e.plain_message});
     }
-    messages.value[props.room.id].push({user: e.user, message: e.message, plainMessage: e.plain_message});
 };
 
 const setupEchoListeners = () => {
     if (authUser.value.id === props.room.user_id) {
-        Echo.private(channelName).listen("VotingChat", handleReceivedMessage);
+        Echo.private(channelBroadcast.channelName).listen(channelBroadcast.eventName, handleReceivedMessage);
         echoListenerInitialized = true;
     }
 };
 
 const leaveChannel = () => {
-    Echo.leave(channelName)
+    Echo.leave(channelBroadcast.channelName)
     echoListenerInitialized = false
 }
 

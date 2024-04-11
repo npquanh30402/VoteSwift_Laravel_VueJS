@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BroadcastType;
 use App\Events\VotingChat;
+use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
 use App\Models\Message;
 use App\Models\User;
@@ -47,6 +49,7 @@ class VotingChatController extends Controller
 
     public function store(Request $request, VotingRoom $room)
     {
+        $user = Auth::user();
         $message = new VotingMessage();
 
         if ($request->hasFile('file')) {
@@ -68,7 +71,7 @@ class VotingChatController extends Controller
 
         $message->save();
 
-        broadcast(new VotingChat(Auth::user(), $room, $message));
+        broadcast(new VotingProcess(user: $user, room: $room, message: $message, broadcast_type: BroadcastType::VOTING_CHAT));
 
         return response()->json('Message has been broadcast', 201);
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BroadcastType;
 use App\Events\VotingChoice;
 use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
@@ -78,7 +79,7 @@ class VoteController extends Controller
 
     public function broadcastChoice(VotingRoom $room, Request $request)
     {
-        broadcast(new VotingChoice(Auth::user(), $room, $request->questionId, $request->candidateId));
+        broadcast(new VotingProcess(user: Auth::user(), room: $room, question_id: $request->questionId, candidate_id: $request->candidateId, broadcast_type: BroadcastType::VOTING_CHOICES));
     }
 
     public function startVote(VotingRoom $room)
@@ -91,7 +92,7 @@ class VoteController extends Controller
 
             $room->startVote();
 
-            broadcast(new VotingProcess($user, $room))->toOthers();
+            broadcast(new VotingProcess(user: $user, room: $room, broadcast_type: BroadcastType::VOTING_START))->toOthers();
 
             return response()->json(['message' => 'Vote started successfully']);
         } catch (Exception $e) {

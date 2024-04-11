@@ -1,86 +1,93 @@
 <template>
-    <div class="vstack gap-5 align-items-center">
-        <BaseCard class="w-75 shadow shadow-sm" v-for="(question, index) in questions" :key="question.id">
-            <template #description>
-                <div class="row justify-content-between align-items-center">
-                    <div class="col-md-10 hstack">
-                        <img class="img-fluid me-3 img-style" :src="question.question_image" alt=""
-                             v-if="question.question_image" @click="showImage">
-                        <div class="w-100">
-                            <h3 class="fw-semibold fs-4 text-uppercase text-truncate">Question {{ index + 1 }}: {{
-                                    question.question_title
-                                }}</h3>
-                            <p class="text-truncate fs-5 text-muted" style="width: 50vw">{{
-                                    helper.removeSpecialCharacters(question.question_description)
-                                }}</p>
+    <form @submit.prevent="submitVotes">
+        <div class="vstack gap-5 align-items-center">
+            <BaseCard class="w-75 shadow shadow-sm" v-for="(question, index) in questions" :key="question.id">
+                <template #description>
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-md-10 hstack">
+                            <img class="img-fluid me-3 img-style" :src="question.question_image" alt=""
+                                 v-if="question.question_image" @click="showImage">
+                            <div class="w-100">
+                                <h3 class="fw-semibold fs-4 text-uppercase text-truncate">Question {{ index + 1 }}: {{
+                                        question.question_title
+                                    }}</h3>
+                                <p class="text-truncate fs-5 text-muted" style="width: 50vw">{{
+                                        helper.removeSpecialCharacters(question.question_description)
+                                    }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-2 hstack justify-content-end align-items-center">
+                            <QuestionInfo :question="question"/>
                         </div>
                     </div>
-                    <div class="col-md-2 hstack justify-content-end align-items-center">
-                        <QuestionInfo :question="question"/>
-                    </div>
-                </div>
-            </template>
-            <div class="row mx-2">
-                <div class="col-md-6">
-                    <p class="text-muted" v-if="question.allow_multiple_votes">You can choose <span
-                        class="fw-bold text-uppercase">multiple</span> options</p>
-                    <p class="text-muted" v-else>You can only choose <span class="fw-bold text-uppercase">one</span>
-                        option
-                    </p>
-                    <div v-for="(candidate, candidateIndex) in question.candidates" :key="candidate.id" class="mb-5">
-                        <div class="form-check ms-4 mt-2">
-                            <div class="d-flex justify-content-between gap-3 align-items-center">
-                                <div class="w-100">
-                                    <div>
-                                        <input
-                                            v-if="question.allow_multiple_votes"
-                                            @click="onClickCheck(question.id, candidate.id)"
-                                            class="form-check-input fs-3"
-                                            type="checkbox"
-                                            :name="question.id"
-                                            :id="candidate.id + candidateIndex">
-                                        <input
-                                            v-else
-                                            @click="onClickRadio(question.id, candidate.id)"
-                                            class="form-check-input fs-3"
-                                            type="radio"
-                                            :name="question.id"
-                                            :id="candidate.id + candidateIndex">
+                </template>
+                <div class="row mx-2">
+                    <div :class="{'col-md-6': isRealTimeEnabled, 'col-md-12': !isRealTimeEnabled}">
+                        <p class="text-muted" v-if="question.allow_multiple_votes">You can choose <span
+                            class="fw-bold text-uppercase">multiple</span> options</p>
+                        <p class="text-muted" v-else>You can only choose <span class="fw-bold text-uppercase">one</span>
+                            option
+                        </p>
+                        <div v-for="(candidate, candidateIndex) in question.candidates" :key="candidate.id"
+                             class="mb-5">
+                            <div class="form-check ms-4 mt-2">
+                                <div class="d-flex justify-content-between gap-3 align-items-center">
+                                    <div class="w-100">
+                                        <div>
+                                            <input
+                                                v-if="question.allow_multiple_votes"
+                                                @click="onClickCheck(question.id, candidate.id)"
+                                                class="form-check-input fs-3"
+                                                type="checkbox"
+                                                :name="question.id"
+                                                :id="candidate.id + candidateIndex">
+                                            <input
+                                                v-else
+                                                @click="onClickRadio(question.id, candidate.id)"
+                                                class="form-check-input fs-3"
+                                                type="radio"
+                                                :name="question.id"
+                                                :id="candidate.id + candidateIndex">
+                                        </div>
+                                        <div>
+                                            <label class="form-check-label fs-4 text-truncate" style="width: 30rem;"
+                                                   :for="candidate.id + candidateIndex">
+                                                {{ candidate.candidate_title }}
+                                            </label>
+                                            <p class="text-truncate text-muted" style="width: 30rem;">{{
+                                                    helper.removeSpecialCharacters(candidate.candidate_description)
+                                                }}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label class="form-check-label fs-4 text-truncate" style="width: 30rem;"
-                                               :for="candidate.id + candidateIndex">
-                                            {{ candidate.candidate_title }}
-                                        </label>
-                                        <p class="text-truncate text-muted" style="width: 30rem;">{{
-                                                helper.removeSpecialCharacters(candidate.candidate_description)
-                                            }}
-                                        </p>
+                                    <div
+                                        class="d-flex justify-content-between align-items-center me-4">
+                                        <img class="img-fluid me-3 img-style" :src="candidate.candidate_image" alt=""
+                                             v-if="candidate.candidate_image" @click="showImage">
+                                        <CandidateInfo :candidate="candidate"/>
                                     </div>
-                                </div>
-                                <div
-                                    class="d-flex justify-content-between align-items-center me-4">
-                                    <img class="img-fluid me-3 img-style" :src="candidate.candidate_image" alt=""
-                                         v-if="candidate.candidate_image" @click="showImage">
-                                    <CandidateInfo :candidate="candidate"/>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card col-md-6">
-                    <div class="card-body">
-                        <BarChart :options="options"
-                                  :labels="trimText(voteCounts[question.id]?.candidateLabels, 10)"
-                                  :datasets="voteCounts[question.id]?.voteCounts"/>
+                    <div class="card col-md-6" v-if="isRealTimeEnabled">
+                        <div class="card-body">
+                            <BarChart :options="options"
+                                      :labels="trimText(voteCounts[question.id]?.candidateLabels, 10)"
+                                      :datasets="voteCounts[question.id]?.voteCounts"/>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </BaseCard>
-        <teleport to="body">
-            <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
-        </teleport>
-    </div>
+            </BaseCard>
+            <teleport to="body">
+                <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
+            </teleport>
+        </div>
+
+        <div class="text-center my-5">
+            <button type="submit" class="btn-lg btn btn-primary">Submit</button>
+        </div>
+    </form>
 </template>
 <script setup>
 import BaseCard from "@/Components/BaseCard.vue";
@@ -92,14 +99,16 @@ import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import {useHelper} from "@/Services/helper.js";
 import CandidateInfo from "@/Pages/Voting/Vote/CandidateInfo.vue";
 import {route} from "ziggy-js";
+import {router} from "@inertiajs/vue3";
 
-const props = defineProps(['room', 'questions', 'voteCounts'])
+const props = defineProps(['room', 'questions', 'voteCounts', 'roomSettings'])
 const votingResultStore = useVotingResultStore()
 const helper = useHelper()
 const currentImageDisplay = ref(null)
 const voteCounts = computed(() => props.voteCounts)
 
 const selectedOptions = ref({});
+const isRealTimeEnabled = computed(() => props.roomSettings?.realtime_enabled)
 
 const onClickCheck = async (questionId, candidateId) => {
     const formData = new FormData();
@@ -159,6 +168,12 @@ function trimText(textArray, length) {
 
 const showImage = (e) => {
     currentImageDisplay.value = e;
+}
+
+function submitVotes() {
+    router.post(route('vote.store', props.room.id), {
+        selectedOptions: selectedOptions.value
+    })
 }
 
 const options = {

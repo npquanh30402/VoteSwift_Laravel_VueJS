@@ -54,9 +54,10 @@ import VotingMessage from "@/Pages/Voting/Vote/Chat/VotingMessage.vue";
 import {useVotingChatStore} from "@/Stores/voting-chat.js";
 import {useHelper} from "@/Services/helper.js";
 
-const props = defineProps(['room', 'roomSettings'])
+const props = defineProps(['room', 'roomSettings', 'channelBroadcast'])
 const helper = useHelper()
 
+const channelBroadcast = props.channelBroadcast
 const votingChatStore = useVotingChatStore()
 const showChatForm = ref(false)
 const authUser = computed(() => usePage().props.authUser.user);
@@ -98,19 +99,21 @@ const sendMessage = async (msg, file = null) => {
 };
 
 const handleReceivedMessage = (e) => {
-    if (!messages.value[props.room.id]) {
-        messages.value[props.room.id] = [];
-    }
-    messages.value[props.room.id].push({user: e.user, message: e.message, plainMessage: e.plain_message});
+    if (e.broadcast_type === 'voting_chat') {
+        if (!messages.value[props.room.id]) {
+            messages.value[props.room.id] = [];
+        }
+        messages.value[props.room.id].push({user: e.user, message: e.message, plainMessage: e.plain_message});
 
-    if (showChatForm.value === false) {
-        votingChatStore.unreadCounts[props.room.id] = votingChatStore.unreadCounts[props.room.id] + 1;
+        if (showChatForm.value === false) {
+            votingChatStore.unreadCounts[props.room.id] = votingChatStore.unreadCounts[props.room.id] + 1;
+        }
     }
 };
 
 const setupEchoListeners = () => {
     if (authUser.value) {
-        Echo.private(`voting.chat.${props.room.id}`).listen("VotingChat", handleReceivedMessage);
+        Echo.private(channelBroadcast.channelName).listen(channelBroadcast.eventName, handleReceivedMessage);
     }
 };
 
@@ -122,10 +125,6 @@ onMounted(async () => {
     } else {
         votingChatStore.clearMessages(props.room.id);
     }
-})
-
-onUnmounted(() => {
-    Echo.leave(`voting.chat.${props.room.id}`)
 })
 </script>
 

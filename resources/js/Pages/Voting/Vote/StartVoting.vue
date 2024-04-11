@@ -1,26 +1,21 @@
 <template>
-    <form @submit.prevent="submitVotes">
-        <VotingOptions :room="room" :questions="questions" :voteCounts="combinedCounts"/>
-
-        <div class="text-center my-5">
-            <button type="submit" class="btn-lg btn btn-primary">Submit</button>
-        </div>
-    </form>
+    <VotingOptions :room="room" :questions="questions" :voteCounts="combinedCounts"/>
 </template>
 
 <script setup>
 import {computed, onMounted, ref} from "vue";
-import {router, usePage} from "@inertiajs/vue3";
+import {usePage} from "@inertiajs/vue3";
 import {route} from "ziggy-js";
 import {useVotingResultStore} from "@/Stores/voting-results.js";
 import VotingOptions from "@/Pages/Voting/Vote/VotingOptions.vue";
 
-const props = defineProps(['questions', 'room'])
+const props = defineProps(['questions', 'room', 'channelBroadcast'])
 const votingResultStore = useVotingResultStore()
 const votingResult = computed(() => votingResultStore.results[props.room.id])
 const authUser = computed(() => usePage().props.authUser.user);
 const userChoicesInRoom = ref({})
 const combinedCounts = ref({});
+const channelBroadcast = props.channelBroadcast
 
 const updateVoteCount = (questionId, candidateId, change) => {
     if (combinedCounts.value.hasOwnProperty(questionId)) {
@@ -63,21 +58,23 @@ onMounted(async () => {
 })
 
 const handleReceivedChoice = (e) => {
-    const questionId = e.question_id;
-    const candidateId = parseInt(e.candidate_id);
+    if (e.broadcast_type === 'voting_choices') {
+        const questionId = e.question_id;
+        const candidateId = parseInt(e.candidate_id);
 
-    if (!userChoicesInRoom.value[e.user.id]) {
-        userChoicesInRoom.value[e.user.id] = {};
-    }
+        if (!userChoicesInRoom.value[e.user.id]) {
+            userChoicesInRoom.value[e.user.id] = {};
+        }
 
-    if (!userChoicesInRoom.value[e.user.id][questionId]) {
-        userChoicesInRoom.value[e.user.id][questionId] = [];
-    }
+        if (!userChoicesInRoom.value[e.user.id][questionId]) {
+            userChoicesInRoom.value[e.user.id][questionId] = [];
+        }
 
-    if (e.question_type.allow_multiple_votes === 'true') {
-        handleCheckbox(e.user.id, questionId, candidateId);
-    } else {
-        handleRadio(e.user.id, questionId, candidateId);
+        if (e.question_type.allow_multiple_votes === 'true') {
+            handleCheckbox(e.user.id, questionId, candidateId);
+        } else {
+            handleRadio(e.user.id, questionId, candidateId);
+        }
     }
 };
 
@@ -165,9 +162,9 @@ const handleSubscribe = async () => {
 
 const setupEchoListeners = () => {
     if (authUser.value) {
-        Echo.private(`voting.choice.${props.room.id}`).listen("VotingChoice", handleReceivedChoice);
+        Echo.private(channelBroadcast.channelName).listen(channelBroadcast.eventName, handleReceivedChoice);
 
-        Echo.join(`voting.choice.${props.room.id}`)
+        Echo.join(channelBroadcast.channelName)
             .leaving(handleDisconnect)
             .subscribed(handleSubscribe)
     }
@@ -177,15 +174,4 @@ onMounted(() => {
     setupEchoListeners()
     window.scrollTo({top: 0, left: 0, behavior: 'smooth'});
 })
-
-async function submitVotes() {
-    // router.post(route('vote.store', props.room.id), {
-    //     selectedOptions: selectedOptions.value
-    // })
-
-    await axios.delete(route('api.room.vote.delete.choices', {
-        'room': props.room.id,
-        'user': authUser.value.id
-    }));
-}
 </script>

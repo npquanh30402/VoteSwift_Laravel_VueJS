@@ -8,22 +8,30 @@
             <MdPreview :editorId="'room_' + room.id" :modelValue="room.room_description"/>
         </BaseModal>
 
-        <VotingOnlineUser :room="room" :invitedUsers="invitedUsers" :owner="owner"
-                          :onlineUsers="onlineUsers" :isUserOnline="isUserOnline" style="z-index: 999"
-                          v-if="isChatEnable"/>
+        <div v-if="isRealtimeEnabled">
+            <VotingOnlineUser :room="room" :invitedUsers="invitedUsers" :owner="owner"
+                              :onlineUsers="onlineUsers" :isUserOnline="isUserOnline" style="z-index: 999"/>
+            <VotingChat :channelBroadcast="channelBroadcast" :room="room" :roomSettings="roomSettings"
+                        style="z-index: 999"
+                        v-if="isChatEnable"/>
+        </div>
 
-        <VotingChat :room="room" :roomSettings="roomSettings" style="z-index: 999" v-if="isChatEnable"/>
-        <h3>Time remaining: </h3>
-        <VotingClock :date="room.end_time"/>
+        <div>
+            <h3>Time remaining: </h3>
+            <VotingClock :date="room.end_time"/>
+        </div>
 
         <transition name="fade" mode="out-in">
-            <component :is="tabs[currentTab]" :room="room" :roomSettings="roomSettings" :questions="questions"
-                       :isReadyToStart="isReadyToStart"
-                       @switch-tab="currentTab = $event" @start-voting="startVoting"
-                       v-if="roomSettings.invitation_only"></component>
-
-            <component :is="tabs[currentTab]" :room="room" :roomSettings="roomSettings" :questions="questions"
-                       @switch-tab="currentTab = $event" v-else></component>
+            <KeepAlive>
+                <component :is="tabs[currentTab]" :room="room" :questions="questions" :roomSettings="roomSettings"
+                           :channelBroadcast="channelBroadcast"
+                           :isReadyToStart="isReadyToStart"
+                           @switch-tab="currentTab = $event" @start-voting="startVoting"
+                           v-if="roomSettings.invitation_only"></component>
+                <component :is="tabs[currentTab]" :room="room" :questions="questions" :roomSettings="roomSettings"
+                           :channelBroadcast="channelBroadcast"
+                           @switch-tab="currentTab = $event" v-else></component>
+            </KeepAlive>
         </transition>
     </div>
 </template>
@@ -44,7 +52,6 @@ import {useVotingSettingStore} from "@/Stores/voting-settings.js";
 import {useInvitationStore} from "@/Stores/invitations.js";
 import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import {useAttachmentStore} from "@/Stores/attachments.js";
-import MusicPlayer from "@/Components/MusicPlayer.vue";
 
 const authUser = computed(() => usePage().props.authUser.user);
 const props = defineProps(['questions', 'room', 'owner']);
@@ -58,16 +65,13 @@ const voteStore = useVoteStore();
 const roomSettings = computed(() => votingSettingStore.settings[props.room.id])
 const invitedUsers = computed(() => invitationStore.invitations[props.room.id])
 const roomAttachments = computed(() => attachmentStore.attachments[props.room.id]);
-// const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
-const currentTab = ref('Welcome');
 
-const isChatEnable = ref(false);
-const isReadyToStart = ref(false);
-const onlineUsers = ref([]);
 
-watch(roomSettings, () => {
-    isChatEnable.value = roomSettings.value?.chat_enabled === 1
-    isReadyToStart.value = roomSettings.value?.wait_for_voters === 0
+const isRealtimeEnabled = computed(() => roomSettings.value?.realtime_enabled === 1);
+const isWaitForVoters = computed(() => roomSettings.value?.wait_for_voters === 1);
+
+const isReadyToRender = computed(() => {
+    return roomSettings && invitedUsers && roomAttachments && isRealtimeEnabled;
 })
 
 const tabs = {
@@ -75,9 +79,24 @@ const tabs = {
     StartVoting,
 };
 
+// const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
+const currentTab = ref('StartVoting');
+
+const isChatEnable = computed(() => roomSettings.value?.chat_enabled === 1)
+const isReadyToStart = ref(false)
+const onlineUsers = ref([]);
+
+watch(roomSettings, () => {
+    isReadyToStart.value = roomSettings.value?.wait_for_voters === 0
+})
+
 const isUserOnline = (user) => onlineUsers.value.some(onlineUser => onlineUser.id === user.id);
 
-const channelName = 'voting.' + props.room.id
+const channelBroadcast = {
+    channelName: 'voting.process.' + props.room.id,
+    eventName: 'VotingProcess'
+}
+
 let echoListenerInitialized = false;
 
 function startVoting() {
@@ -113,14 +132,8 @@ const setupPresenceChannel = () => {
         updateOnlineUsersAndReadiness();
     };
 
-    // Join presence channel and listen for events
-    if (roomSettings.value?.wait_for_voters === 1) {
-        Echo.join('voting.' + props.room.id)
-            .here(handleHere)
-            .joining(handleJoining)
-            .leaving(handleLeaving);
-
-        Echo.private('voting.' + props.room.id).listen('VotingProcess', (e) => {
+    function handleVotingStartBroadcast(e) {
+        if (e.broadcast_type === 'voting_start') {
             if (e.room.vote_started) {
                 currentTab.value = tabs.StartVoting;
 
@@ -128,14 +141,26 @@ const setupPresenceChannel = () => {
                     $toast.success('Voting started by ' + e.user.username);
                 }
             }
-        });
+        }
+    }
+
+    // Join presence channel and listen for events
+    if (roomSettings.value?.realtime_enabled === 1 || roomSettings.value?.wait_for_voters === 1) {
+        Echo.join(channelBroadcast.channelName)
+            .here(handleHere)
+            .joining(handleJoining)
+            .leaving(handleLeaving);
+
+        if (roomSettings.value?.wait_for_voters === 1) {
+            Echo.private(channelBroadcast.channelName).listen(channelBroadcast.eventName, handleVotingStartBroadcast);
+        }
 
         echoListenerInitialized = true;
     }
 };
 
 const leaveChannel = () => {
-    Echo.leave(channelName)
+    Echo.leave(channelBroadcast.channelName)
     echoListenerInitialized = false
 }
 
@@ -154,20 +179,25 @@ const joinRoom = () => {
 onMounted(() => {
     joinRoom()
 
-    votingSettingStore.fetchSettings(props.room.id).then(() => {
-        setupPresenceChannel()
-    })
+    votingSettingStore.fetchSettings(props.room.id).then(() => setupPresenceChannel())
 
-    invitationStore.fetchInvitations(props.room.id).then(() => {
-        invitedUsers.value.unshift(props.owner)
-    })
+    if (invitationStore.invitations[props.room.id] === undefined || invitationStore.invitations[props.room.id].length === 0) {
+        invitationStore.fetchInvitations(props.room.id).then(() => {
+            invitedUsers.value.unshift(props.owner)
+        })
+    }
 
     attachmentStore.fetchAttachments(props.room.id)
+
+    if (echoListenerInitialized === false) {
+        setupPresenceChannel()
+    }
 })
 
 onUnmounted(() => {
     if (echoListenerInitialized) {
         leaveChannel()
     }
+    $toast.success('You have left the room')
 })
 </script>

@@ -23,7 +23,7 @@ Broadcast::channel('chat.{user}', function ($user) {
     }
 });
 
-Broadcast::channel('voting.{room}', function (User $user, VotingRoom $room) {
+Broadcast::channel('voting.process.{room}', function (User $user, VotingRoom $room) {
     if ($room && $room->userHasAccess($user)) {
         return [
             'id' => $user->id,
@@ -33,16 +33,4 @@ Broadcast::channel('voting.{room}', function (User $user, VotingRoom $room) {
     }
 
     return false;
-});
-
-Broadcast::channel('voting.chat.{room}', function ($room) {
-    return true;
-});
-
-Broadcast::channel('voting.choice.{room}', function (User $user) {
-    return [
-        'id' => $user->id,
-        'username' => $user->username,
-        'avatar' => $user->avatar,
-    ];
 });

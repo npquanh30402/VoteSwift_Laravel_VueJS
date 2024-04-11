@@ -75,7 +75,7 @@
                     </div>
                 </div>
             </div>
-            <div v-if="musicFiles.length">
+            <div v-show="musicFiles.length && currentFile">
                 <MusicPlayer
                     :music="musicFiles"
                     :currentFile="currentFile"/>
