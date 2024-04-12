@@ -1,9 +1,9 @@
 <template>
     <div class="row row-cols-2 d-flex align-items-center">
         <div
-            class="col"
             v-for="friend_request in authUserFriends.friendRequests"
             :key="friend_request.id"
+            class="col"
         >
             <div class="card" style="border-radius: 15px">
                 <div class="card-body p-4">
@@ -11,9 +11,9 @@
                         <div class="flex-shrink-0">
                             <img
                                 :src="friend_request.avatar"
+                                alt="avatar"
                                 class="img-fluid"
                                 style="width: 100px; border-radius: 10px"
-                                alt="avatar"
                             />
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -40,24 +40,24 @@
                                         Profile
                                     </Link>
                                     <button
+                                        class="btn btn-danger flex-grow-1"
                                         @click="
                                             rejectFriendRequest(
                                                 friend_request.id,
                                             )
                                         "
-                                        class="btn btn-danger flex-grow-1"
                                     >
                                         Reject
                                     </button>
                                 </div>
                                 <div class="d-grid">
                                     <button
+                                        class="btn btn-success"
                                         @click="
                                             acceptFriendRequest(
                                                 friend_request.id,
                                             )
                                         "
-                                        class="btn btn-success"
                                     >
                                         Accept
                                     </button>
@@ -78,16 +78,16 @@ import { useFriendStore } from "@/Stores/friends.js";
 import { useToast } from "vue-toast-notification";
 
 defineProps(["authUserFriends"]);
-const $toast = useToast();
+const toast = useToast();
 const friendStore = useFriendStore();
 
 const acceptFriendRequest = (id) => {
     friendStore.acceptFriendRequest(id);
-    $toast.success("Friend request accepted");
+    toast.success("Friend request accepted");
 };
 
 const rejectFriendRequest = (id) => {
     friendStore.rejectFriendRequest(id);
-    $toast.success("Friend request rejected");
+    toast.success("Friend request rejected");
 };
 </script>

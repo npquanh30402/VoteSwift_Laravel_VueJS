@@ -1,9 +1,9 @@
 <template>
     <div class="row row-cols-2 d-flex align-items-center h-100">
         <div
-            class="col"
             v-for="friend in authUserFriends.friends"
             :key="friend.id"
+            class="col"
         >
             <div class="card" style="border-radius: 15px">
                 <div class="card-body p-4">
@@ -41,8 +41,8 @@
                                 </div>
                                 <div class="d-grid">
                                     <button
-                                        @click="unfriend(friend.id)"
                                         class="btn btn-danger"
+                                        @click="unfriend(friend.id)"
                                     >
                                         Unfriend
                                     </button>
@@ -63,11 +63,11 @@ import { useToast } from "vue-toast-notification";
 import { useFriendStore } from "@/Stores/friends.js";
 
 defineProps(["authUserFriends"]);
-const $toast = useToast();
+const toast = useToast();
 const friendStore = useFriendStore();
 
 const unfriend = (id) => {
     friendStore.unfriend(id);
-    $toast.success("Unfriended successfully");
+    toast.success("Unfriended successfully");
 };
 </script>

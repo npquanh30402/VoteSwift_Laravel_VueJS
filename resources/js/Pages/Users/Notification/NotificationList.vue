@@ -1,168 +1,61 @@
 <template>
-    <div
-        v-for="notification in notifications.data"
-        :key="notification.id"
-        class="notification-list"
-        :class="{
-            'notification-list--unread': !notification.read_at,
-        }"
-    >
+    <transition-group name="list" tag="div">
         <div
-            v-if="notification.type === 'App\\Notifications\\RoomCreation'"
-            class="notification-list_content"
+            v-for="notification in notifications.data"
+            :key="notification.id"
+            :class="{
+                'notification-list--unread': !notification.read_at,
+            }"
+            class="notification-list"
         >
-            <div class="notification-list_detail">
-                <p>You have created a new <b>Voting Room</b></p>
-                <p class="text-muted">
-                    Click
-                    <Link
-                        :href="
-                            route('room.dashboard', notification.data.room_id)
-                        "
-                        >here
-                    </Link>
-                    to visit its dashboard.
-                </p>
-                <p class="text-muted">
-                    <small>{{ formattedDate(notification.created_at) }}</small>
-                </p>
-            </div>
-        </div>
+            <RoomCreationType
+                v-if="notification.type === 'App\\Notifications\\RoomCreation'"
+                :notification="notification"
+            />
 
-        <div
-            v-if="notification.type === 'App\\Notifications\\RoomPublish'"
-            class="notification-list_content"
-        >
-            <div class="notification-list_detail">
-                <p>You have published a great <b>Voting Room</b></p>
-                <p class="text-muted">
-                    Click
-                    <Link
-                        :href="
-                            route('room.dashboard', notification.data.room_id)
-                        "
-                        >here
-                    </Link>
-                    to visit its dashboard.
-                </p>
-                <p class="text-muted">
-                    <small>{{ formattedDate(notification.created_at) }}</small>
-                </p>
-            </div>
-        </div>
+            <RoomPublishType
+                v-if="notification.type === 'App\\Notifications\\RoomPublish'"
+                :notification="notification"
+            />
 
-        <div
-            v-if="notification.type === 'App\\Notifications\\FriendRequestSend'"
-            class="notification-list_content"
-        >
-            <Link
-                :href="route('user.profile', notification.data.sender_id)"
-                class="notification-list_img"
+            <FriendRequestSendType
+                v-if="
+                    notification.type ===
+                    'App\\Notifications\\FriendRequestSend'
+                "
+                :notification="notification"
+            />
+
+            <FriendRequestAcceptedType
+                v-if="
+                    notification.type ===
+                    'App\\Notifications\\FriendRequestAccepted'
+                "
+                :notification="notification"
+            />
+
+            <InvitationType
+                v-if="
+                    notification.type ===
+                    'App\\Notifications\\InvitationNotification'
+                "
+                :notification="notification"
+            />
+
+            <div
+                v-if="!notification.read_at"
+                class="d-flex flex-column justify-content-end gap-3"
             >
-                <img :src="notification.data.sender_avatar" alt="user" />
-            </Link>
-            <div class="notification-list_detail">
-                <p>
-                    <b>{{ notification.data.sender_username }}</b>
-                    have sent you a friend request.
-                </p>
-                <p class="text-muted">
-                    Click
-                    <Link
-                        class="link-success"
-                        :href="
-                            route(
-                                'user.accept-friend-request',
-                                notification.data.sender_id,
-                            )
-                        "
-                        method="POST"
-                        >here
-                    </Link>
-                    to accept.
-                </p>
-                <p class="text-muted">
-                    Or
-                    <Link
-                        class="link-danger"
-                        :href="
-                            route(
-                                'user.reject-friend-request',
-                                notification.data.sender_id,
-                            )
-                        "
-                        method="POST"
-                        >here
-                    </Link>
-                    to reject.
-                </p>
-                <p class="text-muted">
-                    <small>{{ formattedDate(notification.created_at) }}</small>
-                </p>
+                <button
+                    class="btn btn-outline-primary"
+                    @click="handleMarkAsRead(notification.id, currentPage)"
+                >
+                    Mark as read
+                </button>
             </div>
         </div>
+    </transition-group>
 
-        <div
-            v-if="
-                notification.type ===
-                'App\\Notifications\\InvitationNotification'
-            "
-            class="notification-list_content"
-        >
-            <Link
-                :href="route('user.profile', notification.data.sender_id)"
-                class="notification-list_img"
-            >
-                <img :src="notification.data.sender_avatar" alt="user" />
-            </Link>
-            <div class="notification-list_detail">
-                <p>
-                    <b>{{ notification.data.sender_username }}</b>
-                    have sent you an invitation link to his voting room. Please
-                    check your email for more details.
-                </p>
-                <p class="text-muted">
-                    <small>{{ formattedDate(notification.created_at) }}</small>
-                </p>
-            </div>
-        </div>
-
-        <div
-            v-if="
-                notification.type ===
-                'App\\Notifications\\FriendRequestAccepted'
-            "
-            class="notification-list_content"
-        >
-            <Link
-                :href="route('user.profile', notification.data.recipient_id)"
-                class="notification-list_img"
-            >
-                <img :src="notification.data.recipient_avatar" alt="user" />
-            </Link>
-            <div class="notification-list_detail">
-                <p>
-                    <b>{{ notification.data.recipient_username }}</b>
-                    have accepted your friend request.
-                </p>
-                <p class="text-muted">
-                    <small>{{ formattedDate(notification.created_at) }}</small>
-                </p>
-            </div>
-        </div>
-
-        <div
-            v-if="!notification.read_at"
-            class="d-flex flex-column justify-content-end gap-3"
-        >
-            <button
-                @click="handleMarkAsRead(notification.id, currentPage)"
-                class="btn btn-outline-primary"
-            >
-                Mark as read
-            </button>
-        </div>
-    </div>
     <!--            <div class="notification-list">-->
     <!--                <div class="notification-list_content">-->
     <!--                    <div class="notification-list_img">-->
@@ -181,19 +74,18 @@
     <!--            </div>-->
 </template>
 <script setup>
-import { route } from "ziggy-js";
-import { Link } from "@inertiajs/vue3";
 import { computed } from "vue";
-import { useHelper } from "@/Services/helper.js";
 import { useToast } from "vue-toast-notification";
 import { useNotificationStore } from "@/Stores/notifications.js";
+import RoomCreationType from "@/Pages/Users/Notification/Type/RoomCreationType.vue";
+import RoomPublishType from "@/Pages/Users/Notification/Type/RoomPublishType.vue";
+import FriendRequestSendType from "@/Pages/Users/Notification/Type/FriendRequestSendType.vue";
+import FriendRequestAcceptedType from "@/Pages/Users/Notification/Type/FriendRequestAcceptedType.vue";
+import InvitationType from "@/Pages/Users/Notification/Type/InvitationType.vue";
 
 const props = defineProps(["notifications", "currentPage"]);
 const toast = useToast();
 const notificationStore = useNotificationStore();
-
-const helper = useHelper();
-const formattedDate = helper.formattedDate;
 
 const notifications = computed(() => props.notifications);
 const currentPage = computed(() => props.currentPage);
@@ -207,7 +99,23 @@ const handleMarkAsRead = async (id, page) => {
 };
 </script>
 
-<style scoped>
+<style>
+.list-enter-active,
+.list-leave-active {
+    transition: all 1s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.list-leave-active {
+    position: absolute;
+    top: -9999px;
+}
+
 .notification-list {
     display: -webkit-box;
     display: -ms-flexbox;

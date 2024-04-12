@@ -1,9 +1,9 @@
 <template>
     <div class="row row-cols-2 d-flex align-items-center">
         <div
-            class="col"
             v-for="sent in authUserFriends.requestSent"
             :key="sent.id"
+            class="col"
         >
             <div class="card" style="border-radius: 15px">
                 <div class="card-body p-4">
@@ -11,9 +11,9 @@
                         <div class="flex-shrink-0">
                             <img
                                 :src="sent.avatar"
+                                alt="avatar"
                                 class="img-fluid"
                                 style="width: 100px; border-radius: 10px"
-                                alt="avatar"
                             />
                         </div>
                         <div class="flex-grow-1 ms-3">
@@ -33,8 +33,8 @@
                                         Profile
                                     </Link>
                                     <button
-                                        @click="abortFriendRequest(sent.id)"
                                         class="btn btn-danger flex-grow-1"
+                                        @click="abortFriendRequest(sent.id)"
                                     >
                                         Abort
                                     </button>
@@ -55,11 +55,11 @@ import { useToast } from "vue-toast-notification";
 import { useFriendStore } from "@/Stores/friends.js";
 
 defineProps(["authUserFriends"]);
-const $toast = useToast();
+const toast = useToast();
 const friendStore = useFriendStore();
 
 const abortFriendRequest = (id) => {
     friendStore.abortFriendRequest(id);
-    $toast.success("Friend request aborted");
+    toast.success("Friend request aborted");
 };
 </script>

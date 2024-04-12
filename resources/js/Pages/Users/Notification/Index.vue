@@ -1,14 +1,13 @@
 <template>
-    <div class="my-3 mx-5" v-if="notifications">
+    <div v-if="notifications" class="my-3 mx-5">
         <h3 class="m-b-50 heading-line">
             Notifications <i class="bi bi-bell-fill"></i>
         </h3>
 
         <div class="notification-ui_dd-content">
-            <transition-group name="list" tag="div"></transition-group>
             <NotificationList
-                :notifications="notifications"
                 :currentPage="currentPage"
+                :notifications="notifications"
             />
             <div v-if="notifications.data?.length > 0">
                 <Pagination
@@ -60,22 +59,6 @@ onUpdated(() => scrollToTop());
 </script>
 
 <style scoped>
-.list-enter-active,
-.list-leave-active {
-    transition: all 1s ease;
-}
-
-.list-enter-from,
-.list-leave-to {
-    opacity: 0;
-    transform: translateX(30px);
-}
-
-.list-leave-active {
-    position: absolute;
-    top: -9999px;
-}
-
 .m-b-50 {
     margin-bottom: 50px;
 }
