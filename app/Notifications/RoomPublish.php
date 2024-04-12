@@ -57,6 +57,7 @@ class RoomPublish extends Notification implements ShouldQueue, ShouldBroadcastNo
     public function toBroadcast($notifiable): BroadcastMessage
     {
         $notification = \App\Models\Notification::find($this->id);
+        $notification->data = json_decode($notification->data);
 
         return new BroadcastMessage($notification->toArray());
     }

@@ -66,17 +66,30 @@
                                     </p>
                                 </div>
 
-                                <Link
-                                    :href="route('notification.index')"
-                                    class="mx-3 position-relative"
-                                >
-                                    <i class="bi bi-bell text-white fs-4"></i>
-                                    <span
-                                        v-if="notificationCount"
-                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                        >{{ notificationCount }}</span
-                                    >
-                                </Link>
+                                <VMenu>
+                                    <div>
+                                        <Link
+                                            :href="route('notification.index')"
+                                            class="mx-3 position-relative"
+                                        >
+                                            <i
+                                                class="bi bi-bell text-white fs-4"
+                                            ></i>
+                                            <span
+                                                v-if="notificationCount"
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                >{{ notificationCount }}</span
+                                            >
+                                        </Link>
+                                    </div>
+
+                                    <template #popper>
+                                        <NotificationList
+                                            :notifications="notifications"
+                                            :currentPage="currentPage"
+                                        />
+                                    </template>
+                                </VMenu>
 
                                 <Link
                                     :href="route('dashboard.user')"
@@ -135,18 +148,22 @@
 <script setup>
 import { Link, router, usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
 import { format } from "date-fns";
 import { useToast } from "vue-toast-notification";
 import { useNotificationStore } from "@/Stores/notifications.js";
+import NotificationList from "@/Pages/Users/Notification/NotificationList.vue";
 
 const props = defineProps(["authUser"]);
 const notificationStore = useNotificationStore();
 
 const music = computed(() => usePage().props.authUser.music);
 const $toast = useToast();
+
+const currentPage = ref(1);
+const notifications = ref({});
 const notificationCount = computed(() => {
     const dbCount = notificationStore.unreadCount;
 
@@ -172,5 +189,15 @@ const handleLogout = () => {
 onMounted(() => {
     notificationStore.setupEchoListeners(props.authUser.id);
     notificationStore.fetchUnreadNotificationsCount();
+    notificationStore.fetchNotifications();
+});
+
+watch(notificationStore.notifications, () => {
+    const notification_page =
+        notificationStore.notifications[currentPage.value].data;
+
+    notifications.value = {
+        data: notification_page ? notification_page.slice(0, 5) : [],
+    };
 });
 </script>
