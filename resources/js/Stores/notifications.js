@@ -7,6 +7,7 @@ export const useNotificationStore = defineStore("notification", () => {
     const notifications = ref({});
     const currentPage = ref(1);
     const unreadCount = ref(0);
+    let isEchoSetup = false;
 
     const fetchNotifications = async (url = null, page = null) => {
         if (!!notifications.value[page]) {
@@ -55,11 +56,17 @@ export const useNotificationStore = defineStore("notification", () => {
     };
 
     const setupEchoListeners = (userId) => {
+        if (isEchoSetup) {
+            return;
+        }
+
         Echo.private("App.Models.User." + userId).notification(
             (notification) => {
                 addNotification(notification, 1);
             },
         );
+
+        isEchoSetup = true;
     };
 
     const markAsRead = async (notificationId, page) => {
