@@ -213,13 +213,14 @@
                         v-if="!notification.read_at"
                         class="d-flex flex-column justify-content-end gap-3"
                     >
-                        <Link
-                            :href="route('notification.read', notification.id)"
-                            method="PUT"
-                            as="button"
+                        <button
+                            @click="
+                                handleMarkAsRead(notification.id, currentPage)
+                            "
                             class="btn btn-outline-primary"
-                            >Mark as read
-                        </Link>
+                        >
+                            Mark as read
+                        </button>
                     </div>
                 </div>
             </transition-group>
@@ -256,8 +257,10 @@ import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 import { computed, onMounted, onUpdated, ref, watch } from "vue";
 import Pagination from "@/Components/Pagination.vue";
 import { useNotificationStore } from "@/Stores/notifications.js";
+import { useToast } from "vue-toast-notification";
 
 const authUser = computed(() => usePage().props.authUser.user);
+const toast = useToast();
 const notificationStore = useNotificationStore();
 const formattedDate = computed(
     () => (date) =>
@@ -280,6 +283,14 @@ const handleLoadPage = (url, page) => {
     });
 };
 
+const handleMarkAsRead = async (id, page) => {
+    const message = await notificationStore.markAsRead(id, page);
+
+    if (message) {
+        toast.success(message);
+    }
+};
+
 onMounted(() => {
     setupEchoListeners();
 
@@ -289,8 +300,8 @@ onMounted(() => {
 const setupEchoListeners = () => {
     Echo.private("App.Models.User." + authUser.value.id).notification(
         (notification) => {
-            // notifications.value.data.unshift(notification);
-            notificationStore.notifications[1].data.unshift(notification);
+            notificationStore.addNotification(notification, 1);
+            console.log(notifications.value);
         },
     );
 };

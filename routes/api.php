@@ -3,11 +3,11 @@
 
 use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\ChatController;
-use App\Http\Controllers\Api\FileUploadController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\InvitationController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\NotificationSeenController;
 use App\Http\Controllers\Api\QuestionController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
@@ -23,6 +23,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
 
     Route::get('/notifications/', [NotificationController::class, 'index'])->name('api.notifications.index');
+    Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('api.notification.read');
 
     Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');
     Route::post('/room/', [VotingRoomController::class, 'store'])->name('api.room.store');

@@ -25,5 +25,43 @@ export const useNotificationStore = defineStore("notification", () => {
         }
     };
 
-    return { notifications, currentPage, fetchNotifications };
+    const markAsRead = async (notificationId, page) => {
+        let message = "";
+        try {
+            const notificationsPage = notifications.value[page]?.data || [];
+            const foundNotification = notificationsPage.find(
+                (n) => n.id === notificationId,
+            );
+
+            if (foundNotification) {
+                foundNotification.read_at = new Date().toISOString();
+
+                const response = await axios.put(
+                    route("api.notification.read", notificationId),
+                );
+
+                if (response.status === 204) {
+                    message = "Notification marked as read successfully.";
+                }
+            } else {
+                message = "Notification not found. Please try again.";
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+        return message;
+    };
+
+    const addNotification = (notification, page) => {
+        notifications.value[page].data.unshift(notification);
+    };
+
+    return {
+        notifications,
+        currentPage,
+        fetchNotifications,
+        addNotification,
+        markAsRead,
+    };
 });

@@ -19,7 +19,6 @@ Route::group(['prefix' => '/user'], function () {
 
     Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::resource('notification', NotificationController::class)->only(['index']);
-        Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('notification.read');
 
         Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard.user');
         Route::get('/settings', [UserController::class, 'showSettings'])->name('user.settings');

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Notifications\DatabaseNotification;
 
 class NotificationSeenController extends Controller
@@ -11,6 +11,6 @@ class NotificationSeenController extends Controller
     {
         $notification->markAsRead();
 
-//        return back()->with('success', 'Notification marked as read');
+        return response()->json(null, 204);
     }
 }
