@@ -24,12 +24,16 @@ Broadcast::channel('chat.{user}', function ($user) {
 });
 
 Broadcast::channel('voting.process.{room}', function (User $user, VotingRoom $room) {
-    if ($room && $room->userHasAccess($user)) {
-        return [
-            'id' => $user->id,
-            'username' => $user->username,
-            'avatar' => $user->avatar,
-        ];
+    if ($room) {
+        $isInvitationOnly = $room->settings->invitation_only;
+
+        if (!$isInvitationOnly || $room->userHasAccess($user)) {
+            return [
+                'id' => $user->id,
+                'username' => $user->username,
+                'avatar' => $user->avatar,
+            ];
+        }
     }
 
     return false;

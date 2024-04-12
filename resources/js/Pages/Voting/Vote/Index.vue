@@ -2,15 +2,15 @@
     <div v-if="roomSettings && invitedUsers && roomAttachments">
         <VotingSidebar
             :room="room"
-            :roomSettings="roomSettings"
             :roomAttachments="roomAttachments"
+            :roomSettings="roomSettings"
         />
 
         <BaseModal
             id="RoomDescriptionModal"
-            title="Room Description"
             class="modal-dialog-scrollable"
             data-bs-backdrop="true"
+            title="Room Description"
         >
             <MdPreview
                 :editorId="'room_' + room.id"
@@ -20,19 +20,19 @@
 
         <div v-if="isRealtimeEnabled || isChatEnable">
             <VotingOnlineUser
-                :room="room"
                 :invitedUsers="invitedUsers"
-                :owner="owner"
-                :onlineUsers="onlineUsers"
                 :isUserOnline="isUserOnline"
+                :onlineUsers="onlineUsers"
+                :owner="owner"
+                :room="room"
                 style="z-index: 999"
             />
             <VotingChat
+                v-if="isChatEnable"
                 :channelBroadcast="channelBroadcast"
                 :room="room"
                 :roomSettings="roomSettings"
                 style="z-index: 999"
-                v-if="isChatEnable"
             />
         </div>
 
@@ -41,27 +41,27 @@
             <VotingClock :date="room.end_time" />
         </div>
 
-        <transition name="fade" mode="out-in">
+        <transition mode="out-in" name="fade">
             <KeepAlive>
                 <component
                     :is="tabs[currentTab]"
-                    :room="room"
-                    :questions="questions"
-                    :roomSettings="roomSettings"
+                    v-if="roomSettings.invitation_only"
                     :channelBroadcast="channelBroadcast"
                     :isReadyToStart="isReadyToStart"
+                    :questions="questions"
+                    :room="room"
+                    :roomSettings="roomSettings"
                     @switch-tab="currentTab = $event"
                     @start-voting="startVoting"
-                    v-if="roomSettings.invitation_only"
                 ></component>
                 <component
                     :is="tabs[currentTab]"
-                    :room="room"
-                    :questions="questions"
-                    :roomSettings="roomSettings"
-                    :channelBroadcast="channelBroadcast"
-                    @switch-tab="currentTab = $event"
                     v-else
+                    :channelBroadcast="channelBroadcast"
+                    :questions="questions"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    @switch-tab="currentTab = $event"
                 ></component>
             </KeepAlive>
         </transition>
@@ -206,6 +206,7 @@ const leaveChannel = () => {
     echoListenerInitialized = false;
 };
 
+let joinTimeId = null;
 const joinRoom = () => {
     const formData = new FormData();
     formData.append("user_id", authUser.value.id);
@@ -215,7 +216,22 @@ const joinRoom = () => {
         .storeJoinTime(props.room.id, authUser.value.id, formData)
         .then((response) => {
             if (response.status === 200) {
+                joinTimeId = response.data.id;
                 $toast.success("You have joined successfully");
+            }
+        });
+};
+
+const leaveRoom = () => {
+    const formData = new FormData();
+    formData.append("joinTimeId", joinTimeId);
+    formData.append("leave_time", new Date(Date.now()));
+
+    voteStore
+        .storeLeaveTime(props.room.id, authUser.value.id, formData)
+        .then((response) => {
+            if (response.status === 200) {
+                $toast.success("You have left the room");
             }
         });
 };
@@ -247,6 +263,7 @@ onUnmounted(() => {
     if (echoListenerInitialized) {
         leaveChannel();
     }
-    $toast.success("You have left the room");
+
+    leaveRoom();
 });
 </script>

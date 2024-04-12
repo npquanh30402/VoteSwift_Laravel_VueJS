@@ -74,7 +74,21 @@ class VoteController extends Controller
         $userJoinTime->join_time = $request->join_time;
         $userJoinTime->save();
 
-        return response()->json(['message' => 'Join time stored successfully']);
+        broadcast(new VotingProcess(user: Auth::user(), room: $room, broadcast_type: BroadcastType::VOTING_JOIN));
+
+        return response()->json($userJoinTime);
+    }
+
+    public function storeLeaveTime(Request $request, VotingRoom $room)
+    {
+        $joinTime = UserJoinTime::find($request->joinTimeId);
+        $joinTime->leave_time = $request->leave_time;
+
+        $joinTime->save();
+
+        broadcast(new VotingProcess(user: Auth::user(), room: $room, broadcast_type: BroadcastType::VOTING_LEAVE));
+
+        return response()->json(['message' => 'Leave time stored successfully']);
     }
 
     public function broadcastChoice(VotingRoom $room, Request $request)

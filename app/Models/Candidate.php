@@ -32,6 +32,8 @@ class Candidate extends Model
     {
         $this->candidate_title = Crypt::decryptString($this->candidate_title);
         $this->candidate_description = Crypt::decryptString($this->candidate_description);
+
+        return $this;
     }
 
     protected function candidateImage(): Attribute

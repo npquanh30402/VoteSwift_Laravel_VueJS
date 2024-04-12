@@ -17,6 +17,12 @@ export const useHelper = () => {
         return parts[parts.length - 1];
     };
 
+    const truncateText = (text, maxLength) => {
+        return text.length <= maxLength
+            ? text.substr(text.length - maxLength) + text
+            : "...";
+    };
+
     const truncateFileName = (fileName, maxLength) => {
         if (fileName.length <= maxLength) {
             return fileName;
@@ -32,11 +38,17 @@ export const useHelper = () => {
         });
     };
 
+    const generateUniqueKey = () => {
+        return `${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+    };
+
     return {
         removeSpecialCharacters,
         sanitizeAndTrim,
         extractFileName,
         truncateFileName,
         formattedDate,
+        truncateText,
+        generateUniqueKey,
     };
 };

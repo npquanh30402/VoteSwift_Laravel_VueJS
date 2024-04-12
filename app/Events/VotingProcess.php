@@ -3,6 +3,7 @@
 namespace App\Events;
 
 use App\Enums\BroadcastType;
+use App\Models\Candidate;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\VotingRoom;
@@ -24,13 +25,21 @@ class VotingProcess implements ShouldBroadcastNow
     public $room;
 
     // Voting Choices
+    public $question;
     public $question_type;
     public $question_id;
+    public $candidate;
     public $candidate_id;
 
     // Voting Chat
     public $message;
     public $plain_message;
+
+    // Voting Time
+    public $join_time;
+    public $leave_time;
+
+    public $created_at;
 
     public $broadcast_type;
 
@@ -48,11 +57,13 @@ class VotingProcess implements ShouldBroadcastNow
         }
 
         if ($question_id !== null) {
+            $this->question = Question::find($question_id)->decryptQuestion()->only(['id', 'question_title', 'question_description']);
             $this->question_id = $question_id;
             $this->question_type = Question::find($question_id)->only(['allow_multiple_votes']);
         }
 
         if ($candidate_id !== null) {
+            $this->candidate = Candidate::find($candidate_id)->decryptCandidate()->only(['id', 'candidate_title', 'candidate_description']);
             $this->candidate_id = $candidate_id;
         }
 
@@ -60,6 +71,16 @@ class VotingProcess implements ShouldBroadcastNow
             $this->message = $message;
             $this->plain_message = Crypt::decryptString($message->content);
         }
+
+        if ($broadcast_type === BroadcastType::VOTING_JOIN) {
+            $this->join_time = now();
+        }
+
+        if ($broadcast_type === BroadcastType::VOTING_LEAVE) {
+            $this->leave_time = now();
+        }
+
+        $this->created_at = now();
 
         $this->broadcast_type = $broadcast_type;
     }

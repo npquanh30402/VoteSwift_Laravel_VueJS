@@ -80,6 +80,7 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::get('/room/{room}/join', [VoteController::class, 'getJoinTimes'])->name('api.room.vote.get.join.times');
     Route::post('/room/{room}/join', [VoteController::class, 'storeJoinTime'])->name('api.room.vote.store.join.time');
+    Route::post('/room/{room}/leave', [VoteController::class, 'storeLeaveTime'])->name('api.room.vote.store.leave.time');
     Route::delete('/room/{room}/user/{user}/join', [VoteController::class, 'deleteJoinTime'])->name('api.room.vote.delete.join.time');
 
     Route::get('/room/{room}/choices', [VoteController::class, 'getUserChoices'])->name('api.room.vote.get.choices');
