@@ -69,7 +69,11 @@ class VotingChatController extends Controller
         $message->sender_id = auth()->user()->id;
         $message->room_id = $room->id;
 
-        $message->save();
+        if ($room->settings->chat_messages_saved)
+            $message->save();
+        else {
+            $message->created_at = now();
+        }
 
         broadcast(new VotingProcess(user: $user, room: $room, message: $message, broadcast_type: BroadcastType::VOTING_CHAT));
 
