@@ -6,6 +6,7 @@ import axios from "axios";
 export const useNotificationStore = defineStore("notification", () => {
     const notifications = ref({});
     const currentPage = ref(1);
+    const unreadCount = ref(0);
 
     const fetchNotifications = async (url = null, page = null) => {
         if (!!notifications.value[page]) {
@@ -25,6 +26,38 @@ export const useNotificationStore = defineStore("notification", () => {
         }
     };
 
+    const fetchUnreadNotificationsCount = async () => {
+        const response = await axios.get(
+            route("api.notifications.unreadCount"),
+        );
+        if (response.status === 200) {
+            unreadCount.value = response.data;
+        }
+    };
+
+    const addNotification = (notification, page) => {
+        try {
+            if (!notifications.value[page]) {
+                notifications.value[page] = {
+                    data: [],
+                };
+            }
+
+            notifications.value[page].data.unshift(notification);
+            unreadCount.value++;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const setupEchoListeners = (userId) => {
+        Echo.private("App.Models.User." + userId).notification(
+            (notification) => {
+                addNotification(notification, 1);
+            },
+        );
+    };
+
     const markAsRead = async (notificationId, page) => {
         let message = "";
         try {
@@ -42,6 +75,7 @@ export const useNotificationStore = defineStore("notification", () => {
 
                 if (response.status === 204) {
                     message = "Notification marked as read successfully.";
+                    unreadCount.value--;
                 }
             } else {
                 message = "Notification not found. Please try again.";
@@ -53,15 +87,14 @@ export const useNotificationStore = defineStore("notification", () => {
         return message;
     };
 
-    const addNotification = (notification, page) => {
-        notifications.value[page].data.unshift(notification);
-    };
-
     return {
         notifications,
         currentPage,
+        unreadCount,
         fetchNotifications,
         addNotification,
         markAsRead,
+        setupEchoListeners,
+        fetchUnreadNotificationsCount,
     };
 });

@@ -23,6 +23,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
 
     Route::get('/notifications/', [NotificationController::class, 'index'])->name('api.notifications.index');
+    Route::get('/notifications/unreadCount', [NotificationController::class, 'unreadCount'])->name('api.notifications.unreadCount');
     Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('api.notification.read');
 
     Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');

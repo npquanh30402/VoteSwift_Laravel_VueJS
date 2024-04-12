@@ -292,19 +292,8 @@ const handleMarkAsRead = async (id, page) => {
 };
 
 onMounted(() => {
-    setupEchoListeners();
-
     notificationStore.fetchNotifications();
 });
-
-const setupEchoListeners = () => {
-    Echo.private("App.Models.User." + authUser.value.id).notification(
-        (notification) => {
-            notificationStore.addNotification(notification, 1);
-            console.log(notifications.value);
-        },
-    );
-};
 
 function scrollToTop() {
     window.scrollTo({
