@@ -148,7 +148,7 @@
 <script setup>
 import { Link, router, usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUpdated, ref, watch } from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
 import { format } from "date-fns";
@@ -158,6 +158,11 @@ import NotificationList from "@/Pages/Users/Notification/NotificationList.vue";
 
 const props = defineProps(["authUser"]);
 const notificationStore = useNotificationStore();
+
+watch(
+    () => props.authUser,
+    () => initializeNotification(),
+);
 
 const music = computed(() => usePage().props.authUser.music);
 const $toast = useToast();
@@ -186,11 +191,23 @@ const handleLogout = () => {
     $toast.success("Logout successfully");
 };
 
-onMounted(() => {
-    notificationStore.setupEchoListeners(props.authUser.id);
-    notificationStore.fetchUnreadNotificationsCount();
-    notificationStore.fetchNotifications();
-});
+const initializeNotification = () => {
+    if (props.authUser) {
+        notificationStore.setupEchoListeners(props.authUser.id);
+        notificationStore.fetchUnreadNotificationsCount();
+        notificationStore.fetchNotifications();
+    }
+};
+
+onMounted(() => initializeNotification());
+
+// onUpdated(() => {
+//     if (props.authUser) {
+//         notificationStore.setupEchoListeners(props.authUser.id);
+//         notificationStore.fetchUnreadNotificationsCount();
+//         notificationStore.fetchNotifications();
+//     }
+// });
 
 watch(notificationStore.notifications, () => {
     const notification_page =
