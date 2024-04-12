@@ -4,38 +4,38 @@
             class="navbar navbar-dark navbar-expand-lg bg-dark shadow small mb-3"
         >
             <div class="container-fluid">
-                <Link class="navbar-brand" :href="route('homepage')">
+                <Link :href="route('homepage')" class="navbar-brand">
                     VoteSwift
                 </Link>
                 <button
-                    class="navbar-toggler border-0"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#navbarHeaderContent"
                     aria-controls="navbarHeaderContent"
                     aria-expanded="false"
                     aria-label="Toggle navigation"
+                    class="navbar-toggler border-0"
+                    data-bs-target="#navbarHeaderContent"
+                    data-bs-toggle="collapse"
+                    type="button"
                 >
                     <i class="bi bi-list"></i>
                 </button>
                 <div
-                    class="collapse navbar-collapse hstack justify-content-between"
                     id="navbarHeaderContent"
+                    class="collapse navbar-collapse hstack justify-content-between"
                 >
                     <div>
                         <ul
-                            class="navbar-nav me-auto mb-2 mb-lg-0"
                             v-if="authUser"
+                            class="navbar-nav me-auto mb-2 mb-lg-0"
                         >
                             <li class="nav-item">
-                                <Link class="nav-link" :href="route('homepage')"
+                                <Link :href="route('homepage')" class="nav-link"
                                     >Home
                                 </Link>
                             </li>
                             <li class="nav-item">
                                 <Link
-                                    class="nav-link"
                                     :href="route('public.room')"
+                                    class="nav-link"
                                     >Public Rooms
                                 </Link>
                             </li>
@@ -45,13 +45,13 @@
                     <div class="d-flex">
                         <div class="hstack gap-3">
                             <div
-                                class="me-3 hstack align-items-center"
                                 v-if="authUser"
+                                class="me-3 hstack align-items-center"
                             >
                                 <MusicPlayer
+                                    v-if="isMusicPlayerEnable"
                                     :music="music"
                                     class="me-5"
-                                    v-if="isMusicPlayerEnable"
                                     style="transform: scale(0.8)"
                                 />
 
@@ -85,8 +85,8 @@
 
                                     <template #popper>
                                         <NotificationList
-                                            :notifications="notifications"
                                             :currentPage="currentPage"
+                                            :notifications="notifications"
                                         />
                                     </template>
                                 </VMenu>
@@ -97,9 +97,9 @@
                                 >
                                     <img
                                         :src="authUser.avatar"
+                                        alt="Avatar"
                                         class="rounded-circle"
                                         style="width: 3rem"
-                                        alt="Avatar"
                                     />
                                     <span class="fs-4 mx-3 text-white">{{
                                         authUser.username
@@ -115,24 +115,24 @@
                                     <i class="bi bi-power"></i>
                                 </button>
                             </div>
-                            <div class="d-flex gap-3" v-else>
+                            <div v-else class="d-flex gap-3">
                                 <Link
-                                    :href="route('register')"
-                                    @click="registerOrLoginShow"
                                     v-if="registerOrLogin"
+                                    :href="route('register')"
                                     class="btn btn-sm btn-success"
-                                    preserve-state
                                     preserve-scroll
+                                    preserve-state
+                                    @click="registerOrLoginShow"
                                 >
                                     <i class="bi bi-box-arrow-in-right"></i>
                                 </Link>
                                 <Link
-                                    :href="route('login')"
-                                    @click="registerOrLoginShow"
                                     v-if="!registerOrLogin"
+                                    :href="route('login')"
                                     class="btn btn-sm btn-secondary"
-                                    preserve-state
                                     preserve-scroll
+                                    preserve-state
+                                    @click="registerOrLoginShow"
                                 >
                                     <i class="bi bi-door-open"></i>
                                 </Link>
@@ -158,11 +158,6 @@ import NotificationList from "@/Pages/Users/Notification/NotificationList.vue";
 
 const props = defineProps(["authUser"]);
 const notificationStore = useNotificationStore();
-
-watch(
-    () => props.authUser,
-    () => initializeNotification(),
-);
 
 const music = computed(() => usePage().props.authUser.music);
 const $toast = useToast();
@@ -195,19 +190,16 @@ const initializeNotification = () => {
     if (props.authUser) {
         notificationStore.setupEchoListeners(props.authUser.id);
         notificationStore.fetchUnreadNotificationsCount();
-        notificationStore.fetchNotifications();
+        notificationStore.fetchNotifications(null, currentPage.value);
     }
 };
 
 onMounted(() => initializeNotification());
 
-// onUpdated(() => {
-//     if (props.authUser) {
-//         notificationStore.setupEchoListeners(props.authUser.id);
-//         notificationStore.fetchUnreadNotificationsCount();
-//         notificationStore.fetchNotifications();
-//     }
-// });
+watch(
+    () => props.authUser,
+    () => initializeNotification(),
+);
 
 watch(notificationStore.notifications, () => {
     const notification_page =
