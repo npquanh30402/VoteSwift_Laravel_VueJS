@@ -237,6 +237,8 @@ const leaveRoom = () => {
 };
 
 onMounted(() => {
+    window.addEventListener("beforeunload", leaveRoom);
+
     joinRoom();
 
     votingSettingStore
