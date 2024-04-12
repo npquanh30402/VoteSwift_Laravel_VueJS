@@ -29,6 +29,7 @@ return new class extends Migration {
 
             // Realtime settings
             $table->boolean('realtime_enabled')->default(false);
+            $table->boolean('voters_can_see_realtime_results')->default(false);
 
             // General voting room settings
             $table->boolean('allow_anonymous_voting')->default(false);

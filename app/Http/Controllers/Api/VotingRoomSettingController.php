@@ -23,48 +23,6 @@ use Illuminate\Support\Str;
 
 class VotingRoomSettingController extends Controller
 {
-    public function createQRCodeForPassword(VotingRoom $room, string $password)
-    {
-        $token = Str::random(64);
-
-        $endTime = Carbon::parse($room->end_time);
-        $durationUntilEnd = $endTime->diffInSeconds(now());
-
-        Cache::put("room{$room->id}" . "_pwl.tkn.{$token}", $password, $durationUntilEnd);
-
-        $passwordlessUrl = route('vote.main', [
-            'token' => $token,
-            'room' => $room->id
-        ]);
-
-        $writer = new PngWriter();
-
-        $qrCode = QrCode::create($passwordlessUrl)
-            ->setEncoding(new Encoding('UTF-8'))
-            ->setErrorCorrectionLevel(ErrorCorrectionLevel::High)
-            ->setSize(300)
-            ->setMargin(10)
-            ->setRoundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->setForegroundColor(new Color(0, 0, 0))
-            ->setBackgroundColor(new Color(255, 255, 255));
-
-        $label = Label::create('Scan to vote for room ' . $room->id)
-            ->setTextColor(new Color(255, 0, 0));
-
-        $result = $writer->write($qrCode, null, $label);
-
-        $writer->validateResult($result, $passwordlessUrl);
-
-        $fileName = $room->id . '_' . uniqid('', true) . '.png';
-        $directory = 'public/images/password/';
-
-        File::makeDirectory(storage_path('app/' . $directory), 0777, true, true);
-
-        $result->saveToFile(storage_path('app/' . $directory . $fileName));
-
-        return $fileName;
-    }
-
     public function getSettings(VotingRoom $room)
     {
         $settings = $room->settings;
@@ -124,6 +82,10 @@ class VotingRoomSettingController extends Controller
                 $updates['realtime_enabled'] = $request->realtime_enabled === 'true';
             }
 
+            if (isset($request->voters_can_see_realtime_results)) {
+                $updates['voters_can_see_realtime_results'] = $request->voters_can_see_realtime_results === 'true';
+            }
+
             $room->settings()->update($updates);
 
             $updatedSettings = $room->settings()->first();
@@ -132,5 +94,47 @@ class VotingRoomSettingController extends Controller
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function createQRCodeForPassword(VotingRoom $room, string $password)
+    {
+        $token = Str::random(64);
+
+        $endTime = Carbon::parse($room->end_time);
+        $durationUntilEnd = $endTime->diffInSeconds(now());
+
+        Cache::put("room{$room->id}" . "_pwl.tkn.{$token}", $password, $durationUntilEnd);
+
+        $passwordlessUrl = route('vote.main', [
+            'token' => $token,
+            'room' => $room->id
+        ]);
+
+        $writer = new PngWriter();
+
+        $qrCode = QrCode::create($passwordlessUrl)
+            ->setEncoding(new Encoding('UTF-8'))
+            ->setErrorCorrectionLevel(ErrorCorrectionLevel::High)
+            ->setSize(300)
+            ->setMargin(10)
+            ->setRoundBlockSizeMode(RoundBlockSizeMode::Margin)
+            ->setForegroundColor(new Color(0, 0, 0))
+            ->setBackgroundColor(new Color(255, 255, 255));
+
+        $label = Label::create('Scan to vote for room ' . $room->id)
+            ->setTextColor(new Color(255, 0, 0));
+
+        $result = $writer->write($qrCode, null, $label);
+
+        $writer->validateResult($result, $passwordlessUrl);
+
+        $fileName = $room->id . '_' . uniqid('', true) . '.png';
+        $directory = 'public/images/password/';
+
+        File::makeDirectory(storage_path('app/' . $directory), 0777, true, true);
+
+        $result->saveToFile(storage_path('app/' . $directory . $fileName));
+
+        return $fileName;
     }
 }

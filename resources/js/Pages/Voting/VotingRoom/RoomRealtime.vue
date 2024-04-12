@@ -4,18 +4,44 @@
             <div
                 class="hstack gap-3 align-items-center justify-content-between"
             >
-                <div class="form-check form-switch">
-                    <input
-                        id="chatSwitch"
-                        v-model="isRealTimeVotingEnable"
-                        class="form-check-input"
-                        role="switch"
-                        type="checkbox"
-                        @change="toggleRealTimeVoting"
-                    />
-                    <label class="form-check-label" for="realTimeVotingSwitch"
-                        >Enable Real-time Voting</label
+                <div
+                    class="hstack gap-3 justify-content-center align-items-center"
+                >
+                    <div class="form-check form-switch">
+                        <input
+                            id="realTimeVotingSwitch"
+                            v-model="isRealTimeVotingEnable"
+                            class="form-check-input"
+                            role="switch"
+                            type="checkbox"
+                            @change="toggleRealTimeVoting"
+                        />
+                        <label
+                            class="form-check-label"
+                            for="realTimeVotingSwitch"
+                            >Enable Real-time Voting</label
+                        >
+                    </div>
+                    <div
+                        :class="[
+                            isRealTimeVotingEnable ? '' : 'un-interactive',
+                        ]"
+                        class="form-check form-switch"
                     >
+                        <input
+                            id="voterRealtimeResultSwitch"
+                            v-model="voterRealtimeResultEnabled"
+                            class="form-check-input"
+                            role="switch"
+                            type="checkbox"
+                            @change="toggleVoterRealtimeResult"
+                        />
+                        <label
+                            class="form-check-label"
+                            for="voterRealtimeResultSwitch"
+                            >Allow Voters to See Real-time Results</label
+                        >
+                    </div>
                 </div>
                 <div :class="[isRealTimeVotingEnable ? '' : 'un-interactive']">
                     <button
@@ -169,6 +195,7 @@ const authUser = computed(() => usePage().props.authUser.user);
 const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);
 
 const isRealTimeVotingEnable = ref(false);
+const voterRealtimeResultEnabled = ref(false);
 
 const channelBroadcast = {
     channelName: "voting.process." + props.room.id,
@@ -199,6 +226,8 @@ const setupEchoListeners = () => {
 
 watch(roomSettings, () => {
     isRealTimeVotingEnable.value = roomSettings.value?.realtime_enabled === 1;
+    voterRealtimeResultEnabled.value =
+        roomSettings.value?.voters_can_see_realtime_results === 1;
 });
 
 const updateSetting = (key, value) => {
@@ -213,15 +242,26 @@ const updateSetting = (key, value) => {
 
 const toggleRealTimeVoting = () => {
     updateSetting("realtime_enabled", isRealTimeVotingEnable.value);
+
+    if (isRealTimeVotingEnable.value === false)
+        Echo.leave(channelBroadcast.channelName);
+    else setupEchoListeners();
+};
+
+const toggleVoterRealtimeResult = () => {
+    updateSetting(
+        "voters_can_see_realtime_results",
+        voterRealtimeResultEnabled.value,
+    );
 };
 
 onMounted(() => {
-    setupEchoListeners();
-
     votingSettingStore.fetchSettings(props.room.id).then(() => {
         if (roomSettings) {
             isRealTimeVotingEnable.value =
                 roomSettings.value?.realtime_enabled === 1;
+
+            if (isRealTimeVotingEnable.value) setupEchoListeners();
         }
     });
 });

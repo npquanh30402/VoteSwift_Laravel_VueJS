@@ -25,6 +25,7 @@
                 :onlineUsers="onlineUsers"
                 :owner="owner"
                 :room="room"
+                :roomSettings="roomSettings"
                 style="z-index: 999"
             />
             <VotingChat
@@ -164,11 +165,15 @@ const setupPresenceChannel = () => {
     const handleJoining = (user) => {
         onlineUsers.value.push(user);
         updateOnlineUsersAndReadiness();
+
+        $toast.info(user.username + " has join the room");
     };
 
     const handleLeaving = (user) => {
         onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
         updateOnlineUsersAndReadiness();
+
+        $toast.info(user.username + " has left the room");
     };
 
     function handleVotingStartBroadcast(e) {
@@ -233,7 +238,8 @@ const leaveRoom = () => {
             if (response.status === 200) {
                 $toast.success("You have left the room");
             }
-        });
+        })
+        .catch(() => $toast.error("Failed to leave the room"));
 };
 
 onMounted(() => {
