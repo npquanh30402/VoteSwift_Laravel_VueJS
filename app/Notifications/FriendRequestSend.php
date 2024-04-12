@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class FriendRequestSend extends Notification implements ShouldQueue
+class FriendRequestSend extends Notification implements ShouldQueue, ShouldBroadcastNow
 {
     use Queueable;
 
@@ -29,7 +31,7 @@ class FriendRequestSend extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        return ['database', 'mail', 'broadcast'];
     }
 
     /**
@@ -55,5 +57,12 @@ class FriendRequestSend extends Notification implements ShouldQueue
             'sender_username' => $this->sender->username,
             'sender_avatar' => $this->sender->avatar
         ];
+    }
+
+    public function toBroadcast($notifiable): BroadcastMessage
+    {
+        $notification = \App\Models\Notification::find($this->id);
+
+        return new BroadcastMessage($notification->toArray());
     }
 }

@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\VotingRoom;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class RoomPublish extends Notification implements ShouldQueue
+class RoomPublish extends Notification implements ShouldQueue, ShouldBroadcastNow
 {
     use Queueable;
 
@@ -26,7 +28,7 @@ class RoomPublish extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', 'broadcast'];
     }
 
     /**
@@ -50,5 +52,12 @@ class RoomPublish extends Notification implements ShouldQueue
         return [
             'room_id' => $this->room->id
         ];
+    }
+
+    public function toBroadcast($notifiable): BroadcastMessage
+    {
+        $notification = \App\Models\Notification::find($this->id);
+
+        return new BroadcastMessage($notification->toArray());
     }
 }

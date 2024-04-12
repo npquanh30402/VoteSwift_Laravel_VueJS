@@ -4,11 +4,13 @@ namespace App\Notifications;
 
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class FriendRequestAccepted extends Notification
+class FriendRequestAccepted extends Notification implements ShouldQueue, ShouldBroadcastNow
 {
     use Queueable;
 
@@ -29,7 +31,7 @@ class FriendRequestAccepted extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail', 'broadcast'];
     }
 
     /**
@@ -38,8 +40,8 @@ class FriendRequestAccepted extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
+            ->line('Your friend request has been accepted')
+            ->action('Visit your profile', route('profile', $this->recipient->username))
             ->line('Thank you for using our application!');
     }
 
@@ -55,5 +57,12 @@ class FriendRequestAccepted extends Notification
             'recipient_username' => $this->recipient->username,
             'recipient_avatar' => $this->recipient->avatar
         ];
+    }
+
+    public function toBroadcast($notifiable): BroadcastMessage
+    {
+        $notification = \App\Models\Notification::find($this->id);
+
+        return new BroadcastMessage($notification->toArray());
     }
 }
