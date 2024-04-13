@@ -2,28 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\VotingRoomRequest;
 use App\Models\Vote;
 use App\Models\VotingRoom;
-use App\Notifications\RoomCreation;
 use App\Notifications\RoomPublish;
-use App\Services\VotingRoomService;
-use Carbon\Carbon;
-use Exception;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Inertia\Inertia;
 
 class VotingRoomController extends Controller
 {
-    protected $votingRoomService;
-
-    public function __construct(VotingRoomService $votingRoomService)
-    {
-        $this->votingRoomService = $votingRoomService;
-    }
-
     public function publishRoom(VotingRoom $room)
     {
         if ($room->is_published) {
@@ -63,41 +49,6 @@ class VotingRoomController extends Controller
         return Inertia::render('Voting/PublicRooms', compact('public_rooms'));
     }
 
-    public function delete(VotingRoom $room): RedirectResponse
-    {
-        try {
-            $this->votingRoomService->deleteVotingRoom($room);
-            return redirect()->route('dashboard.user')->with('success', 'Voting room deleted successfully!');
-        } catch (Exception $e) {
-            return back()->with('error', 'Error deleting voting room: ' . $e->getMessage());
-        }
-    }
-
-    public function update(Request $request, VotingRoom $room)
-    {
-        if (isset($request->room_name)) {
-            $room->room_name = Crypt::encryptString(strip_tags($request->room_name));
-        }
-
-        if (isset($request->room_description)) {
-            $room->room_description = Crypt::encryptString(strip_tags($request->room_description));
-        }
-
-        if (isset($request->activeTz)) {
-            $room->timezone = $request->activeTz['tz'];
-        }
-
-        if (isset($request->date)) {
-            $start_date = Carbon::parse($request->date[0])->setTimezone('UTC');
-            $end_date = Carbon::parse($request->date[1])->setTimezone('UTC');
-
-            $room->start_time = $start_date;
-            $room->end_time = $end_date;
-        }
-
-        $room->save();
-    }
-
     public function dashboard(VotingRoom $room)
     {
         $this->authorize('view', $room);
@@ -113,30 +64,5 @@ class VotingRoomController extends Controller
     public function create()
     {
         return Inertia::render('Voting/VotingRoom/CreateRoom');
-    }
-
-    public function store(VotingRoomRequest $request)
-    {
-        try {
-            if (auth()->user()->rooms()->where('room_name', $request->room_name)->exists()) {
-                return back()->with('error', 'Voting room already exists!');
-            }
-
-            $room = new VotingRoom([
-                'room_name' => Crypt::encryptString(strip_tags($request->room_name)),
-                'room_description' => Crypt::encryptString(strip_tags($request->room_description)),
-                'user_id' => auth()->user()->id,
-            ]);
-
-            $room->save();
-
-            $room->settings()->create();
-
-            $room->user->notify(new RoomCreation($room));
-
-            return redirect()->route('dashboard.user');
-        } catch (Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
     }
 }

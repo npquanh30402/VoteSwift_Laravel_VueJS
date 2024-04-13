@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\BroadcastType;
-use App\Events\VotingChoice;
 use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
 use App\Models\User;

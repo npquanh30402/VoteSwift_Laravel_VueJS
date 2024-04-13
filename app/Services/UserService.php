@@ -48,54 +48,6 @@ class UserService
         }
     }
 
-    public function login($requestData)
-    {
-        try {
-            $credentials = $requestData->only('username', 'password');
-            $remember = $requestData->remember_me;
-            
-            if (Auth::attempt($credentials, $remember)) {
-                $requestData->session()->regenerate();
-
-                return true;
-            }
-
-            return false;
-        } catch (Exception $e) {
-            Log::debug('Login error: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function register($requestData)
-    {
-        try {
-            $user = new User();
-            $user->username = $requestData['username'];
-            $user->email = $requestData['email'];
-            $user->password = Hash::make($requestData['password']);
-
-            $user->save();
-
-            return $user;
-        } catch (Exception $e) {
-            Log::debug('Error during user registration: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function logout($requestData)
-    {
-        try {
-            Auth::logout();
-            $requestData->session()->invalidate();
-            $requestData->session()->regenerateToken();
-        } catch (Exception $e) {
-            Log::debug('Error during logout: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
     public function getFriendIds(User $user)
     {
         return $user->acceptedFriendsFrom->merge($user->acceptedFriendsTo)->pluck('id')->toArray();

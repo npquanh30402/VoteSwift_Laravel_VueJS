@@ -5,72 +5,65 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VotingRoomRequest;
 use App\Models\VotingRoom;
-use App\Notifications\RoomCreation;
-use App\Services\HelperService;
-use Carbon\Carbon;
+use App\Services\NotificationService;
+use App\Services\VotingRoomService;
 use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
 
 class VotingRoomController extends Controller
 {
-    public function index()
-    {
-        $rooms = auth()->user()->rooms()->get()->transform(function ($room) {
-            return $room->decryptVotingRoom();
-        });
+    protected VotingRoomService $votingRoomService;
+    protected NotificationService $notificationService;
 
-        return response()->json($rooms);
+    public function __construct(VotingRoomService $votingRoomService, NotificationService $notificationService)
+    {
+        $this->votingRoomService = $votingRoomService;
+        $this->notificationService = $notificationService;
     }
 
-    public function update(Request $request, VotingRoom $room)
+    public function index(): JsonResponse
     {
-        if (isset($request->room_name)) {
-            $room->room_name = HelperService::encryptAndStripTags($request->room_name);
+        try {
+            $rooms = $this->votingRoomService->getUserRooms();
+
+            return response()->json($rooms);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error getting voting rooms: ' . $e->getMessage()], 500);
         }
-
-        if (isset($request->room_description)) {
-            $room->room_description = HelperService::encryptAndStripTags($request->room_description);
-        }
-
-        if (isset($request->activeTz)) {
-            $room->timezone = $request->activeTz;
-        }
-
-        if (isset($request->start_time)) {
-            $room->start_time = Carbon::parse($request->start_time)->setTimezone('UTC');
-        }
-
-        if (isset($request->end_time)) {
-            $room->end_time = Carbon::parse($request->end_time)->setTimezone('UTC');
-        }
-
-        $room->save();
-
-        return response()->json($room->decryptVotingRoom());
     }
 
-    public function delete(VotingRoom $room)
+    public function update(Request $request, VotingRoom $room): JsonResponse
     {
-        $room->delete();
+        try {
+            $room = $this->votingRoomService->updateVotingRoom($request, $room);
 
-        return response()->json(null, 204);
+            return response()->json($room->decryptVotingRoom());
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error updating voting room: ' . $e->getMessage()], 500);
+        }
     }
 
-    public function store(VotingRoomRequest $request)
+    public function delete(VotingRoom $room): ?JsonResponse
     {
-        $room = new VotingRoom([
-            'room_name' => HelperService::encryptAndStripTags($request->room_name),
-            'room_description' => HelperService::encryptAndStripTags($request->room_description),
-            'user_id' => auth()->user()->id,
-        ]);
+        try {
+            $this->votingRoomService->deleteVotingRoom($room);
 
-        $room->save();
+            return response()->json(['message' => 'Voting room deleted successfully!'], 204);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error deleting voting room: ' . $e->getMessage()], 500);
+        }
+    }
 
-        $room->settings()->create();
+    public function store(VotingRoomRequest $request): ?JsonResponse
+    {
+        try {
+            $room = $this->votingRoomService->storeVotingRoom($request);
+            $this->notificationService->sendRoomCreationNotification($room);
 
-        $room->user->notify(new RoomCreation($room));
-
-        return response()->json($room->decryptVotingRoom(), 201);
+            return response()->json($room->decryptVotingRoom(), 201);
+        } catch (Exception $e) {
+            return response()->json(['message' => 'Error creating voting room: ' . $e->getMessage()], 500);
+        }
     }
 }

@@ -3,57 +3,67 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Services\UserService;
+use App\Services\AuthService;
+use App\Services\NotificationService;
 use Exception;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
 use RuntimeException;
 
 class AuthController extends Controller
 {
-    protected $userService;
+    protected AuthService $authService;
+    protected NotificationService $notificationService;
 
-    public function __construct(UserService $userService)
+    public function __construct(AuthService $authService, NotificationService $notificationService)
     {
-        $this->userService = $userService;
+        $this->authService = $authService;
+        $this->notificationService = $notificationService;
     }
 
-    public function getVerifyPage()
-    {
-        return Inertia::render('Users/Auth/VerifyEmail');
-    }
-
-    public function verifyEmail(EmailVerificationRequest $request)
-    {
-        $request->fulfill();
-
-        return redirect()->route('dashboard.user');
-    }
-
-    public function sendEmailVerificationNotification(Request $request)
-    {
-        $request->user()->sendEmailVerificationNotification();
-    }
-
-    public function logout(Request $request)
+    public function verifyEmail(EmailVerificationRequest $request): ?RedirectResponse
     {
         try {
-            $this->userService->logout($request);
-            return redirect()->route('homepage');
+            $this->authService->emailVerification($request);
+
+            return redirect()->intended();
         } catch (Exception $e) {
             return back()->withErrors([
-                'logout' => $e->getMessage()
+                'message' => 'Email verification failed: ' . $e->getMessage()
             ]);
         }
     }
 
-    public function register(UserRequest $request)
+    public function sendEmailVerificationNotification(Request $request): void
     {
         try {
-            $user = $this->userService->register($request);
+            $this->notificationService->sendEmailVerificationNotification($request);
+        } catch (Exception $e) {
+            Log::debug('Error sending email verification notification: ' . $e->getMessage());
+        }
+    }
+
+    public function logout(Request $request): ?RedirectResponse
+    {
+        try {
+            $this->authService->userLogout($request);
+
+            return redirect()->route('homepage');
+        } catch (Exception $e) {
+            return back()->withErrors([
+                'message' => 'Logout failed: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function register(UserRequest $request): ?RedirectResponse
+    {
+        try {
+            $user = $this->authService->userRegister($request);
 
             if (!$user) {
                 throw new RuntimeException("Registration failed.");
@@ -64,32 +74,37 @@ class AuthController extends Controller
             return redirect()->route('homepage');
         } catch (Exception $e) {
             return back()->withErrors([
-                'register' => $e->getMessage()
+                'message' => 'Registration failed: ' . $e->getMessage()
             ]);
         }
     }
 
-    public function login(UserRequest $request)
+    public function login(UserRequest $request): ?RedirectResponse
     {
         try {
-            if ($this->userService->login($request)) {
+            if ($this->authService->userLogin($request)) {
                 return redirect()->intended();
             }
+
             throw new RuntimeException("Login failed.");
         } catch (Exception $e) {
             return back()->withErrors([
-                'login' => $e->getMessage()
+                'message' => 'Login failed: ' . $e->getMessage()
             ]);
         }
-
     }
 
-    public function getRegistrationForm()
+    public function getVerifyPage(): Response
+    {
+        return Inertia::render('Users/Auth/VerifyEmail');
+    }
+
+    public function getRegistrationForm(): Response
     {
         return Inertia::render('Users/Auth/Register');
     }
 
-    public function getLoginForm()
+    public function getLoginForm(): Response
     {
         return Inertia::render('Users/Auth/Login');
     }

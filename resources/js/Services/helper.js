@@ -38,8 +38,24 @@ export const useHelper = () => {
         });
     };
 
+    function formatHour(date) {
+        return new Date(date).toLocaleString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+        });
+    }
+
     const generateUniqueKey = () => {
         return `${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+    };
+
+    const isImage = (file) => {
+        const extension = file.split(".").pop().toLowerCase();
+
+        const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp"];
+
+        return imageExtensions.includes(extension);
     };
 
     return {
@@ -47,8 +63,10 @@ export const useHelper = () => {
         sanitizeAndTrim,
         extractFileName,
         truncateFileName,
+        formatHour,
         formattedDate,
         truncateText,
         generateUniqueKey,
+        isImage,
     };
 };

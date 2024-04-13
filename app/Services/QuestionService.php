@@ -11,15 +11,83 @@ use Illuminate\Support\Facades\Storage;
 
 class QuestionService
 {
-    public function createQuestion(VotingRoom $room, Request $request): void
+    /**
+     * @throws Exception
+     */
+    public function getRoomQuestions(VotingRoom $room)
+    {
+        try {
+            return $room->questions->each(function ($question) {
+                $question->decryptQuestion();
+            });
+        } catch (Exception $e) {
+            Log::error('Error getting room questions: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function updateQuestion(Question $question, Request $request): ?Question
+    {
+        try {
+            $question->question_title = HelperService::encryptAndStripTags($request->question_title);
+
+            $question->question_description = HelperService::encryptAndStripTags($request->question_description);
+
+            if ($request->allow_multiple_votes) {
+                $question->allow_multiple_votes = $request->allow_multiple_votes;
+            }
+
+            if ($request->allow_skipping) {
+                $question->allow_skipping = $request->allow_skipping;
+            }
+
+            if ($request->hasFile('question_image')) {
+                $oldImage = $question->question_image;
+                $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
+
+                $fileName = HelperService::sanitizeFileName($fileName);
+
+                $request->question_image->storeAs('uploads/questions', $fileName, 'public');
+                $question->question_image = $fileName;
+
+                if ($oldImage !== $question->question_image) {
+                    Storage::delete(str_replace('/storage/', 'public/', $oldImage));
+                }
+            }
+
+            $question->save();
+
+            return $question;
+        } catch (Exception $e) {
+            Log::error('Error updating question: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function storeQuestion(VotingRoom $room, Request $request): ?Question
     {
         try {
             $question = new Question();
 
             $question->question_title = HelperService::encryptAndStripTags($request->question_title);
 
-            $question->question_description = HelperService::encryptAndStripTags($request->question_description);
+            if (isset($request->question_description)) {
+                $question->question_description = HelperService::encryptAndStripTags($request->question_description);
+            }
 
+            if ($request->allow_multiple_votes) {
+                $question->allow_multiple_votes = $request->allow_multiple_votes;
+            }
+
+            if ($request->allow_skipping) {
+                $question->allow_skipping = $request->allow_skipping;
+            }
 
             if ($request->hasFile('question_image')) {
                 $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
@@ -29,48 +97,15 @@ class QuestionService
                 $request->question_image->storeAs('uploads/questions', $fileName, 'public');
                 $question->question_image = $fileName;
             }
-
-            $question->allow_multiple_votes = $request->allow_multiple_votes;
-
-            $question->allow_skipping = $request->allow_skipping;
 
             $question->voting_room_id = $room->id;
 
             $question->save();
+
+            return $question;
         } catch (Exception $e) {
-            Log::debug('Error creating question: ' . $e->getMessage());
-        }
-    }
-
-    public function updateQuestion(Question $question, Request $request)
-    {
-        try {
-            $question->question_title = HelperService::encryptAndStripTags($request->question_title);
-
-            $question->question_description = HelperService::encryptAndStripTags($request->question_description);
-
-            $oldImage = $question->question_image;
-            if ($request->hasFile('question_image')) {
-
-                $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
-
-                $fileName = HelperService::sanitizeFileName($fileName);
-
-                $request->question_image->storeAs('uploads/questions', $fileName, 'public');
-                $question->question_image = $fileName;
-            }
-
-            if ($oldImage !== $question->question_image) {
-                Storage::delete(str_replace('/storage/', 'public/', $oldImage));
-            }
-
-            $question->allow_multiple_votes = $request->allow_multiple_votes;
-
-            $question->allow_skipping = $request->allow_skipping;
-            
-            $question->save();
-        } catch (Exception $e) {
-            Log::debug('Error updating question: ' . $e->getMessage());
+            Log::error('Error creating question: ' . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -79,7 +114,8 @@ class QuestionService
         try {
             $question->delete();
         } catch (Exception $e) {
-            Log::debug('Error deleting question: ' . $e->getMessage());
+            Log::error('Error deleting question: ' . $e->getMessage());
+            throw $e;
         }
     }
 }

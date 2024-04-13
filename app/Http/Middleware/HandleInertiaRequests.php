@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -53,17 +52,9 @@ class HandleInertiaRequests extends Middleware
             ],
             'authUser' => [
                 'user' => $dummyUser ?? null,
-                'notificationCount' => $request->user()?->unreadNotifications()->count() ?? null,
                 'settings' => $request->user()?->settings ?? null,
                 'music' => $request->user()?->music ?? null,
-            ],
-            'urlPrev' => function () {
-                if (url()->previous() !== route('login') && url()->previous() !== '' && url()->previous() !== url()->current()) {
-                    return url()->previous();
-                }
-
-                return 'empty';
-            },
+            ]
         ]);
     }
 }

@@ -5,92 +5,65 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\VotingRoom;
-use App\Services\HelperService;
+use App\Services\QuestionService;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class QuestionController extends Controller
 {
-    public function index(VotingRoom $room)
-    {
-        $roomQuestions = $room->questions->each(function ($question) {
-            $question->decryptQuestion();
-        });
+    protected QuestionService $questionService;
 
-        return response()->json($roomQuestions);
+    public function __construct(QuestionService $questionService)
+    {
+        $this->questionService = $questionService;
     }
 
-    public function update(Question $question, Request $request)
+    public function index(VotingRoom $room): ?JsonResponse
     {
-        $question->question_title = HelperService::encryptAndStripTags($request->question_title);
+        try {
+            $questions = $this->questionService->getRoomQuestions($room);
 
-        $question->question_description = HelperService::encryptAndStripTags($request->question_description);
-
-        if ($request->allow_multiple_votes) {
-            $question->allow_multiple_votes = $request->allow_multiple_votes;
+            return response()->json($questions);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error getting questions: ' . $e->getMessage()], 500);
         }
+    }
 
-        if ($request->allow_skipping) {
-            $question->allow_skipping = $request->allow_skipping;
+    public function update(Question $question, Request $request): ?JsonResponse
+    {
+        try {
+            $question = $this->questionService->updateQuestion($question, $request);
+
+            return response()->json($question->decryptQuestion());
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error updating question: ' . $e->getMessage()], 500);
         }
+    }
 
-        if ($request->hasFile('question_image')) {
-            $oldImage = $question->question_image;
-            $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
+    public function delete(Question $question): ?JsonResponse
+    {
+        try {
+            $this->questionService->deleteQuestion($question);
 
-            $fileName = HelperService::sanitizeFileName($fileName);
+            return response()->json(['message' => 'Question deleted successfully'], 204);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error deleting question: ' . $e->getMessage()], 500);
+        }
+    }
 
-            $request->question_image->storeAs('uploads/questions', $fileName, 'public');
-            $question->question_image = $fileName;
+    public function store(VotingRoom $room, Request $request): ?JsonResponse
+    {
+        try {
+            $question = $this->questionService->storeQuestion($room, $request);
 
-            if ($oldImage !== $question->question_image) {
-                Storage::delete(str_replace('/storage/', 'public/', $oldImage));
+            if ($question) {
+                return response()->json($question->decryptQuestion(), 201);
             }
+
+            return response()->json(['error' => 'Error creating question'], 500);
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Error creating question: ' . $e->getMessage()], 500);
         }
-
-        $question->save();
-
-        return response()->json($question->decryptQuestion());
-    }
-
-    public function delete(Question $question)
-    {
-        $question->delete();
-
-        return response()->json(null, 204);
-    }
-
-    public function store(VotingRoom $room, Request $request)
-    {
-        $question = new Question();
-
-        $question->question_title = HelperService::encryptAndStripTags($request->question_title);
-
-        if (isset($request->question_description)) {
-            $question->question_description = HelperService::encryptAndStripTags($request->question_description);
-        }
-
-        if ($request->allow_multiple_votes) {
-            $question->allow_multiple_votes = $request->allow_multiple_votes;
-        }
-
-        if ($request->allow_skipping) {
-            $question->allow_skipping = $request->allow_skipping;
-        }
-
-        if ($request->hasFile('question_image')) {
-            $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
-
-            $fileName = HelperService::sanitizeFileName($fileName);
-
-            $request->question_image->storeAs('uploads/questions', $fileName, 'public');
-            $question->question_image = $fileName;
-        }
-
-        $question->voting_room_id = $room->id;
-
-        $question->save();
-
-        return response()->json($question->decryptQuestion(), 201);
     }
 }

@@ -7,8 +7,8 @@ use Illuminate\Support\Str;
 
 class HelperService
 {
-    private static $forbiddenCharacters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '='];
-    private static $replacementCharacter = '_';
+    private static array $forbiddenCharacters = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '='];
+    private static string $replacementCharacter = '_';
 
     public static function sanitizeFileName(string $fileName): string
     {
@@ -19,7 +19,7 @@ class HelperService
         return Str::of($fileName)->replace(' ', self::$replacementCharacter);
     }
 
-    public static function encryptAndStripTags($input)
+    public static function encryptAndStripTags($input): string
     {
         return Crypt::encryptString(strip_tags($input));
     }
