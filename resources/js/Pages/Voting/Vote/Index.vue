@@ -37,6 +37,8 @@
             />
         </div>
 
+        <VotingNote :room="room" :roomSettings="roomSettings" />
+
         <div>
             <h3>Time remaining:</h3>
             <VotingClock :date="room.end_time" />
@@ -82,6 +84,7 @@ import { useInvitationStore } from "@/Stores/invitations.js";
 import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import { useAttachmentStore } from "@/Stores/attachments.js";
 import VotingSubmit from "@/Pages/Voting/Vote/VotingSubmit.vue";
+import VotingNote from "@/Pages/Voting/Vote/Note/VotingNote.vue";
 
 const props = defineProps(["room", "owner"]);
 const $toast = useToast();
@@ -110,7 +113,7 @@ const tabs = {
     VotingSubmit,
 };
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
-const currentTab = ref("VotingSubmit");
+const currentTab = ref("Welcome");
 
 watch(roomSettings, () => {
     isReadyToStart.value = roomSettings.value?.wait_for_voters === 0;
@@ -209,7 +212,7 @@ const leaveRoom = () => {
         .storeLeaveTime(props.room.id, authUser.value.id, formData)
         .then((response) => {
             if (response.status === 200) {
-                $toast.success("You have left the room");
+                $toast.info("You have left the room");
                 window.removeEventListener("beforeunload", leaveRoom);
             }
         })

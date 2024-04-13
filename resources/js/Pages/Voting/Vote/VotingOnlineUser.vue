@@ -6,18 +6,17 @@
                 @click="toggleUserOnline"
             >
                 <i class="bi bi-people-fill"></i>
-                <!--                <span-->
-                <!--                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"-->
-                <!--                    v-if="unreadMessagesCount && unreadMessagesCount[room.id] > 0">-->
-                <!--                {{-->
-                <!--                        unreadMessagesCount[room.id]-->
-                <!--                    }}-->
-                <!--            </span>-->
             </button>
         </div>
-        <div class="popup-chat" style="z-index: 999">
+        <div>
             <transition name="fade">
-                <div v-if="showOnlineUser" class="card shadow">
+                <div
+                    v-if="showOnlineUser"
+                    ref="el"
+                    :style="style"
+                    class="card shadow"
+                    style="position: fixed; z-index: 1"
+                >
                     <div class="card-header d-flex justify-content-between">
                         <div
                             class="d-flex justify-content-center align-items-center gap-3"
@@ -167,6 +166,7 @@
 import { computed, ref } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
+import { useDraggable } from "@vueuse/core";
 
 const props = defineProps([
     "room",
@@ -176,6 +176,11 @@ const props = defineProps([
     "owner",
     "roomSettings",
 ]);
+
+const el = ref();
+const { x, y, style } = useDraggable(el, {
+    initialValue: { x: 1000, y: 200 },
+});
 
 const showOnlineUser = ref(false);
 const authUser = computed(() => usePage().props.authUser.user);
