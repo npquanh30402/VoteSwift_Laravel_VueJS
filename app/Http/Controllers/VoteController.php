@@ -133,23 +133,11 @@ class VoteController extends Controller
     public function main(VotingRoom $room)
     {
 //        $this->authorize('joinInvitation', [$room, $request->query('token')]);
-
-        $questions = $room->questions()->with('candidates')->get()->map(function ($question) {
-            $question->question_title = Crypt::decryptString($question->question_title);
-            $question->question_description = Crypt::decryptString($question->question_description);
-            $question->candidates = $question->candidates->map(function ($candidate) {
-                $candidate->candidate_title = Crypt::decryptString($candidate->candidate_title);
-                $candidate->candidate_description = Crypt::decryptString($candidate->candidate_description);
-                return $candidate;
-            });
-            return $question;
-        });
-
         $room->decryptVotingRoom();
 
         $owner = $room->user->only(['id', 'username', 'avatar']);
 
-        return Inertia::render('Voting/Vote/Index', compact('questions', 'room', 'owner'));
+        return Inertia::render('Voting/Vote/Index', compact('room', 'owner'));
     }
 
     public function store(VotingRoom $room, Request $request)

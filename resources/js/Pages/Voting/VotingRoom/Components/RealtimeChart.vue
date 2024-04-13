@@ -1,7 +1,7 @@
 <template>
-    <VotingOptions
+    <VotingChart
+        v-if="transformedQuestions"
         :questions="transformedQuestions"
-        :room="room"
         :voteCounts="combinedCounts"
     />
 </template>
@@ -11,18 +11,17 @@ import { computed, onMounted, ref } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
 import { useVotingResultStore } from "@/Stores/voting-results.js";
-import VotingOptions from "@/Pages/Voting/Vote/VotingOptions.vue";
-import { useCandidateStore } from "@/Stores/candidates.js";
 import { useQuestionStore } from "@/Stores/questions.js";
+import { useCandidateStore } from "@/Stores/candidates.js";
+import VotingChart from "@/Pages/Voting/VotingRoom/Components/VotingChart.vue";
 
-const props = defineProps(["room", "channelBroadcast"]);
+const props = defineProps(["room", "channelBroadcast", "roomSettings"]);
 const votingResultStore = useVotingResultStore();
 const votingResult = computed(() => votingResultStore.results[props.room.id]);
 const authUser = computed(() => usePage().props.authUser.user);
 const userChoicesInRoom = ref({});
 const combinedCounts = ref({});
 const channelBroadcast = props.channelBroadcast;
-
 const questionStore = useQuestionStore();
 const candidateStore = useCandidateStore();
 
@@ -142,13 +141,6 @@ const handleDisconnect = async (user) => {
 
         delete userChoicesInRoom.value[userId];
     }
-
-    await axios.delete(
-        route("api.room.vote.delete.choices", {
-            room: props.room.id,
-            user: userId,
-        }),
-    );
 };
 
 const handleSubscribe = async () => {
@@ -201,6 +193,5 @@ onMounted(() => {
     candidateStore.fetchCandidates(props.room.id);
 
     setupEchoListeners();
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 });
 </script>

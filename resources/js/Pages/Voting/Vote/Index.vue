@@ -59,7 +59,6 @@
                     :is="tabs[currentTab]"
                     v-else
                     :channelBroadcast="channelBroadcast"
-                    :questions="questions"
                     :room="room"
                     :roomSettings="roomSettings"
                     @switch-tab="currentTab = $event"
@@ -87,7 +86,7 @@ import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import { useAttachmentStore } from "@/Stores/attachments.js";
 
 const authUser = computed(() => usePage().props.authUser.user);
-const props = defineProps(["questions", "room", "owner"]);
+const props = defineProps(["room", "owner"]);
 const $toast = useToast();
 
 const votingSettingStore = useVotingSettingStore();
