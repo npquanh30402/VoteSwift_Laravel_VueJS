@@ -33,19 +33,23 @@ const transformedQuestions = computed(() =>
 );
 
 const updateVoteCount = (questionId, candidateId, change) => {
-    const index =
-        combinedCounts.value[questionId].candidateIds.indexOf(candidateId);
-    if (index !== -1) {
-        const newVoteCounts = [...combinedCounts.value[questionId].voteCounts];
-        newVoteCounts[index] += change;
+    if (combinedCounts.value && combinedCounts.value[questionId]) {
+        const index =
+            combinedCounts.value[questionId].candidateIds.indexOf(candidateId);
+        if (index !== -1) {
+            const newVoteCounts = [
+                ...combinedCounts.value[questionId].voteCounts,
+            ];
+            newVoteCounts[index] += change;
 
-        combinedCounts.value = {
-            ...combinedCounts.value,
-            [questionId]: {
-                ...combinedCounts.value[questionId],
-                voteCounts: newVoteCounts,
-            },
-        };
+            combinedCounts.value = {
+                ...combinedCounts.value,
+                [questionId]: {
+                    ...combinedCounts.value[questionId],
+                    voteCounts: newVoteCounts,
+                },
+            };
+        }
     }
 };
 

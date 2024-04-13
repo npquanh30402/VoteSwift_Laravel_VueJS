@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\InvitationController;
@@ -86,4 +87,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/room/{room}/choices', [VoteController::class, 'getUserChoices'])->name('api.room.vote.get.choices');
     Route::post('/room/{room}/choices', [VoteController::class, 'storeUserChoices'])->name('api.room.vote.store.choices');
     Route::delete('/room/{room}/user/{user}/choices', [VoteController::class, 'deleteUserChoices'])->name('api.room.vote.delete.choices');
+
+    Route::post('/room/{room}/user/{user}/feedback', [FeedbackController::class, 'store'])->name('api.room.user.feedback.store');
 });

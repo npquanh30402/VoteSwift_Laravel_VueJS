@@ -1,5 +1,4 @@
 import * as DOMPurify from "dompurify/dist/purify.min.js";
-import { computed } from "vue";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
 
 export const useHelper = () => {

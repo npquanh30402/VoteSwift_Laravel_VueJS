@@ -43,27 +43,24 @@
         </div>
 
         <transition mode="out-in" name="fade">
-            <KeepAlive>
-                <component
-                    :is="tabs[currentTab]"
-                    v-if="roomSettings.invitation_only"
-                    :channelBroadcast="channelBroadcast"
-                    :isReadyToStart="isReadyToStart"
-                    :questions="questions"
-                    :room="room"
-                    :roomSettings="roomSettings"
-                    @switch-tab="currentTab = $event"
-                    @start-voting="startVoting"
-                ></component>
-                <component
-                    :is="tabs[currentTab]"
-                    v-else
-                    :channelBroadcast="channelBroadcast"
-                    :room="room"
-                    :roomSettings="roomSettings"
-                    @switch-tab="currentTab = $event"
-                ></component>
-            </KeepAlive>
+            <component
+                :is="tabs[currentTab]"
+                v-if="roomSettings.invitation_only"
+                :channelBroadcast="channelBroadcast"
+                :isReadyToStart="isReadyToStart"
+                :room="room"
+                :roomSettings="roomSettings"
+                @switch-tab="currentTab = $event"
+                @start-voting="startVoting"
+            ></component>
+            <component
+                :is="tabs[currentTab]"
+                v-else
+                :channelBroadcast="channelBroadcast"
+                :room="room"
+                :roomSettings="roomSettings"
+                @switch-tab="currentTab = $event"
+            ></component>
         </transition>
     </div>
 </template>
@@ -84,8 +81,8 @@ import { useVotingSettingStore } from "@/Stores/voting-settings.js";
 import { useInvitationStore } from "@/Stores/invitations.js";
 import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import { useAttachmentStore } from "@/Stores/attachments.js";
+import VotingSubmit from "@/Pages/Voting/Vote/VotingSubmit.vue";
 
-const authUser = computed(() => usePage().props.authUser.user);
 const props = defineProps(["room", "owner"]);
 const $toast = useToast();
 
@@ -94,34 +91,26 @@ const invitationStore = useInvitationStore();
 const attachmentStore = useAttachmentStore();
 const voteStore = useVoteStore();
 
+const authUser = computed(() => usePage().props.authUser.user);
 const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);
 const invitedUsers = computed(() => invitationStore.invitations[props.room.id]);
 const roomAttachments = computed(
     () => attachmentStore.attachments[props.room.id],
 );
-
 const isRealtimeEnabled = computed(
     () => roomSettings.value?.realtime_enabled === 1,
 );
-const isWaitForVoters = computed(
-    () => roomSettings.value?.wait_for_voters === 1,
-);
-
-const isReadyToRender = computed(() => {
-    return roomSettings && invitedUsers && roomAttachments && isRealtimeEnabled;
-});
+const isChatEnable = computed(() => roomSettings.value?.chat_enabled === 1);
+const isReadyToStart = ref(false);
+const onlineUsers = ref([]);
 
 const tabs = {
     Welcome,
     StartVoting,
+    VotingSubmit,
 };
-
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
-const currentTab = ref("StartVoting");
-
-const isChatEnable = computed(() => roomSettings.value?.chat_enabled === 1);
-const isReadyToStart = ref(false);
-const onlineUsers = ref([]);
+const currentTab = ref("VotingSubmit");
 
 watch(roomSettings, () => {
     isReadyToStart.value = roomSettings.value?.wait_for_voters === 0;
@@ -135,8 +124,6 @@ const channelBroadcast = {
     eventName: "VotingProcess",
 };
 
-let echoListenerInitialized = false;
-
 function startVoting() {
     voteStore.startVoting(props.room.id).then((response) => {
         if (response.status === 200) {
@@ -147,15 +134,13 @@ function startVoting() {
     });
 }
 
-const setupPresenceChannel = () => {
-    // Function to handle updates to online users and readiness to start
+const setupRealTime = () => {
     const updateOnlineUsersAndReadiness = () => {
         // invited users + room owner
         isReadyToStart.value =
             onlineUsers.value.length === invitedUsers.value.length + 1;
     };
 
-    // Functions to handle presence channel events
     const handleHere = (users) => {
         onlineUsers.value = users;
         updateOnlineUsersAndReadiness();
@@ -187,27 +172,16 @@ const setupPresenceChannel = () => {
         }
     }
 
-    // Join presence channel and listen for events
     if (isRealtimeEnabled.value | isChatEnable.value) {
-        Echo.join(channelBroadcast.channelName)
-            .here(handleHere)
-            .joining(handleJoining)
-            .leaving(handleLeaving);
+        voteStore.setupEchoJoinListener(
+            handleHere,
+            handleJoining,
+            handleLeaving,
+        );
 
-        if (roomSettings.value?.wait_for_voters === 1) {
-            Echo.private(channelBroadcast.channelName).listen(
-                channelBroadcast.eventName,
-                handleVotingStartBroadcast,
-            );
-        }
-
-        echoListenerInitialized = true;
+        if (roomSettings.value?.wait_for_voters === 1)
+            voteStore.setupEchoPrivateListener(handleVotingStartBroadcast);
     }
-};
-
-const leaveChannel = () => {
-    Echo.leave(channelBroadcast.channelName);
-    echoListenerInitialized = false;
 };
 
 let joinTimeId = null;
@@ -236,19 +210,19 @@ const leaveRoom = () => {
         .then((response) => {
             if (response.status === 200) {
                 $toast.success("You have left the room");
+                window.removeEventListener("beforeunload", leaveRoom);
             }
         })
         .catch(() => $toast.error("Failed to leave the room"));
 };
 
 onMounted(() => {
+    voteStore.setupChannel(props.room.id);
     window.addEventListener("beforeunload", leaveRoom);
 
     joinRoom();
 
-    votingSettingStore
-        .fetchSettings(props.room.id)
-        .then(() => setupPresenceChannel());
+    votingSettingStore.fetchSettings(props.room.id).then(() => setupRealTime());
 
     if (
         invitationStore.invitations[props.room.id] === undefined ||
@@ -261,16 +235,11 @@ onMounted(() => {
 
     attachmentStore.fetchAttachments(props.room.id);
 
-    if (echoListenerInitialized === false) {
-        setupPresenceChannel();
-    }
+    setupRealTime();
 });
 
 onUnmounted(() => {
-    if (echoListenerInitialized) {
-        leaveChannel();
-    }
-
+    voteStore.leaveEchoListeners();
     leaveRoom();
 });
 </script>

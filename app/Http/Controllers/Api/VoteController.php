@@ -120,9 +120,9 @@ class VoteController extends Controller
 
         foreach ($questions as $question) {
             $results = DB::table('votes')
-                ->join('candidates', 'votes.candidate_id', '=', 'candidates.id')
+                ->rightJoin('candidates', 'votes.candidate_id', '=', 'candidates.id')
                 ->where('candidates.question_id', $question->id)
-                ->select('candidates.id', 'candidates.candidate_title', DB::raw('COUNT(*) as vote_count'))
+                ->select('candidates.id', 'candidates.candidate_title', DB::raw('COUNT(votes.id) as vote_count'))
                 ->groupBy('candidates.id', 'candidates.candidate_title')
                 ->get();
 
@@ -131,10 +131,18 @@ class VoteController extends Controller
                 return $result;
             });
 
+            $allCandidates = $question->candidates()->pluck('id');
+            $candidatesIdsWithVoteCounts = $candidates->pluck('id');
+            $candidatesWithoutVoteCounts = $allCandidates->diff($candidatesIdsWithVoteCounts);
+            foreach ($candidatesWithoutVoteCounts as $candidateId) {
+                $candidates->push((object)[
+                    'id' => $candidateId,
+                    'vote_count' => 0,
+                ]);
+            }
+
             $vote_results[$question->id] = $candidates;
         }
-
-//        $vote_results = Vote::getQuestionResults($room->questions);
 
         return response()->json(compact('vote_results'));
     }

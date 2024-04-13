@@ -175,7 +175,13 @@
         </div>
 
         <div class="text-center my-5">
-            <button class="btn-lg btn btn-primary" type="submit">Submit</button>
+            <button
+                class="btn-lg btn btn-primary"
+                type="submit"
+                @click="submitVotes"
+            >
+                Submit
+            </button>
         </div>
     </form>
 </template>
@@ -270,11 +276,14 @@ function trimText(textArray, length) {
 const showImage = (e) => {
     currentImageDisplay.value = e;
 };
+const emit = defineEmits(["switch-tab"]);
 
 function submitVotes() {
-    router.post(route("vote.store", props.room.id), {
-        selectedOptions: selectedOptions.value,
-    });
+    // router.post(route("vote.store", props.room.id), {
+    //     selectedOptions: selectedOptions.value,
+    // });
+
+    emit("switch-tab", "VotingSubmit");
 }
 
 const options = {
