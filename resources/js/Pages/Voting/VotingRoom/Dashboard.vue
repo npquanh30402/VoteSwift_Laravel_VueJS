@@ -15,7 +15,7 @@
         <div class="row justify-content-center">
             <div class="col-md-2">
                 <BallotSidebar
-                    :room="room"
+                    :tabData="tabData"
                     @switch-tab="handleSwitchTab"
                 ></BallotSidebar>
             </div>
@@ -60,7 +60,7 @@ import DeleteRoom from "@/Pages/Voting/VotingRoom/DeleteRoom.vue";
 import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
 import RoomRealtime from "@/Pages/Voting/VotingRoom/RoomRealtime.vue";
 import RoomOverview from "@/Pages/Voting/VotingRoom/RoomOverview.vue";
-import InvitationPage from "@/Pages/Voting/VotingRoom/InvitationPage.vue";
+import InvitationPage from "@/Pages/Voting/VotingRoom//Invitation/Index.vue";
 
 const props = defineProps([
     "room",
@@ -68,26 +68,75 @@ const props = defineProps([
     "voteCountsInTimeInterval",
 ]);
 
-const currentTab = ref("RoomOverview");
-
 const tabData = {
-    RoomOverview: { component: RoomOverview, name: "Overview" },
-    DescriptionPage: { component: DescriptionPage, name: "Description" },
-    QuestionsPage: { component: QuestionsPage, name: "Questions & Candidates" },
+    RoomOverview: {
+        component: RoomOverview,
+        name: "Overview",
+        componentName: "RoomOverview",
+    },
+    DescriptionPage: {
+        component: DescriptionPage,
+        name: "Description",
+        componentName: "DescriptionPage",
+    },
     UpdateTitleDesc: {
         component: UpdateTitleDesc,
         name: "Update Title & Description",
+        componentName: "UpdateTitleDesc",
     },
-    UpdateTime: { component: UpdateTime, name: "Update Time" },
-    AttachmentPage: { component: AttachmentPage, name: "Attachment" },
-    VotingResult: { component: VotingResult, name: "Voting Result" },
-    UpdatePassword: { component: UpdatePassword, name: "Update Password" },
-    UpdateChat: { component: UpdateChat, name: "Update Chat" },
-    RoomRealtime: { component: RoomRealtime, name: "Realtime" },
-    InvitationPage: { component: InvitationPage, name: "Invitations" },
-    RoomPublish: { component: RoomPublish, name: "Publish" },
-    DeleteRoom: { component: DeleteRoom, name: "Delete Room" },
+    QuestionsPage: {
+        component: QuestionsPage,
+        name: "Questions & Candidates",
+        componentName: "QuestionsPage",
+    },
+    UpdateTime: {
+        component: UpdateTime,
+        name: "Update Time",
+        componentName: "UpdateTime",
+    },
+    AttachmentPage: {
+        component: AttachmentPage,
+        name: "Attachment",
+        componentName: "AttachmentPage",
+    },
+    InvitationPage: {
+        component: InvitationPage,
+        name: "Invitations",
+        componentName: "InvitationPage",
+    },
+    UpdatePassword: {
+        component: UpdatePassword,
+        name: "Update Password",
+        componentName: "UpdatePassword",
+    },
+    UpdateChat: {
+        component: UpdateChat,
+        name: "Update Chat",
+        componentName: "UpdateChat",
+    },
+    RoomRealtime: {
+        component: RoomRealtime,
+        name: "Realtime Voting",
+        componentName: "RoomRealtime",
+    },
+    VotingResult: {
+        component: VotingResult,
+        name: "Voting Result",
+        componentName: "VotingResult",
+    },
+    RoomPublish: {
+        component: RoomPublish,
+        name: "Publish",
+        componentName: "RoomPublish",
+    },
+    DeleteRoom: {
+        component: DeleteRoom,
+        name: "Delete Room",
+        componentName: "DeleteRoom",
+    },
 };
+
+const currentTab = ref(tabData.RoomOverview.componentName);
 
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;

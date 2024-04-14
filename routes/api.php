@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\ImageUploadController;
 use App\Http\Controllers\Api\InvitationController;
+use App\Http\Controllers\Api\InvitationMailController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\NotificationSeenController;
 use App\Http\Controllers\Api\QuestionController;
@@ -39,6 +40,10 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('api.room.invitation.index');
     Route::post('/room/{room}/invitations', [InvitationController::class, 'store'])->name('api.room.invitation.store');
+
+    Route::get('/room/{room}/invitations/mail', [InvitationMailController::class, 'index'])->name('api.room.invitation.mail.index');
+    Route::post('/room/{room}/invitations/mail', [InvitationMailController::class, 'storeOrUpdate'])->name('api.room.invitation.mail.store');
+    Route::delete('/invitations/{invitationMail}/mail', [InvitationMailController::class, 'destroy'])->name('api.room.invitation.mail.destroy');
 
     Route::get('/room/{room}/settings/', [VotingRoomSettingController::class, 'getSettings'])->name('api.room.setting.index');
     Route::put('/room/{room}/settings/', [VotingRoomSettingController::class, 'updateSettings'])->name('api.room.setting.update');

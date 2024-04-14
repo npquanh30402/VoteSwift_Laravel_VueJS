@@ -23,6 +23,13 @@ class VotingRoom extends Model
         'has_ended',
     ];
 
+    public static function getPublicRooms()
+    {
+        return DB::table('voting_rooms')
+            ->join('voting_room_settings', 'voting_room_settings.voting_room_id', '=', 'voting_rooms.id')
+            ->where('public_visibility', 1);
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -43,9 +50,9 @@ class VotingRoom extends Model
         return $this->hasMany(VotingRoomFiles::class, 'voting_room_id', 'id');
     }
 
-    public function invitations()
+    public function invitationMail()
     {
-        return $this->hasMany(Invitation::class, 'voting_room_id', 'id');
+        return $this->hasOne(InvitationMail::class, 'voting_room_id', 'id');
     }
 
     public function userJoinTimes()
@@ -68,11 +75,9 @@ class VotingRoom extends Model
         return false;
     }
 
-    public static function getPublicRooms()
+    public function invitations()
     {
-        return DB::table('voting_rooms')
-            ->join('voting_room_settings', 'voting_room_settings.voting_room_id', '=', 'voting_rooms.id')
-            ->where('public_visibility', 1);
+        return $this->hasMany(Invitation::class, 'voting_room_id', 'id');
     }
 
     public function decryptVotingRoom()

@@ -13,7 +13,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
         Route::put('/{room}/publish', [VotingRoomController::class, 'publishRoom'])->name('room.publish');
         Route::get('/public', [VotingRoomController::class, 'showPublicRoom'])->name('public.room');
 
-        // Invitation routes
+        // InvitationMail routes
         Route::get('/{room}/invitations/send', [InvitationController::class, 'sendInvitation'])->name('invitations.send');
 
         // Vote routes

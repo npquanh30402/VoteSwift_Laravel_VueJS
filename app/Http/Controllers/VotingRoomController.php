@@ -12,9 +12,9 @@ class VotingRoomController extends Controller
 {
     public function publishRoom(VotingRoom $room)
     {
-        if ($room->is_published) {
-            return back()->with('error', 'Voting room is already published!');
-        }
+//        if ($room->is_published) {
+//            return back()->with('error', 'Voting room is already published!');
+//        }
 
         if ($room->questions()->count() < 1) {
             return back()->with('error', 'Voting room must have at least 1 question!');

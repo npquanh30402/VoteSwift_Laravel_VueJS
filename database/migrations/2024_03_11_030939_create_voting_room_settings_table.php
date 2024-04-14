@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->unsignedBigInteger('voting_room_id');
             $table->foreign('voting_room_id')->references('id')->on('voting_rooms')->cascadeOnDelete();
 
-            // Invitation settings
+            // InvitationMail settings
             $table->boolean('invitation_only')->default(false);
             $table->boolean('wait_for_voters')->default(false);
 

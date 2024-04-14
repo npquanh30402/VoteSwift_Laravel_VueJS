@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Parsedown;
 
 class InvitationNotification extends Notification implements ShouldQueue, ShouldBroadcastNow
 {
@@ -44,12 +45,54 @@ class InvitationNotification extends Notification implements ShouldQueue, Should
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $settings = $this->room->settings;
+        $mail = $this->room->invitationMail;
+
+        if ($settings->invitation_only === 1 && $mail !== null) {
+            return $this->sendInvitationMail();
+        }
+
+        return $this->sendDefaultMail();
+    }
+
+    private function sendInvitationMail(): MailMessage
+    {
+        $mail = $this->room->invitationMail->decryptInvitationMail();
+        $mailSubject = $mail->mail_subject;
+        $mailContent = $mail->mail_content;
+
+        $parseDown = new Parsedown();
+//        $parseDown->setSafeMode(true);
+
+        $mailData = [
+            'room' => $this->room,
+            'sender' => $this->sender,
+            'receiver' => $this->receiver,
+            'invitationUrl' => $this->invitationUrl,
+            'content' => $parseDown->text($parseDown->text($mailContent))
+        ];
+
+        return (new MailMessage)
+            ->subject($mailSubject)
+            ->markdown('mail.invitation', $mailData);
+    }
+
+    private function sendDefaultMail(): MailMessage
+    {
         return (new MailMessage)
             ->subject('Voting Room Invitation')
             ->line("Hi, {$this->receiver->username}!")
             ->line("User {$this->sender->username} has invited you to join the room {$this->room->id}. You can join the room by the link below:")
             ->action('Join', $this->invitationUrl)
             ->line('Thank you for using our application!');
+    }
+
+    public function toBroadcast($notifiable): BroadcastMessage
+    {
+        $notification = \App\Models\Notification::find($this->id);
+        $notification->data = json_decode($notification->data);
+
+        return new BroadcastMessage($notification->toArray());
     }
 
     /**
@@ -67,13 +110,5 @@ class InvitationNotification extends Notification implements ShouldQueue, Should
 //            'receiver_id' => $this->receiver->id,
 //            'receiver_username' => $this->receiver->username,
         ];
-    }
-
-    public function toBroadcast($notifiable): BroadcastMessage
-    {
-        $notification = \App\Models\Notification::find($this->id);
-        $notification->data = json_decode($notification->data);
-
-        return new BroadcastMessage($notification->toArray());
     }
 }
