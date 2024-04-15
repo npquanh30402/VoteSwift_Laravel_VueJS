@@ -98,6 +98,34 @@ export const useNotificationStore = defineStore("notification", () => {
         return message;
     };
 
+    const markAllAsRead = async (userId) => {
+        try {
+            const response = await axios.put(
+                route("api.notification.all.read", userId),
+            );
+
+            if (response.status === 200) {
+                for (const targetKey in notifications.value) {
+                    const target = notifications.value[targetKey];
+
+                    for (const index in target.data) {
+                        const data = target.data[index];
+
+                        if (data.read_at === null) {
+                            data.read_at = new Date().toISOString();
+                        }
+                    }
+                }
+
+                unreadCount.value = 0;
+            }
+
+            return response;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     return {
         notifications,
         currentPage,
@@ -105,6 +133,7 @@ export const useNotificationStore = defineStore("notification", () => {
         fetchNotifications,
         addNotification,
         markAsRead,
+        markAllAsRead,
         setupEchoListeners,
         fetchUnreadNotificationsCount,
     };

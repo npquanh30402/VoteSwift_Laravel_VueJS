@@ -1,8 +1,18 @@
 <template>
     <div v-if="notifications" class="my-3 mx-5">
-        <h3 class="m-b-50 heading-line">
-            Notifications <i class="bi bi-bell-fill"></i>
-        </h3>
+        <div class="d-flex justify-content-between">
+            <h3 class="m-b-50 heading-line">
+                Notifications <i class="bi bi-bell-fill"></i>
+            </h3>
+
+            <button
+                v-if="notificationCount > 1"
+                class="btn btn-secondary"
+                @click="handleMarkAllAsRead"
+            >
+                Mark All as Read
+            </button>
+        </div>
 
         <div class="notification-ui_dd-content">
             <NotificationList
@@ -31,6 +41,7 @@ const authUser = computed(() => usePage().props.authUser.user);
 const toast = useToast();
 const notificationStore = useNotificationStore();
 
+const notificationCount = computed(() => notificationStore.unreadCount);
 const currentPage = ref(1);
 const notifications = ref({});
 
@@ -42,6 +53,14 @@ const handleLoadPage = (url, page) => {
     notificationStore.fetchNotifications(url, page).then(() => {
         currentPage.value = page;
     });
+};
+
+const handleMarkAllAsRead = async () => {
+    const response = await notificationStore.markAllAsRead(authUser.value.id);
+
+    if (response.status === 200) {
+        toast.success(response.data.message);
+    }
 };
 
 onMounted(() => {

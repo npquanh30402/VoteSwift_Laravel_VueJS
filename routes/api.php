@@ -27,6 +27,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/notifications/', [NotificationController::class, 'index'])->name('api.notifications.index');
     Route::get('/notifications/unreadCount', [NotificationController::class, 'unreadCount'])->name('api.notifications.unreadCount');
     Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('api.notification.read');
+    Route::put('user/{user}notification/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('api.notification.all.read');
 
     Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');
     Route::post('/room/', [VotingRoomController::class, 'store'])->name('api.room.store');
