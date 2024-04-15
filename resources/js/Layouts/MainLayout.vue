@@ -1,12 +1,14 @@
 <template>
     <TheHeader :authUser="authUser"></TheHeader>
     <FlashMessages></FlashMessages>
-    <transition name="fade" mode="out-in">
+    <transition mode="out-in" name="fade">
         <div :key="$page.url">
             <slot></slot>
         </div>
     </transition>
     <TheFooter></TheFooter>
+
+    <ScrollToTop />
 </template>
 
 <script setup>
@@ -15,6 +17,7 @@ import TheHeader from "./TheHeader.vue";
 import { usePage } from "@inertiajs/vue3";
 import FlashMessages from "@/Components/FlashMessages.vue";
 import { computed } from "vue";
+import ScrollToTop from "@/Components/ScrollToTop.vue";
 
 const authUser = computed(() => usePage().props.authUser.user);
 </script>
