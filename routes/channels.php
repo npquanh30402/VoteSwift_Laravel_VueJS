@@ -9,6 +9,10 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int)$user->id === (int)$id;
 });
 
+Broadcast::channel('friend-request.{user}', function ($user) {
+    return true;
+});
+
 Broadcast::channel('status-notifications', function ($user) {
     return true;
 });
@@ -18,9 +22,7 @@ Broadcast::channel('result-update', function ($user) {
 });
 
 Broadcast::channel('chat.{user}', function ($user) {
-    if ($user != null) {
-        return ['id' => $user->id, 'name' => $user->username];
-    }
+    return ['id' => $user->id, 'username' => $user->username, 'avatar' => $user->avatar];
 });
 
 Broadcast::channel('voting.process.{room}', function (User $user, VotingRoom $room) {

@@ -73,21 +73,19 @@
 
 <script setup>
 import { route } from "ziggy-js";
-import { Link } from "@inertiajs/vue3";
+import { Link, usePage } from "@inertiajs/vue3";
 import { useFriendStore } from "@/Stores/friends.js";
-import { useToast } from "vue-toast-notification";
+import { computed } from "vue";
 
 defineProps(["authUserFriends"]);
-const toast = useToast();
+const authUser = computed(() => usePage().props.authUser.user);
 const friendStore = useFriendStore();
 
 const acceptFriendRequest = (id) => {
-    friendStore.acceptFriendRequest(id);
-    toast.success("Friend request accepted");
+    friendStore.acceptFriendRequest(authUser.value.id, id);
 };
 
 const rejectFriendRequest = (id) => {
-    friendStore.rejectFriendRequest(id);
-    toast.success("Friend request rejected");
+    friendStore.rejectFriendRequest(authUser.value.id, id);
 };
 </script>

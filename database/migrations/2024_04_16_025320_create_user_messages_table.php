@@ -10,13 +10,13 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
+        Schema::create('user_messages', function (Blueprint $table) {
             $table->id();
-            $table->text('encrypted_content')->nullable();
+            $table->text('content')->nullable();
             $table->string('file')->nullable();
             $table->unsignedBigInteger('sender_id');
             $table->unsignedBigInteger('receiver_id');
-            $table->boolean('is_read')->default(false);
+            $table->timestamp('read_at')->nullable();
             $table->foreign('sender_id')->references('id')->on('users')->cascadeOnDelete();
             $table->foreign('receiver_id')->references('id')->on('users')->cascadeOnDelete();
             $table->timestamps();
@@ -28,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('user_messages');
     }
 };

@@ -6,28 +6,28 @@
                     <div class="card mb-4">
                         <div class="card-body text-center">
                             <img
-                                :src="user.avatar"
                                 :alt="user.username + ' avatar'"
+                                :src="user.avatar"
                                 class="rounded-circle img-fluid"
                                 style="width: 150px"
                             />
                             <h5 class="my-3">{{ user.username }}</h5>
                             <!--                            <p class="text-muted mb-4">Full Stack Developer</p>-->
                             <div
-                                class="d-flex justify-content-center mb-2"
                                 v-if="user.id !== authUser.id"
+                                class="d-flex justify-content-center mb-2"
                             >
                                 <button
-                                    @click="sendFriendRequest(user.id)"
                                     class="btn btn-primary"
+                                    @click="sendFriendRequest(user.id)"
                                 >
                                     Send Friend Request
                                 </button>
-                                <Link
-                                    :href="route('chat.main', user.id)"
-                                    class="btn btn-outline-primary ms-1"
-                                    >Message
-                                </Link>
+                                <!--                                <Link-->
+                                <!--                                    :href="route('chat.main', user.id)"-->
+                                <!--                                    class="btn btn-outline-primary ms-1"-->
+                                <!--                                    >Message-->
+                                <!--                                </Link>-->
                             </div>
                         </div>
                     </div>
@@ -126,24 +126,19 @@
 </template>
 
 <script setup>
-import { Link } from "@inertiajs/vue3";
 import { usePage } from "@inertiajs/vue3";
 import { computed } from "vue";
 import { differenceInYears } from "date-fns";
-import { useToast } from "vue-toast-notification";
 import { useFriendStore } from "@/Stores/friends.js";
-import { route } from "ziggy-js";
 
 const props = defineProps(["user", "public_rooms"]);
 
-const authUser = computed(() => usePage().props.authUser);
+const authUser = computed(() => usePage().props.authUser.user);
 
 const fullName = `${props.user.first_name} ${props.user.last_name}`;
-const $toast = useToast();
 const friendStore = useFriendStore();
 
 const sendFriendRequest = (id) => {
-    friendStore.sendFriendRequest(id);
-    $toast.success("Friend request sent");
+    friendStore.sendFriendRequest(authUser.value.id, id);
 };
 </script>

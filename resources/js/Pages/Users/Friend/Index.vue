@@ -1,5 +1,5 @@
 <template>
-    <div class="row" v-if="friends">
+    <div v-if="friends" class="row">
         <div class="col-md-3">
             <FriendSideBar
                 :authUserFriends="friends"
@@ -12,7 +12,7 @@
                     {{ tabData[currentTab].name }}
                 </div>
                 <div class="card-body">
-                    <transition name="fade" mode="out-in">
+                    <transition mode="out-in" name="fade">
                         <component
                             :is="tabData[currentTab].component"
                             :authUserFriends="friends"

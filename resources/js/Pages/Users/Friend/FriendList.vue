@@ -27,7 +27,7 @@
                                     class="d-flex justify-content-between gap-1"
                                 >
                                     <Link
-                                        :href="route('chat.main', friend.id)"
+                                        :href="route('chat.index', friend.id)"
                                         class="btn btn-outline-primary flex-grow-1"
                                     >
                                         Chat
@@ -58,16 +58,15 @@
 
 <script setup>
 import { route } from "ziggy-js";
-import { Link } from "@inertiajs/vue3";
-import { useToast } from "vue-toast-notification";
+import { Link, usePage } from "@inertiajs/vue3";
 import { useFriendStore } from "@/Stores/friends.js";
+import { computed } from "vue";
 
 defineProps(["authUserFriends"]);
-const toast = useToast();
+const authUser = computed(() => usePage().props.authUser.user);
 const friendStore = useFriendStore();
 
 const unfriend = (id) => {
-    friendStore.unfriend(id);
-    toast.success("Unfriended successfully");
+    friendStore.unfriend(authUser.value.id, id);
 };
 </script>

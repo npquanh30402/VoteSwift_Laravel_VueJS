@@ -6,7 +6,6 @@ use App\Enums\BroadcastType;
 use App\Events\VotingChat;
 use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
-use App\Models\Message;
 use App\Models\User;
 use App\Models\VotingMessage;
 use App\Models\VotingRoom;
@@ -22,18 +21,6 @@ class VotingChatController extends Controller
         $query_messages = VotingMessage::where(function ($query) use ($room) {
             $query->where('room_id', $room->id);
         })->orderBy('created_at', 'asc')->get();
-
-//        $messages = $query_messages->map(function ($message) {
-//            return [
-//                'id' => $message->id,
-//                'sender_id' => $message->sender_id,
-//                'sender_username' => User::find($message->sender_id)->username,
-//                'sender_avatar' => User::find($message->sender_id)->avatar,
-//                'content' => Crypt::decryptString($message->content),
-//                'file' => $message->file,
-//                'send_date' => $message->created_at
-//            ];
-//        });
 
         $messages = $query_messages->map(function ($message) {
             return [

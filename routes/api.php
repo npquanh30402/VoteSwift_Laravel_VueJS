@@ -2,7 +2,6 @@
 
 
 use App\Http\Controllers\Api\CandidateController;
-use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\FriendController;
 use App\Http\Controllers\Api\ImageUploadController;
@@ -11,6 +10,7 @@ use App\Http\Controllers\Api\InvitationMailController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\NotificationSeenController;
 use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\UserMessageController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
 use App\Http\Controllers\Api\VotingRoomAttachmentController;
@@ -50,20 +50,25 @@ Route::group(['middleware' => 'web'], function () {
     Route::put('/room/{room}/settings/', [VotingRoomSettingController::class, 'updateSettings'])->name('api.room.setting.update');
 
 
-    Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');
-    Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
-    Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
-    Route::post('/chat/{user}/read', [ChatController::class, 'markRead'])->name('api.user.chat.read.all');
+//    Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');
+//    Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
+//    Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
+//    Route::post('/chat/{user}/read', [ChatController::class, 'markRead'])->name('api.user.chat.read.all');
+
+    Route::get('/chat/sender/{sender}/receiver/{receiver}', [UserMessageController::class, 'index'])->name('api.user.chat.index');
+    Route::get('/chat/user/{user}/unread', [UserMessageController::class, 'fetchUnreadMessages'])->name('api.user.chat.unread');
+    Route::post('/chat/sender/{sender}/receiver/{receiver}', [UserMessageController::class, 'store'])->name('api.user.chat.store');
+    Route::post('/chat/sender/{sender}/receiver/{receiver}/mark-read', [UserMessageController::class, 'markAsRead'])->name('api.user.chat.mark-read');
 
     Route::get('/friends', [FriendController::class, 'getFriends'])->name('api.user.friend.index');
-    Route::post('/{friend}/unfriend', [FriendController::class, 'unfriend'])->name('api.user.unfriend');
 
-    Route::post('/profile/{recipient}/send-friend-request', [FriendController::class, 'sendFriendRequest'])->name('api.user.send-friend-request');
-    Route::post('/profile/{sender}/accept-friend-request', [FriendController::class, 'acceptFriendRequest'])
+    Route::post('/profile/sender/{sender}/receiver/{receiver}/unfriend', [FriendController::class, 'unfriend'])->name('api.user.unfriend');
+    Route::post('/profile/sender/{sender}/receiver/{receiver}/send-friend-request', [FriendController::class, 'sendFriendRequest'])->name('api.user.send-friend-request');
+    Route::post('/profile/sender/{sender}/receiver/{receiver}/accept-friend-request', [FriendController::class, 'acceptFriendRequest'])
         ->name('api.user.accept-friend-request');
-    Route::post('/{sender}/reject-friend-request/', [FriendController::class, 'rejectFriendRequest'])
+    Route::post('/profile/sender/{sender}/receiver/{receiver}/reject-friend-request/', [FriendController::class, 'rejectFriendRequest'])
         ->name('api.user.reject-friend-request');
-    Route::post('/{recipient}/abort-request-sent/', [FriendController::class, 'abortRequestSent'])
+    Route::post('/profile/sender/{sender}/receiver/{receiver}/abort-request-sent/', [FriendController::class, 'abortRequestSent'])
         ->name('api.user.abort-request-sent');
 
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\BroadcastType;
+use App\Events\FriendRequestEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\FriendRequestAccepted;
@@ -25,42 +27,67 @@ class FriendController extends Controller
         return response()->json($friendsCollection);
     }
 
-    public function unfriend(User $friend)
+    public function unfriend(User $sender, User $receiver)
     {
-        $this->friendService->unfriend(Auth::user(), $friend);
+        $this->friendService->unfriend($sender, $receiver);
 
-        return response()->json(['success' => 'Friend removed successfully!']);
+        broadcast(new FriendRequestEvent(sender: $sender, receiver: $receiver, broadcastType: BroadcastType::UNFRIEND))->toOthers();
+
+        return response()->json([
+            'data' => null,
+            'message' => 'Unfriended successfully',
+        ]);
     }
 
-    public function abortRequestSent(User $recipient)
+    public function abortRequestSent(User $sender, User $receiver)
     {
-        $this->friendService->abortRequestSent(Auth::user(), $recipient);
+        $this->friendService->abortRequestSent($sender, $receiver);
 
-        return response()->json(['success' => 'Friend request aborted!']);
+        broadcast(new FriendRequestEvent(sender: $sender, receiver: $receiver, broadcastType: BroadcastType::FRIEND_REQUEST_ABORTED))->toOthers();
+
+        return response()->json([
+            'data' => null,
+            'message' => 'Request aborted successfully',
+        ]);
     }
 
-    public function acceptFriendRequest(User $sender)
+    public function acceptFriendRequest(User $sender, User $receiver)
     {
-        $this->friendService->acceptFriendRequest(Auth::user(), $sender);
+        $this->friendService->acceptFriendRequest($sender, $receiver);
 
-        $sender->notify(new FriendRequestAccepted(Auth::user()));
+        $receiver->notify(new FriendRequestAccepted($sender));
 
-        return response()->json(['success' => 'Friend request accepted!']);
+        broadcast(new FriendRequestEvent(sender: $sender, receiver: $receiver, broadcastType: BroadcastType::FRIEND_REQUEST_ACCEPTED))->toOthers();
+
+        return response()->json([
+            'data' => $receiver->decryptUser(),
+            'message' => 'Friend request accepted successfully',
+        ]);
     }
 
-    public function rejectFriendRequest(User $sender)
+    public function rejectFriendRequest(User $sender, User $receiver)
     {
-        $this->friendService->rejectFriendRequest(Auth::user(), $sender);
+        $this->friendService->rejectFriendRequest($sender, $receiver);
 
-        return response()->json(['success' => 'Friend request rejected!']);
+        broadcast(new FriendRequestEvent(sender: $sender, receiver: $receiver, broadcastType: BroadcastType::FRIEND_REQUEST_REJECTED))->toOthers();
+
+        return response()->json([
+            'data' => $sender->decryptUser(),
+            'message' => 'Friend request rejected successfully',
+        ]);
     }
 
-    public function sendFriendRequest(User $recipient)
+    public function sendFriendRequest(User $sender, User $receiver)
     {
-        $data = $this->friendService->sendFriendRequest(Auth::user(), $recipient);
+        $this->friendService->sendFriendRequest($sender, $receiver);
 
-        $recipient->notify(new FriendRequestSend(Auth::user()));
+        $receiver->notify(new FriendRequestSend($sender));
 
-        return response()->json($data);
+        broadcast(new FriendRequestEvent(sender: $sender, receiver: $receiver, broadcastType: BroadcastType::FRIEND_REQUEST_SENT))->toOthers();
+
+        return response()->json([
+            'data' => $receiver->decryptUser(),
+            'message' => 'Friend request sent successfully',
+        ]);
     }
 }
