@@ -57,6 +57,10 @@ export const useHelper = () => {
         return imageExtensions.includes(extension);
     };
 
+    const formatWithThreshold = (count, threshold) => {
+        return count > threshold ? `${threshold}+` : count.toString();
+    };
+
     return {
         removeSpecialCharacters,
         sanitizeAndTrim,
@@ -67,5 +71,6 @@ export const useHelper = () => {
         truncateText,
         generateUniqueKey,
         isImage,
+        formatWithThreshold,
     };
 };

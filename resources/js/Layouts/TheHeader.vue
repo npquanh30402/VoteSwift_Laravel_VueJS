@@ -1,5 +1,5 @@
 <template>
-    <header>
+    <header v-if="isReady">
         <nav
             class="navbar navbar-dark navbar-expand-lg bg-dark shadow small mb-3"
         >
@@ -66,61 +66,11 @@
                                     </p>
                                 </div>
 
-                                <VMenu>
-                                    <div>
-                                        <Link
-                                            :href="route('notification.index')"
-                                            class="mx-3 position-relative"
-                                        >
-                                            <i
-                                                class="bi bi-bell text-white fs-4"
-                                            ></i>
-                                            <span
-                                                v-if="notificationCount"
-                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                                >{{ notificationCount }}</span
-                                            >
-                                        </Link>
-                                    </div>
+                                <FriendSetup />
 
-                                    <template #popper>
-                                        <NotificationList
-                                            :currentPage="currentPage"
-                                            :notifications="notifications"
-                                        />
-                                    </template>
-                                </VMenu>
+                                <NotificationIcon />
 
-                                <VMenu :skidding="-100">
-                                    <div>
-                                        <Link
-                                            :href="route('chat.index')"
-                                            class="mx-3 position-relative"
-                                        >
-                                            <i
-                                                class="bi bi-chat-dots text-white fs-4"
-                                            ></i>
-                                            <span
-                                                v-if="totalUnreadMessages"
-                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                                >{{ totalUnreadMessages }}</span
-                                            >
-                                        </Link>
-                                    </div>
-
-                                    <template #popper>
-                                        <KeepAlive>
-                                            <UserChatPopup
-                                                :currentReceiver="
-                                                    currentReceiver
-                                                "
-                                                @change-user="
-                                                    handleChangeReceiver
-                                                "
-                                            />
-                                        </KeepAlive>
-                                    </template>
-                                </VMenu>
+                                <ChatIcon />
 
                                 <Link
                                     :href="route('dashboard.user')"
@@ -179,38 +129,29 @@
 <script setup>
 import { Link, router, usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { computed, onMounted, onUpdated, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
 import Clock from "@/Components/Clock.vue";
 import { format } from "date-fns";
 import { useToast } from "vue-toast-notification";
-import { useNotificationStore } from "@/Stores/notifications.js";
-import NotificationList from "@/Pages/Users/Notification/NotificationList.vue";
-import { useUserChatStore } from "@/Stores/user-chat.js";
-import { useFriendStore } from "@/Stores/friends.js";
-import UserChatNotification from "@/Pages/Users/Chat/UserChatNotification.vue";
-import UserChatPopup from "@/Pages/Users/Chat/UserChatPopup.vue";
+import { useHelper } from "@/Services/helper.js";
+import NotificationIcon from "@/Layouts/Header/NotificationIcon.vue";
+import ChatIcon from "@/Layouts/Header/ChatIcon.vue";
+import FriendSetup from "@/Layouts/Header/FriendSetup.vue";
 
 const props = defineProps(["authUser"]);
-const notificationStore = useNotificationStore();
 
-const music = computed(() => usePage().props.authUser.music);
 const $toast = useToast();
 
-const currentPage = ref(1);
-const notifications = ref({});
-const notificationCount = computed(() => {
-    const dbCount = notificationStore.unreadCount;
+const helper = useHelper();
 
-    if (dbCount > 9) return "9+";
-
-    return dbCount;
-});
-
+const music = computed(() => usePage().props.authUser.music);
 const isMusicPlayerEnable = computed(
     () => props.authUser.settings?.music_player_enabled === 1,
 );
+
 const registerOrLogin = ref(false);
+const isReady = ref(false);
 
 function registerOrLoginShow() {
     registerOrLogin.value = !registerOrLogin.value;
@@ -221,61 +162,9 @@ const handleLogout = () => {
     $toast.success("Logout successfully");
 };
 
-const initializeNotification = () => {
-    if (props.authUser) {
-        notificationStore.setupEchoListeners(props.authUser.id);
-        notificationStore.fetchUnreadNotificationsCount();
-        notificationStore.fetchNotifications(null, currentPage.value);
-    }
+const initializeComponent = async () => {
+    isReady.value = true;
 };
 
-onMounted(() => initializeNotification());
-
-watch(
-    () => props.authUser,
-    () => initializeNotification(),
-);
-
-watch(notificationStore.notifications, () => {
-    const notification_page =
-        notificationStore.notifications[currentPage.value].data;
-
-    notifications.value = {
-        data: notification_page ? notification_page.slice(0, 5) : [],
-    };
-});
-
-const friendStore = useFriendStore();
-const friends = computed(() => friendStore.friends.friends);
-
-const userChatStore = useUserChatStore();
-const totalUnreadMessages = computed(() => {
-    const dbCount = userChatStore.totalUnreadMessages;
-
-    if (dbCount > 9) return "9+";
-
-    return dbCount;
-});
-
-const currentReceiver = ref(null);
-const handleChangeReceiver = (receiver) => {
-    currentReceiver.value = receiver;
-};
-
-onMounted(() => {
-    if (props.authUser) {
-        const friendResponse = friendStore.fetchFriends();
-
-        friendStore.setupEchoPrivateListener(props.authUser.id);
-        if (friendResponse.status === 200) {
-            friends.value.forEach((friend) => {
-                userChatStore.setupEchoPrivateListener(friend.id);
-            });
-        }
-
-        userChatStore.setupEchoPrivateListener(props.authUser.id);
-
-        userChatStore.fetchUnreadMessages(props.authUser.id);
-    }
-});
+onMounted(initializeComponent);
 </script>

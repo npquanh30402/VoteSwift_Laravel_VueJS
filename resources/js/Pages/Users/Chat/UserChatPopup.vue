@@ -102,12 +102,13 @@ onMounted(() => {
 });
 
 const { storeMessage } = useUserChatStore();
-
 const authUser = computed(() => usePage().props.authUser.user);
+
 const currentReceiver = ref(
     props.currentReceiver ? props.currentReceiver : null,
 );
 const newMessage = ref("");
+
 const handleChangeUser = async (user) => {
     currentReceiver.value = user;
     emit("change-user", user);
@@ -115,20 +116,18 @@ const handleChangeUser = async (user) => {
 
 const handleFileUpload = (event) => {
     const uploadedFile = event.target.files[0];
-
     sendMessage(null, uploadedFile);
 };
 
 const sendMessage = (msg, file = null) => {
     const formData = new FormData();
 
-    if (file) {
-        formData.append("file", file);
-    } else {
-        formData.append("message", sanitizeAndTrim(msg));
-    }
+    if (file) formData.append("file", file);
+    if (msg) formData.append("message", sanitizeAndTrim(msg));
 
-    storeMessage(authUser.value.id, currentReceiver.value.id, formData);
+    if (msg || file) {
+        storeMessage(authUser.value.id, currentReceiver.value.id, formData);
+    }
 
     newMessage.value = null;
 };
