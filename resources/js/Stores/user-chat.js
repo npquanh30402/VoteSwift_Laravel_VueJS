@@ -135,6 +135,17 @@ export const useUserChatStore = defineStore("userChat", () => {
         }
 
         messages.value[senderId].push(message);
+
+        if (!unreadMessages.value[senderId]) {
+            unreadMessages.value[senderId] = [];
+        }
+        unreadMessages.value[senderId].push(message);
+
+        if (unreadMessages.value[senderId]) {
+            totalUnreadMessages.value = Object.values(
+                unreadMessages.value,
+            ).reduce((total, messages) => total + messages.length, 0);
+        }
     };
 
     return {
