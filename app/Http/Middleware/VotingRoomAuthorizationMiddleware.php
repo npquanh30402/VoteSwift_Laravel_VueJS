@@ -79,6 +79,10 @@ class VotingRoomAuthorizationMiddleware
         }
 
         if ($settings->password !== null && $settings->invitation_only === 0) {
+            if ($this->canAccessWithPasswordQrCode($room, $token)) {
+                return true;
+            }
+
             if ($this->checkCachePassword($room, $user)) {
                 return true;
             }
@@ -102,12 +106,7 @@ class VotingRoomAuthorizationMiddleware
         return Cache::get($cacheKey) !== null;
     }
 
-    private function redirectToPasswordForm($room)
-    {
-        return redirect()->route('vote.password.form', ['room' => $room]);
-    }
-
-    private function checkPassword($room, $token)
+    private function canAccessWithPasswordQrCode($room, $token)
     {
         $tokenCacheKey = "room{$room->id}_pwl.tkn.{$token}";
         $passwordCache = Cache::get($tokenCacheKey);
