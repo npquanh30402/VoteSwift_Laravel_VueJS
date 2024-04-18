@@ -15,16 +15,24 @@ class InvitationMailController extends Controller
     public function index(VotingRoom $room)
     {
         try {
-            $mail = $room->invitationMail->decryptInvitationMail();
+            $mail = $room->invitationMail;
+
+            if ($mail) {
+                $decryptedMail = $mail->decryptInvitationMail();
+                return response()->json([
+                    'data' => $decryptedMail,
+                    'message' => 'Invitation mail retrieved successfully.',
+                ]);
+            }
 
             return response()->json([
-                'data' => $mail,
-                'message' => 'Invitation mail retrieved successfully.',
+                'data' => null,
+                'message' => 'Invitation mail does not exist for this room.',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Invitation mail not found.',
-            ], 404);
+                'message' => 'An error occurred while retrieving the invitation mail.',
+            ], 500);
         }
     }
 
