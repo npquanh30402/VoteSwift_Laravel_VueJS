@@ -52,12 +52,12 @@
                         type="file"
                         @change="handleFileChange"
                     />
-                    <p
-                        v-if="errorMessages.candidate_image"
-                        class="m-0 small text-danger"
-                    >
-                        {{ errorMessages.candidate_image }}
-                    </p>
+                    <!--                    <p-->
+                    <!--                        v-if="errorMessages.candidate_image"-->
+                    <!--                        class="m-0 small text-danger"-->
+                    <!--                    >-->
+                    <!--                        {{ errorMessages.candidate_image }}-->
+                    <!--                    </p>-->
                 </div>
                 <div class="form-group mb-4 text-center">
                     <img
@@ -87,11 +87,9 @@ import { MdEditor } from "md-editor-v3";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useHelper } from "@/Services/helper.js";
-import { useToast } from "vue-toast-notification";
 
-const props = defineProps(["question"]);
+const props = defineProps(["room", "question"]);
 const helper = useHelper();
-const toast = useToast();
 const CandidateStore = useCandidateStore();
 
 const form = useForm({
@@ -142,7 +140,7 @@ watch(
     },
 );
 
-const submit = async () => {
+const submit = () => {
     const formData = new FormData();
     formData.append(
         "candidate_title",
@@ -160,9 +158,7 @@ const submit = async () => {
         formData.append("candidate_image", form.candidate_image);
     }
 
-    await CandidateStore.storeCandidate(props.question.id, formData);
-
-    toast.success("Candidate added");
+    CandidateStore.storeCandidate(props.room.id, props.question.id, formData);
 };
 
 const showImage = (e) => {

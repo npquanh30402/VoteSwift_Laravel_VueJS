@@ -47,7 +47,7 @@ class VotingRoomSettingController extends Controller
                 $updates['public_visibility'] = $request->public_visibility === 'true';
             }
 
-            if (isset($request->require_password) && HelperService::convertNullStringToNull($request->require_password)) {
+            if (isset($request->require_password) && HelperService::convertNullStringToNull($request->require_password) !== null) {
                 $updates['password'] = Hash::make($request->require_password);
                 $fileName = $this->createQRCodeForPassword($room, $request->require_password);
 
@@ -58,7 +58,9 @@ class VotingRoomSettingController extends Controller
                 if ($oldImage !== $fileName) {
                     Storage::delete(str_replace('/storage/', 'public/', $oldImage));
                 }
-            } else {
+            }
+
+            if (isset($request->require_password) && HelperService::convertNullStringToNull($request->require_password) === null) {
                 $updates['password'] = null;
                 $updates['password_qrcode'] = null;
 

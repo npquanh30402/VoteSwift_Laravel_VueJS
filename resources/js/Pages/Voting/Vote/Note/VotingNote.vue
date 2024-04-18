@@ -83,19 +83,31 @@ const tabs = ref([
 ]);
 
 const loadTabs = () => {
-    const storedTabs = JSON.parse(localStorage.getItem("tabs"));
-    if (storedTabs.length > 0) {
+    const storedTabs = JSON.parse(
+        localStorage.getItem("tabs_" + props.room.id),
+    );
+
+    if (storedTabs && Array.isArray(storedTabs) && storedTabs.length > 0) {
         tabs.value = storedTabs.map((tab) => {
             return {
                 ...tab,
                 component: NoteContent,
             };
         });
+    } else {
+        tabs.value = [
+            {
+                id: 1,
+                component: markRaw(NoteContent),
+                name: "Tab 1",
+                content: "",
+            },
+        ];
     }
 };
 
 const saveTabs = () => {
-    localStorage.setItem("tabs", JSON.stringify(tabs.value));
+    localStorage.setItem("tabs_" + props.room.id, JSON.stringify(tabs.value));
 };
 
 const deleteTab = (tabId) => {

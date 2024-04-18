@@ -23,17 +23,13 @@
 
 <script setup>
 import { useQuestionStore } from "@/Stores/questions.js";
-import { useToast } from "vue-toast-notification";
 
 const props = defineProps(["room", "question"]);
 const emit = defineEmits(["view-question"]);
-const toast = useToast();
 const questionStore = useQuestionStore();
 
 const deleteQuestion = () => {
     questionStore.deleteQuestion(props.room.id, props.question.id);
-
-    toast.success("Question deleted");
 };
 
 function openModal(question = null) {

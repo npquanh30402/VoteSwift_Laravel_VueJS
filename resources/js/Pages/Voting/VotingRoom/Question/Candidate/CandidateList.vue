@@ -9,6 +9,7 @@
         <AddCandidate
             :id="'addCandidateModal' + question.id"
             :question="question"
+            :room="room"
         />
         <div class="list-group">
             <div
@@ -32,6 +33,7 @@
                 </div>
                 <CandidateAction
                     :candidate="candidate"
+                    :room="room"
                     @view-candidate="handleViewCandidate"
                 />
             </div>
@@ -42,6 +44,7 @@
         <ViewCandidate
             :id="'viewCandidateModal' + question.id"
             :candidate="modalCandidate"
+            :room="room"
         />
     </div>
 </template>
@@ -54,7 +57,7 @@ import AddCandidate from "@/Pages/Voting/VotingRoom/Question/Candidate/AddCandid
 import ViewCandidate from "@/Pages/Voting/VotingRoom/Question/Candidate/ViewCandidate.vue";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
-const props = defineProps(["question", "candidates"]);
+const props = defineProps(["room", "question", "candidates"]);
 
 const modalCandidate = ref(null);
 const currentImageDisplay = ref(null);

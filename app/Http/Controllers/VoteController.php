@@ -2,23 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\ResultUpdate;
-use App\Events\VotingProcess;
-use App\Models\Candidate;
-use App\Models\Question;
-use App\Models\User;
-use App\Models\UserJoinTime;
 use App\Models\Vote;
 use App\Models\VotingRoom;
 use App\Services\VoteService;
-use Carbon\Carbon;
-use DateInterval;
-use DatePeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
@@ -29,8 +19,6 @@ class VoteController extends Controller
     public function __construct(VoteService $voteService)
     {
         $this->voteService = $voteService;
-
-        $this->middleware('voting_room_password')->only(['main']);
     }
 
     public function userHistory()
@@ -60,71 +48,29 @@ class VoteController extends Controller
             ];
         }
 
-//        dd($votingHistory, $organizedData, $room_info);
-
         return Inertia::render('Users/VotingHistory', compact('votingHistory', 'organizedData', 'room_info'));
     }
 
-    public function result(VotingRoom $room)
+    public function passwordForm(VotingRoom $room, $token = null)
     {
-        $room->room_name = Crypt::decryptString($room->room_name);
-        $questions = $room->questions;
-
-        $nestedResults = Vote::getQuestionResults($questions);
-
-        $user_has_voted_ids = Vote::collectUserVoteIds($questions, $room);
-
-        $user = Auth::user();
-        $user_choices = [];
-
-        foreach ($questions as $question) {
-            $userVotes = [];
-
-            if ($user) {
-                $votes = Vote::getUserVotes($user, $question);
-
-                foreach ($votes as $vote) {
-                    $candidateTitle = Crypt::decryptString($vote->candidate_title);
-                    $candidate = Candidate::find($vote->candidate_id);
-
-                    if ($candidate) {
-                        $candidate->candidate_title = $candidateTitle;
-                        $userVotes[] = $candidate;
-                    }
-                }
-            }
-
-            $user_choices[] = [
-                'question' => $question,
-                'user_vote' => $userVotes,
-            ];
-        }
-
-        $user_choices = collect($user_choices);
-
-        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
-
-        return Inertia::render('Voting/Vote/VotingResult', compact('room', 'nestedResults', 'user_has_voted_ids', 'user_choices', 'voteCountsInTimeInterval'));
-    }
-
-
-    public function passwordForm(VotingRoom $room)
-    {
-        return Inertia::render('Voting/Vote/PasswordEntry', compact('room'));
+        return Inertia::render('Voting/Vote/PasswordEntry', compact('room', 'token'));
     }
 
     public function passwordEntry(Request $request, VotingRoom $room)
     {
         $user = Auth::user();
-
         $password = $request->room_password;
 
+        $token = null;
+        if (isset($request->token)) {
+            $token = $request->token;
+        }
+
         if (Hash::check($password, $room->settings->password)) {
+            $cacheKey = "{$user->id}_voting_room_password_{$room->id}";
+            Cache::put($cacheKey, true);
 
-            $session_name = "{$user->id}_voting_room_password_{$room->id}";
-
-            $request->session()->put($session_name, true);
-            return redirect()->route('vote.main', ['room' => $room]);
+            return redirect()->route('vote.main', ['room' => $room, 'token' => $token]);
         }
 
         return back()->with('error', 'Incorrect password.');
@@ -138,40 +84,5 @@ class VoteController extends Controller
         $owner = $room->user->only(['id', 'username', 'avatar']);
 
         return Inertia::render('Voting/Vote/Index', compact('room', 'owner'));
-    }
-
-    public function store(VotingRoom $room, Request $request)
-    {
-        $selectedOptions = $request->selectedOptions;
-
-        foreach ($selectedOptions as $questionId => $candidateIds) {
-            $question = Question::findOrFail($questionId);
-
-            if ($question->allow_multiple_votes === false && count($candidateIds) > 1) {
-                return back()->with('error', 'The question does not allow multiple votes.');
-            }
-
-            if (!empty($candidateIds)) {
-                foreach ($candidateIds as $candidateId) {
-                    $this->createVote($candidateId);
-                }
-            }
-        }
-
-        $nestedResults = Vote::getQuestionResults($room->questions);
-        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
-
-        broadcast(new ResultUpdate($nestedResults, $voteCountsInTimeInterval));
-
-        return redirect()->route('homepage')->with('success', 'Thank you for voting!');
-    }
-
-    private function createVote($candidateId)
-    {
-        $vote = new Vote();
-        $vote->candidate_id = $candidateId;
-        $vote->user_id = auth()->user()->id;
-
-        $vote->save();
     }
 }

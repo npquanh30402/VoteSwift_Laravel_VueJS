@@ -24,7 +24,10 @@ class QuestionController extends Controller
         try {
             $questions = $this->questionService->getRoomQuestions($room);
 
-            return response()->json($questions);
+            return response()->json([
+                'data' => $questions,
+                'message' => 'Questions retrieved successfully',
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error getting questions: ' . $e->getMessage()], 500);
         }
@@ -35,7 +38,10 @@ class QuestionController extends Controller
         try {
             $question = $this->questionService->updateQuestion($question, $request);
 
-            return response()->json($question->decryptQuestion());
+            return response()->json([
+                'data' => $question->decryptQuestion(),
+                'message' => 'Question updated successfully',
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error updating question: ' . $e->getMessage()], 500);
         }
@@ -46,7 +52,7 @@ class QuestionController extends Controller
         try {
             $this->questionService->deleteQuestion($question);
 
-            return response()->json(['message' => 'Question deleted successfully'], 204);
+            return response()->json(['message' => 'Question deleted successfully']);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error deleting question: ' . $e->getMessage()], 500);
         }
@@ -58,7 +64,10 @@ class QuestionController extends Controller
             $question = $this->questionService->storeQuestion($room, $request);
 
             if ($question) {
-                return response()->json($question->decryptQuestion(), 201);
+                return response()->json([
+                    'data' => $question->decryptQuestion(),
+                    'message' => 'Question created successfully',
+                ], 201);
             }
 
             return response()->json(['error' => 'Error creating question'], 500);

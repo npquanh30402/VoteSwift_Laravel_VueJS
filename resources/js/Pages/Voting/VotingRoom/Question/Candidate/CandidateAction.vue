@@ -23,17 +23,13 @@
 
 <script setup>
 import { useCandidateStore } from "@/Stores/candidates.js";
-import { useToast } from "vue-toast-notification";
 
-const props = defineProps(["candidate"]);
-const toast = useToast();
+const props = defineProps(["room", "candidate"]);
 const emit = defineEmits(["view-candidate"]);
 
 const CandidateStore = useCandidateStore();
 const deleteCandidate = () => {
-    CandidateStore.deleteCandidate(props.candidate.id);
-
-    toast.success("Candidate deleted");
+    CandidateStore.deleteCandidate(props.room.id, props.candidate.id);
 };
 
 function openModal(candidate = null) {

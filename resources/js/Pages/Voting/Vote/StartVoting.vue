@@ -27,7 +27,7 @@ const questionStore = useQuestionStore();
 const candidateStore = useCandidateStore();
 
 const questions = computed(() => questionStore.questions[props.room.id]);
-const candidates = computed(() => candidateStore.candidates);
+const candidates = computed(() => candidateStore.candidates[props.room.id]);
 const transformedQuestions = computed(() =>
     questionStore.transformQuestions(questions.value, candidates.value),
 );
@@ -92,7 +92,7 @@ const handleReceivedChoice = (e) => {
             userChoicesInRoom.value[e.user.id][questionId] = [];
         }
 
-        if (e.question_type.allow_multiple_votes === "true") {
+        if (e.question_type.allow_multiple_votes === 1) {
             handleCheckbox(e.user.id, questionId, candidateId);
         } else {
             handleRadio(e.user.id, questionId, candidateId);

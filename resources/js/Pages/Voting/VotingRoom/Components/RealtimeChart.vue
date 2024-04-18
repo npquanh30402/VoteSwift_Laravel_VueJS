@@ -26,7 +26,7 @@ const questionStore = useQuestionStore();
 const candidateStore = useCandidateStore();
 
 const questions = computed(() => questionStore.questions[props.room.id]);
-const candidates = computed(() => candidateStore.candidates);
+const candidates = computed(() => candidateStore.candidates[props.room.id]);
 const transformedQuestions = computed(() =>
     questionStore.transformQuestions(questions.value, candidates.value),
 );

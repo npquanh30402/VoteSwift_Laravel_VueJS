@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Enums\BroadcastType;
+use App\Events\ResultUpdate;
 use App\Events\VotingProcess;
 use App\Http\Controllers\Controller;
+use App\Models\Question;
 use App\Models\User;
 use App\Models\UserJoinTime;
+use App\Models\Vote;
 use App\Models\VotingRoom;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,6 +20,47 @@ use Illuminate\Support\Facades\DB;
 
 class VoteController extends Controller
 {
+    public function storeVotes(VotingRoom $room, Request $request)
+    {
+        $selectedOptions = json_decode($request->selectedOptions, true);
+
+        foreach ($selectedOptions as $questionId => $candidateIds) {
+            $question = Question::findOrFail($questionId);
+
+            if ($question->allow_multiple_votes === false && count($candidateIds) > 1) {
+                return response()->json([
+                    'message' => 'You can only vote for one candidate at a time.',
+                ]);
+            }
+
+            if (!empty($candidateIds)) {
+                foreach ($candidateIds as $candidateId) {
+                    if ($candidateId !== -1) {
+                        $this->createVote($candidateId);
+                    }
+                }
+            }
+        }
+
+//        $nestedResults = Vote::getQuestionResults($room->questions);
+//        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
+//
+//        broadcast(new ResultUpdate($nestedResults, $voteCountsInTimeInterval));
+
+        return response()->json([
+            'message' => 'Your vote has been submitted successfully.',
+        ]);
+    }
+
+    private function createVote($candidateId)
+    {
+        $vote = new Vote();
+        $vote->candidate_id = $candidateId;
+        $vote->user_id = auth()->user()->id;
+
+        $vote->save();
+    }
+
     public function deleteUserChoices(VotingRoom $room, User $user)
     {
         Cache::forget('room_' . $room->id . '_user_choices_' . $user->id);

@@ -37,11 +37,11 @@ class QuestionService
             $question->question_description = HelperService::encryptAndStripTags($request->question_description);
 
             if ($request->allow_multiple_votes) {
-                $question->allow_multiple_votes = $request->allow_multiple_votes;
+                $question->allow_multiple_votes = $request->allow_multiple_votes ? 1 : 0;
             }
 
             if ($request->allow_skipping) {
-                $question->allow_skipping = $request->allow_skipping;
+                $question->allow_skipping = $request->allow_skipping ? 1 : 0;
             }
 
             if ($request->hasFile('question_image')) {
@@ -82,11 +82,11 @@ class QuestionService
             }
 
             if ($request->allow_multiple_votes) {
-                $question->allow_multiple_votes = $request->allow_multiple_votes;
+                $question->allow_multiple_votes = $request->allow_multiple_votes ? 1 : 0;
             }
 
             if ($request->allow_skipping) {
-                $question->allow_skipping = $request->allow_skipping;
+                $question->allow_skipping = $request->allow_skipping ? 1 : 0;
             }
 
             if ($request->hasFile('question_image')) {

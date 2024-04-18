@@ -89,6 +89,7 @@ Route::group(['middleware' => 'web'], function () {
     Route::get('/room/{room}/start', [VoteController::class, 'startVote'])->name('api.room.vote.start');
     Route::get('/room/{room}/results', [VoteController::class, 'getVoteResults'])->name('api.room.vote.results');
     Route::post('/room/{room}/choice', [VoteController::class, 'broadcastChoice'])->name('api.room.vote.broadcast.choice');
+    Route::post('/room/{room}/vote', [VoteController::class, 'storeVotes'])->name('api.room.vote.store');
 
     Route::get('/room/{room}/join', [VoteController::class, 'getJoinTimes'])->name('api.room.vote.get.join.times');
     Route::post('/room/{room}/join', [VoteController::class, 'storeJoinTime'])->name('api.room.vote.store.join.time');

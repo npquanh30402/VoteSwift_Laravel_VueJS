@@ -13,6 +13,7 @@ use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
 use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\VerifyCsrfToken;
+use App\Http\Middleware\VotingRoomAuthorizationMiddleware;
 use App\Http\Middleware\VotingRoomPasswordMiddleware;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
@@ -72,7 +73,7 @@ class Kernel extends HttpKernel
         'signed' => ValidateSignature::class,
         'throttle' => ThrottleRequests::class,
         'verified' => EnsureEmailIsVerified::class,
-        'voting_room_password' => VotingRoomPasswordMiddleware::class,
+        'voting_room_authorization' => VotingRoomAuthorizationMiddleware::class,
         'prevent_voting_after_end' => PreventVotingAfterEndMiddleware::class,
         'check_friendship' => CheckFriendship::class
     ];

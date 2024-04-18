@@ -39,7 +39,7 @@
 
         <VotingNote :room="room" :roomSettings="roomSettings" />
 
-        <div>
+        <div class="text-center mb-4">
             <h3>Time remaining:</h3>
             <VotingClock :date="room.end_time" />
         </div>

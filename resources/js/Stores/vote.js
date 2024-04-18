@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { route } from "ziggy-js";
+import { useToast } from "vue-toast-notification";
 
+const toast = useToast();
 export const useVoteStore = defineStore("vote", () => {
     const channelBroadcast = {
         channelName: "voting.process.",
@@ -64,6 +66,17 @@ export const useVoteStore = defineStore("vote", () => {
         return await axios.get(route("api.room.vote.start", roomId));
     };
 
+    const storeVotes = async (roomId, formData) => {
+        const response = await axios.post(
+            route("api.room.vote.store", roomId),
+            formData,
+        );
+
+        if (response.status === 200) {
+            toast.success(response.data.message);
+        }
+    };
+
     const storeJoinTime = async (roomId, userId, formData) => {
         try {
             return await axios.post(
@@ -97,6 +110,7 @@ export const useVoteStore = defineStore("vote", () => {
     return {
         setupChannel,
         startVoting,
+        storeVotes,
         storeJoinTime,
         storeLeaveTime,
         setupEchoJoinListener,

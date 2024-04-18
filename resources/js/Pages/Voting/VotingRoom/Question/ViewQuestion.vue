@@ -100,11 +100,9 @@ import { MdEditor } from "md-editor-v3";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useQuestionStore } from "@/Stores/questions.js";
 import { useHelper } from "@/Services/helper.js";
-import { useToast } from "vue-toast-notification";
 
 const props = defineProps(["room", "question"]);
 const helper = useHelper();
-const toast = useToast();
 const questionStore = useQuestionStore();
 const currentImageDisplay = ref(null);
 const imgSrc = ref(null);
@@ -163,8 +161,6 @@ const submit = async () => {
         props.question.id,
         formData,
     );
-
-    toast.success("Question updated");
 };
 
 const showImage = (e) => {

@@ -1,17 +1,7 @@
 <template>
     <div>
         <div>
-            <button
-                class="btn btn-primary"
-                @click="openModal(modals.addQuestionModal)"
-            >
-                Add
-            </button>
-            <AddQuestion
-                id="addQuestionModal"
-                :room="room"
-                @handleTab="populateTabs"
-            ></AddQuestion>
+            <AddQuestion :room="room"></AddQuestion>
             <div class="mt-3 d-flex flex-column gap-3">
                 <div
                     v-for="(question, index) in paginatedQuestions"
@@ -52,12 +42,13 @@
                             "
                         />
                     </div>
-                    <div class="card-body d-flex flex-column">
+                    <div v-if="isReady" class="card-body d-flex flex-column">
                         <transition mode="out-in" name="fade">
                             <component
                                 :is="tabs[currentTabs[index]]"
                                 :candidates="roomCandidates[question.id]"
                                 :question="question"
+                                :room="room"
                             ></component>
                         </transition>
                     </div>
@@ -104,7 +95,7 @@ const props = defineProps(["room"]);
 const questionStore = useQuestionStore();
 const CandidateStore = useCandidateStore();
 const questions = computed(() => questionStore.questions[props.room.id]);
-const roomCandidates = computed(() => CandidateStore.candidates);
+const roomCandidates = computed(() => CandidateStore.candidates[props.room.id]);
 const currentImageDisplay = ref(null);
 const currentTabs = ref(["CandidateList"]);
 const currentPage = ref(1);
@@ -128,7 +119,6 @@ const tabs = {
 
 const modalQuestion = ref(null);
 const modals = reactive({
-    addQuestionModal: "addQuestionModal",
     viewQuestionModal: "viewQuestionModal" + props.room.id,
 });
 
@@ -138,23 +128,19 @@ const populateTabs = () => {
     }
 };
 
-onMounted(() => {
-    questionStore.fetchQuestions(props.room.id);
-    CandidateStore.fetchCandidates(props.room.id);
+const isReady = ref(false);
+
+onMounted(async () => {
+    await questionStore.fetchQuestions(props.room.id);
+    await CandidateStore.fetchCandidates(props.room.id);
 
     populateTabs();
+    isReady.value = true;
 
-    modals.addQuestionModal = new bootstrap.Modal(
-        document.getElementById(modals.addQuestionModal),
-    );
     modals.viewQuestionModal = new bootstrap.Modal(
         document.getElementById(modals.viewQuestionModal),
     );
 });
-
-function openModal(modal, question = null) {
-    modal.show();
-}
 
 const handleViewQuestion = (question) => {
     modalQuestion.value = question;

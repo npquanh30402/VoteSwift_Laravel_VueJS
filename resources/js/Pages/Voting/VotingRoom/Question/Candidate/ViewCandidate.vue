@@ -75,11 +75,9 @@ import { MdEditor } from "md-editor-v3";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useHelper } from "@/Services/helper.js";
-import { useToast } from "vue-toast-notification";
 
-const props = defineProps(["candidate"]);
+const props = defineProps(["room", "candidate"]);
 const helper = useHelper();
-const toast = useToast();
 const CandidateStore = useCandidateStore();
 
 const form = useForm({
@@ -109,7 +107,7 @@ watch(
     },
 );
 
-const submit = async () => {
+const submit = () => {
     const formData = new FormData();
     formData.append(
         "candidate_title",
@@ -121,11 +119,7 @@ const submit = async () => {
     );
     formData.append("candidate_image", form.candidate_image);
 
-    formData.append("_method", "PUT");
-
-    await CandidateStore.updateCandidate(props.candidate.id, formData);
-
-    toast.success("Candidate updated");
+    CandidateStore.updateCandidate(props.room.id, props.candidate.id, formData);
 };
 
 function handleFileChange(event) {

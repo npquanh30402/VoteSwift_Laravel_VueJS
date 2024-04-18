@@ -26,7 +26,10 @@ class CandidateController extends Controller
         try {
             $candidates = $this->candidateService->getQuestionCandidates($question);
 
-            return response()->json($candidates);
+            return response()->json([
+                'data' => $candidates,
+                'message' => 'Question candidates retrieved successfully',
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error getting candidates: ' . $e->getMessage()], 500);
         }
@@ -37,7 +40,10 @@ class CandidateController extends Controller
         try {
             $candidates = $this->candidateService->getRoomCandidates($room);
 
-            return response()->json($candidates);
+            return response()->json([
+                'data' => $candidates,
+                'message' => 'Room candidates retrieved successfully',
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error getting candidates: ' . $e->getMessage()], 500);
         }
@@ -50,7 +56,10 @@ class CandidateController extends Controller
 
             $candidate->decryptCandidate();
 
-            return response()->json($candidate, 201);
+            return response()->json([
+                'data' => $candidate,
+                'message' => 'Candidate created successfully',
+            ], 201);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error creating candidate: ' . $e->getMessage()], 500);
         }
@@ -63,7 +72,10 @@ class CandidateController extends Controller
 
             $candidate->decryptCandidate();
 
-            return response()->json($candidate);
+            return response()->json([
+                'data' => $candidate,
+                'message' => 'Candidate updated successfully',
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error updating candidate: ' . $e->getMessage()], 500);
         }
@@ -74,7 +86,7 @@ class CandidateController extends Controller
         try {
             $this->candidateService->deleteCandidate($candidate);
 
-            return response()->json(['message' => 'Candidate deleted successfully'], 204);
+            return response()->json(['message' => 'Candidate deleted successfully']);
         } catch (Exception $e) {
             return response()->json(['error' => 'Error deleting candidate: ' . $e->getMessage()], 500);
         }

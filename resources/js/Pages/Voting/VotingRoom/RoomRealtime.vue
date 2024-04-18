@@ -155,9 +155,13 @@ const updateSetting = (key, value) => {
 const toggleRealTimeVoting = () => {
     updateSetting("realtime_enabled", isRealTimeVotingEnable.value);
 
-    if (isRealTimeVotingEnable.value === false)
+    if (isRealTimeVotingEnable.value === false) {
         Echo.leave(channelBroadcast.channelName);
-    else setupEchoListeners();
+
+        if (voterRealtimeResultEnabled.value === true) {
+            updateSetting("voters_can_see_realtime_results", false);
+        }
+    } else setupEchoListeners();
 };
 
 const toggleVoterRealtimeResult = () => {

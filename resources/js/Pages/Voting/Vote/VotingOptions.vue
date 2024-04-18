@@ -2,7 +2,7 @@
     <form @submit.prevent="submitVotes">
         <div class="vstack gap-5 align-items-center">
             <BaseCard
-                v-for="(question, index) in questions"
+                v-for="(question, index) in newQuestions"
                 :key="question.id"
                 class="w-75 shadow shadow-sm"
             >
@@ -35,9 +35,26 @@
                                 </p>
                             </div>
                         </div>
-                        <div
-                            class="col-md-2 hstack justify-content-end align-items-center"
-                        >
+                        <div class="col-md-2">
+                            <div
+                                v-if="question.allow_skipping"
+                                class="hstack justify-content-end"
+                            >
+                                <div class="form-check">
+                                    <input
+                                        :id="'skipCheckBox_' + question.id"
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        @click="onClickSkip(question.id)"
+                                    />
+                                    <label
+                                        :for="'skipCheckBox_' + question.id"
+                                        class="form-check-label"
+                                    >
+                                        Skip
+                                    </label>
+                                </div>
+                            </div>
                             <QuestionInfo :question="question" />
                         </div>
                     </div>
@@ -49,105 +66,12 @@
                             'col-md-12': !voterRealtimeResultEnabled,
                         }"
                     >
-                        <p
-                            v-if="question.allow_multiple_votes"
-                            class="text-muted"
-                        >
-                            You can choose
-                            <span class="fw-bold text-uppercase">multiple</span>
-                            options
-                        </p>
-                        <p v-else class="text-muted">
-                            You can only choose
-                            <span class="fw-bold text-uppercase">one</span>
-                            option
-                        </p>
-                        <div
-                            v-for="(
-                                candidate, candidateIndex
-                            ) in question.candidates"
-                            :key="candidate.id"
-                            class="mb-5"
-                        >
-                            <div class="form-check ms-4 mt-2">
-                                <div
-                                    class="d-flex justify-content-between gap-3 align-items-center"
-                                >
-                                    <div class="w-100">
-                                        <div>
-                                            <input
-                                                v-if="
-                                                    question.allow_multiple_votes
-                                                "
-                                                :id="
-                                                    candidate.id +
-                                                    candidateIndex
-                                                "
-                                                :name="question.id"
-                                                class="form-check-input fs-3"
-                                                type="checkbox"
-                                                @click="
-                                                    onClickCheck(
-                                                        question.id,
-                                                        candidate.id,
-                                                    )
-                                                "
-                                            />
-                                            <input
-                                                v-else
-                                                :id="
-                                                    candidate.id +
-                                                    candidateIndex
-                                                "
-                                                :name="question.id"
-                                                class="form-check-input fs-3"
-                                                type="radio"
-                                                @click="
-                                                    onClickRadio(
-                                                        question.id,
-                                                        candidate.id,
-                                                    )
-                                                "
-                                            />
-                                        </div>
-                                        <div>
-                                            <label
-                                                :for="
-                                                    candidate.id +
-                                                    candidateIndex
-                                                "
-                                                class="form-check-label fs-4 text-truncate"
-                                                style="width: 30rem"
-                                            >
-                                                {{ candidate.candidate_title }}
-                                            </label>
-                                            <p
-                                                class="text-truncate text-muted"
-                                                style="width: 30rem"
-                                            >
-                                                {{
-                                                    helper.removeSpecialCharacters(
-                                                        candidate.candidate_description,
-                                                    )
-                                                }}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="d-flex justify-content-between align-items-center me-4"
-                                    >
-                                        <img
-                                            v-if="candidate.candidate_image"
-                                            :src="candidate.candidate_image"
-                                            alt=""
-                                            class="img-fluid me-3 img-style"
-                                            @click="showImage"
-                                        />
-                                        <CandidateInfo :candidate="candidate" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <CandidateOptions
+                            :candidates="question.candidates"
+                            :question="question"
+                            @click-check="onClickCheck"
+                            @click-radio="onClickRadio"
+                        />
                     </div>
                     <div
                         v-if="voterRealtimeResultEnabled"
@@ -175,27 +99,20 @@
         </div>
 
         <div class="text-center my-5">
-            <button
-                class="btn-lg btn btn-primary"
-                type="submit"
-                @click="submitVotes"
-            >
-                Submit
-            </button>
+            <button class="btn-lg btn btn-primary" type="submit">Submit</button>
         </div>
     </form>
 </template>
 <script setup>
 import BaseCard from "@/Components/BaseCard.vue";
 import BarChart from "@/Components/BarChart.vue";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useVotingResultStore } from "@/Stores/voting-results.js";
 import QuestionInfo from "@/Pages/Voting/Vote/QuestionInfo.vue";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useHelper } from "@/Services/helper.js";
-import CandidateInfo from "@/Pages/Voting/Vote/CandidateInfo.vue";
 import { route } from "ziggy-js";
-import { router } from "@inertiajs/vue3";
+import CandidateOptions from "@/Pages/Voting/Vote/StartVoting/CandidateOptions.vue";
 
 const props = defineProps(["room", "questions", "voteCounts", "roomSettings"]);
 const votingResultStore = useVotingResultStore();
@@ -205,8 +122,40 @@ const voteCounts = computed(() => props.voteCounts);
 
 const selectedOptions = ref({});
 const voterRealtimeResultEnabled = computed(
-    () => props.roomSettings?.voters_can_see_realtime_results,
+    () => props.roomSettings?.voters_can_see_realtime_results === 1,
 );
+
+const newQuestions = ref([]);
+
+watch(
+    () => props.questions,
+    (newVal) => {
+        if (newVal.length > 0) {
+            newQuestions.value = newVal.map((question) => ({
+                ...question,
+                isSkipped: 0,
+            }));
+        }
+    },
+);
+
+onMounted(() => {
+    newQuestions.value = props.questions.map((question) => ({
+        ...question,
+        isSkipped: 0,
+    }));
+});
+
+const onClickSkip = async (questionId) => {
+    const question = newQuestions.value.find((q) => q.id === questionId);
+    if (question) {
+        question.isSkipped = !question.isSkipped ? 1 : 0;
+    }
+
+    if (selectedOptions.value.hasOwnProperty(questionId)) {
+        delete selectedOptions.value[questionId];
+    }
+};
 
 const onClickCheck = async (questionId, candidateId) => {
     const formData = new FormData();
@@ -279,11 +228,12 @@ const showImage = (e) => {
 const emit = defineEmits(["switch-tab"]);
 
 function submitVotes() {
-    // router.post(route("vote.store", props.room.id), {
-    //     selectedOptions: selectedOptions.value,
-    // });
+    const formData = new FormData();
 
-    emit("switch-tab", "VotingSubmit");
+    formData.append("selectedOptions", JSON.stringify(selectedOptions.value));
+    voteStore.storeVotes(props.room.id, formData);
+
+    // emit("switch-tab", "VotingSubmit");
 }
 
 const options = {

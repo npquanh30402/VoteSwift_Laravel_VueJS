@@ -17,11 +17,9 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
         Route::get('/{room}/invitations/send', [InvitationController::class, 'sendInvitation'])->name('invitations.send');
 
         // Vote routes
-        Route::get('/{room}/vote/password', [VoteController::class, 'passwordForm'])->name('vote.password.form');
-        Route::post('/{room}/vote/password', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
-        Route::get('/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('prevent_voting_after_end');
-        Route::post('/{room}/vote', [VoteController::class, 'store'])->name('vote.store');
-        Route::get('/{room}/result', [VoteController::class, 'result'])->name('vote.result')->can('viewResults', 'room');
+        Route::get('/{room}/vote/password/token/{token?}', [VoteController::class, 'passwordForm'])->name('vote.password.form');
+        Route::post('/{room}/vote/password/token/{token?}', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
+        Route::get('/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('voting_room_authorization');
     });
 
     // User history route
