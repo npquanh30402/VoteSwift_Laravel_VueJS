@@ -25,14 +25,14 @@ return new class extends Migration {
 
             // Extra settings
             $table->boolean('public_visibility')->default(false);
-            $table->enum('results_visibility', ['after_voting', 'participants_only', 'restricted'])->default('restricted');
+//            $table->enum('results_visibility', ['after_voting', 'restricted'])->default('restricted');
 
             // Realtime settings
             $table->boolean('realtime_enabled')->default(false);
             $table->boolean('voters_can_see_realtime_results')->default(false);
 
             // General voting room settings
-            $table->boolean('allow_anonymous_voting')->default(false);
+//            $table->boolean('allow_anonymous_voting')->default(false);
 
             // Chat Features
             $table->boolean('chat_enabled')->default(false);

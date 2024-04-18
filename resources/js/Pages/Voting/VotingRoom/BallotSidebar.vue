@@ -13,6 +13,7 @@
             class="list-group-item list-group-item-action"
             @click="switchTab(tab.componentName)"
         >
+            <i :class="tab.icon" class="bi me-2"></i>
             {{ tab.name }}
         </button>
     </div>
@@ -28,6 +29,7 @@ const tabDataArray = computed(() => {
     return Object.values(props.tabData).map((tab) => ({
         component: tab.component,
         name: tab.name,
+        icon: tab.icon,
         componentName: tab.componentName,
     }));
 });

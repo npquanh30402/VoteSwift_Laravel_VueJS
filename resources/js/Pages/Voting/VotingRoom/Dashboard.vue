@@ -15,6 +15,7 @@
             <div class="col-md-9">
                 <div class="card shadow-sm border-0 mb-3 overflow-auto">
                     <div class="card-header text-bg-dark text-center">
+                        <i :class="tabData[currentTab].icon" class="bi"></i>
                         {{ tabData[currentTab].name }}
                     </div>
                     <div class="card-body">
@@ -66,71 +67,85 @@ const tabData = {
     RoomOverview: {
         component: RoomOverview,
         name: "Overview",
+        icon: "bi-house-door-fill",
         componentName: "RoomOverview",
     },
     DescriptionPage: {
         component: DescriptionPage,
         name: "Description",
+        icon: "bi-newspaper",
         componentName: "DescriptionPage",
     },
     UpdateTitleDesc: {
         component: UpdateTitleDesc,
         name: "Update Title & Description",
+        icon: "bi-pencil-fill",
         componentName: "UpdateTitleDesc",
     },
     QuestionsPage: {
         component: QuestionsPage,
         name: "Questions & Candidates",
+        icon: "bi-patch-question-fill",
         componentName: "QuestionsPage",
     },
     UpdateTime: {
         component: UpdateTime,
         name: "Update Time",
+        icon: "bi-alarm-fill",
         componentName: "UpdateTime",
     },
     AttachmentPage: {
         component: AttachmentPage,
         name: "Attachment",
+        icon: "bi-file-earmark-fill",
         componentName: "AttachmentPage",
     },
     InvitationPage: {
         component: InvitationPage,
         name: "Invitations",
+        icon: "bi-envelope-at-fill",
         componentName: "InvitationPage",
     },
     UpdatePassword: {
         component: UpdatePassword,
-        name: "Update Password",
+        name: "Password",
+        icon: "bi-shield-lock-fill",
         componentName: "UpdatePassword",
     },
     UpdateChat: {
         component: UpdateChat,
-        name: "Update Chat",
+        name: "Chat",
+        icon: "bi-chat-dots-fill",
         componentName: "UpdateChat",
     },
     RoomRealtime: {
         component: RoomRealtime,
         name: "Realtime Voting",
+        icon: "bi-hand-thumbs-up-fill",
         componentName: "RoomRealtime",
     },
     RoomExtra: {
         component: RoomExtra,
         name: "Extra",
+        icon: "bi-star-fill",
         componentName: "RoomExtra",
     },
     VotingResult: {
         component: VotingResult,
-        name: "Voting Result",
+        name: "Result",
+        icon: "bi-clipboard-data-fill",
         componentName: "VotingResult",
     },
     RoomPublish: {
         component: RoomPublish,
         name: "Publish",
+        icon: "bi-megaphone-fill",
         componentName: "RoomPublish",
     },
     DeleteRoom: {
         component: DeleteRoom,
         name: "Delete Room",
+        icon: "bi-trash-fill",
         componentName: "DeleteRoom",
     },
 };

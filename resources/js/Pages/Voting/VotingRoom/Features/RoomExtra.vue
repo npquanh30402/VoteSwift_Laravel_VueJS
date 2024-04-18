@@ -44,6 +44,21 @@
                     </div>
                 </div>
             </div>
+            <div class="hstack gap-3 align-items-center">
+                <div class="form-check form-switch">
+                    <input
+                        id="publicSwitch"
+                        v-model="form.public_visibility"
+                        class="form-check-input"
+                        role="switch"
+                        type="checkbox"
+                        @change="togglePublicVisibility"
+                    />
+                    <label class="form-check-label" for="publicSwitch"
+                        >Public Visibility</label
+                    >
+                </div>
+            </div>
             <div
                 :class="{
                     'un-interactive':
@@ -71,6 +86,7 @@ const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);
 const form = reactive({
     minimum_age: null,
     maximum_age: null,
+    public_visibility: false,
 });
 
 watch(
@@ -78,6 +94,7 @@ watch(
     (newValue) => {
         form.minimum_age = newValue?.minimum_age;
         form.maximum_age = newValue?.maximum_age;
+        form.public_visibility = newValue?.public_visibility === 1;
     },
     { immediate: true },
 );
@@ -126,6 +143,13 @@ watch(
         updateErrorMessage("maximum_age", newMaxAge);
     },
 );
+
+const togglePublicVisibility = async () => {
+    const formData = new FormData();
+    formData.append("public_visibility", form.public_visibility);
+
+    await votingSettingStore.updateSettings(props.room.id, formData);
+};
 
 const submit = async () => {
     const formData = new FormData();
