@@ -1,62 +1,147 @@
 <template>
     <div>
-        <h5 class="card-title">Room Name: {{ room.room_name }}</h5>
-        <h6 class="card-subtitle mb-2 text-muted">Room ID: {{ room.id }}</h6>
-        <p class="card-text">
-            Room Date (Your Locale):
-            {{ new Date(room?.start_time).toLocaleString() }} -
-            {{ new Date(room?.end_time).toLocaleString() }}
-        </p>
-        <p class="card-text">
-            Room Date (UTC): {{ room.start_time }} - {{ room.end_time }}
-        </p>
-        <!--            <p class="card-text">-->
-        <!--                Room Hours: {{ room.start_time }}-->
-        <!--                - {{ room.end_time }}-->
-        <!--            </p>-->
-        <p class="card-text">
-            Room Timezone: {{ room.timezone }} ({{ gmtOffset(room.timezone) }})
-        </p>
-        <p class="card-text">
-            Room Link:
-            <code>
-                <a :href="getRoomVoteLink(room.id)" target="_blank"
-                    >{{ getRoomVoteLink(room.id) }}
-                </a>
-            </code>
-        </p>
+        <div v-if="isReady">
+            <div class="row">
+                <div class="col-md-9">
+                    <div class="row mb-3">
+                        <div class="col-md-6 d-flex">
+                            <OverviewCardDetails>
+                                <template #header>Room ID</template>
+                                {{ room.id }}
+                            </OverviewCardDetails>
+                        </div>
+                        <div class="col-md-6 d-flex">
+                            <OverviewCardDetails>
+                                <template #header>Room Name</template>
+                                {{ room.room_name }}
+                            </OverviewCardDetails>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 d-flex">
+                            <OverviewCardDetails>
+                                <template #header>Start Date</template>
+                                {{
+                                    new Date(room?.start_time).toLocaleString()
+                                }}
+                            </OverviewCardDetails>
+                        </div>
+                        <div class="col-md-6 d-flex">
+                            <OverviewCardDetails>
+                                <template #header>End Date</template>
+                                {{ new Date(room?.end_time).toLocaleString() }}
+                            </OverviewCardDetails>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 d-flex">
+                            <OverviewCardDetails>
+                                <template #header>Room URL</template>
+                                <div
+                                    class="hstack gap-5 justify-content-between align-items-center"
+                                >
+                                    <code
+                                        ref="roomLink"
+                                        class="text-decoration-none text-dark"
+                                        >{{ route("vote.main", room.id) }}
+                                    </code>
+                                    <button
+                                        class="btn btn-primary"
+                                        @click="customCopy(source)"
+                                    >
+                                        <i class="bi bi-clipboard-check"></i>
+                                    </button>
+                                </div>
+                            </OverviewCardDetails>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <OverviewCard
+                        :count="invitationCount"
+                        class="text-bg-warning mb-3"
+                        title="Voters"
+                    >
+                        <i class="bi bi-people"></i>
+                    </OverviewCard>
+                    <OverviewCard
+                        :count="questionCount"
+                        class="text-bg-success mb-3"
+                        title="Questions"
+                    >
+                        <i class="bi bi-question-circle"></i>
+                    </OverviewCard>
+                    <OverviewCard
+                        :count="candidateCount"
+                        class="text-bg-secondary mb-3"
+                        title="Candidates"
+                    >
+                        <i class="bi bi-list-ul"></i>
+                    </OverviewCard>
+                </div>
+            </div>
+        </div>
+        <BaseLoading v-else />
     </div>
 </template>
 <script setup>
-import { route } from "ziggy-js";
-
 import "md-editor-v3/lib/preview.css";
+import { useInvitationStore } from "@/Stores/invitations.js";
+import { computed, onMounted, ref } from "vue";
+import { useQuestionStore } from "@/Stores/questions.js";
+import { useCandidateStore } from "@/Stores/candidates.js";
+import BaseLoading from "@/Components/BaseLoading.vue";
+import { useVotingRoomStore } from "@/Stores/voting-room.js";
+import { route } from "ziggy-js";
+import { useClipboard } from "@vueuse/core";
+import { useToast } from "vue-toast-notification";
+import OverviewCard from "@/Pages/Voting/VotingRoom/Overview/OverviewCard.vue";
+import OverviewCardDetails from "@/Pages/Voting/VotingRoom/Overview/OverviewCardDetails.vue";
 
-defineProps(["room"]);
+const props = defineProps(["room"]);
 
-const gmtOffset = (timezone) => {
-    const now = new Date(Date.now());
-    const timezoneOffset = now.offset / 60;
-    const offsetSign = timezoneOffset >= 0 ? "+" : "-";
-    const offsetHours = Math.abs(Math.floor(timezoneOffset));
-    const offsetMinutes = Math.abs(Math.round((timezoneOffset % 1) * 60));
+const toast = useToast();
+const isReady = ref(false);
+const roomStore = useVotingRoomStore();
+const questionStore = useQuestionStore();
+const candidateStore = useCandidateStore();
+const invitationStore = useInvitationStore();
 
-    return `GMT${offsetSign}${offsetHours
-        .toString()
-        .padStart(2, "0")}:${offsetMinutes.toString().padStart(2, "0")}`;
+const room = computed(() => {
+    for (const room of roomStore.rooms) {
+        if (room.id === props.room.id) {
+            return room;
+        }
+    }
+});
+
+const invitationCount = computed(
+    () => Object.keys(invitationStore.invitations[props.room.id]).length,
+);
+const questionCount = computed(
+    () => Object.keys(questionStore.questions[props.room.id]).length,
+);
+const candidateCount = computed(() => {
+    return Object.values(candidateStore.candidates[props.room.id] || {}).reduce(
+        (acc, candidates) => acc + candidates.length,
+        0,
+    );
+});
+
+const source = ref(route("vote.main", props.room.id));
+const { text, copy, copied, isSupported } = useClipboard({ source });
+
+const customCopy = () => {
+    copy();
+    toast.success("Copied to clipboard!");
 };
 
-function getTimezoneOffset(timezone) {
-    const now = new Date();
-    const formatOptions = { timeZone: timezone, timeZoneName: "shortOffset" };
-    const formatted = new Intl.DateTimeFormat("en-US", formatOptions).format(
-        now,
-    );
-    return formatted.split("GMT")[1];
-}
+onMounted(async () => {
+    await roomStore.fetchRooms();
+    await questionStore.fetchQuestions(props.room.id);
+    await candidateStore.fetchCandidates(props.room.id);
+    await invitationStore.fetchInvitations(props.room.id);
 
-function getRoomVoteLink(roomId) {
-    // Replace 'your-vote-route' with your actual route logic or method
-    return route("vote.main", roomId);
-}
+    isReady.value = true;
+});
 </script>

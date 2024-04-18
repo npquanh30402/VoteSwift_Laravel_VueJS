@@ -52,11 +52,16 @@ class VotingRoomService
             }
 
             if (isset($request->start_time)) {
-                $room->start_time = Carbon::parse($request->start_time)->setTimezone('UTC');
+                $room->start_time = Carbon::parse($request->start_time)->setTimezone($request->activeTz);
             }
 
+//            dd($request->start_time, Carbon::parse($request->start_time)->setTimezone($request->activeTz), Carbon::parse($request->start_time));
+//
+//            $startTime = '2024-04-20 08:00:00';
+//            dd(Carbon::parse($startTime)->setTimezone('UTC'));
+
             if (isset($request->end_time)) {
-                $room->end_time = Carbon::parse($request->end_time)->setTimezone('UTC');
+                $room->end_time = Carbon::parse($request->end_time)->setTimezone($request->activeTz);
             }
 
             $room->save();
