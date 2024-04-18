@@ -27,7 +27,10 @@ class VotingRoomSettingController extends Controller
     {
         $settings = $room->settings;
 
-        return response()->json($settings);
+        return response()->json([
+            'data' => $settings,
+            'message' => 'Voting room settings retrieved successfully!'
+        ]);
     }
 
     public function updateSettings(VotingRoom $room, Request $request)
@@ -88,11 +91,22 @@ class VotingRoomSettingController extends Controller
                 $updates['voters_can_see_realtime_results'] = $request->voters_can_see_realtime_results === 'true';
             }
 
+            if (isset($request->minimum_age)) {
+                $updates['minimum_age'] = $request->minimum_age;
+            }
+
+            if (isset($request->maximum_age)) {
+                $updates['maximum_age'] = $request->maximum_age;
+            }
+
             $room->settings()->update($updates);
 
             $updatedSettings = $room->settings()->first();
 
-            return response()->json($updatedSettings);
+            return response()->json([
+                'data' => $updatedSettings,
+                'message' => 'Settings updated successfully!'
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

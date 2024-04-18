@@ -146,10 +146,7 @@ const updateSetting = (key, value) => {
     const formData = new FormData();
     formData.append(key, value);
 
-    votingSettingStore
-        .updateSettings(props.room.id, formData)
-        .then(() => $toast.success("Updated successfully"))
-        .catch(() => $toast.error("Failed to update"));
+    votingSettingStore.updateSettings(props.room.id, formData);
 };
 
 const toggleRealTimeVoting = () => {

@@ -39,6 +39,10 @@ return new class extends Migration {
             $table->boolean('chat_messages_saved')->default(false);
             $table->boolean('allow_voters_upload')->default(false);
 
+            // Age range access
+            $table->unsignedInteger('minimum_age')->default(18);
+            $table->unsignedInteger('maximum_age')->default(18);
+
             $table->timestamps();
 
             $table->index('voting_room_id');

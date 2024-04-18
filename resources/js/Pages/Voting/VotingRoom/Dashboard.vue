@@ -1,14 +1,7 @@
 <template>
     <div class="row">
         <div class="col">
-            <h1 class="display-6 text-center fw-bold">
-                Room Dashboard
-                <i
-                    class="bi bi-arrow-clockwise icon"
-                    style="cursor: pointer"
-                    @click="router.reload()"
-                ></i>
-            </h1>
+            <h1 class="display-6 text-center fw-bold">Room Dashboard</h1>
         </div>
     </div>
     <div class="my-3">
@@ -61,6 +54,7 @@ import UpdateChat from "@/Pages/Voting/VotingRoom/Features/UpdateChat.vue";
 import RoomRealtime from "@/Pages/Voting/VotingRoom/RoomRealtime.vue";
 import RoomOverview from "@/Pages/Voting/VotingRoom/RoomOverview.vue";
 import InvitationPage from "@/Pages/Voting/VotingRoom//Invitation/Index.vue";
+import RoomExtra from "@/Pages/Voting/VotingRoom/Features/RoomExtra.vue";
 
 const props = defineProps([
     "room",
@@ -118,6 +112,11 @@ const tabData = {
         component: RoomRealtime,
         name: "Realtime Voting",
         componentName: "RoomRealtime",
+    },
+    RoomExtra: {
+        component: RoomExtra,
+        name: "Extra",
+        componentName: "RoomExtra",
     },
     VotingResult: {
         component: VotingResult,

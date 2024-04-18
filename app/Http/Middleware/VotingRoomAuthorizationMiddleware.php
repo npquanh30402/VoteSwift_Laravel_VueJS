@@ -6,8 +6,10 @@ use Closure;
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
@@ -41,7 +43,8 @@ class VotingRoomAuthorizationMiddleware
 
             return redirect()->route('vote.password.form', ['room' => $room, 'token' => $token]);
         } catch (AuthorizationException $e) {
-            return Inertia::render('Errors/Unauthorized');
+            $error = $e->getMessage();
+            return Inertia::render('Errors/Unauthorized', compact('error'));
         } catch (Exception $e) {
             Log::error('Error in VotingRoomAuthorizationMiddleware: ' . $e->getMessage());
             return response()->json(['message' => 'An error occurred while processing your request.'], 500);
@@ -59,6 +62,8 @@ class VotingRoomAuthorizationMiddleware
     private function canAccessRoom($room, $user, $token)
     {
         $settings = $room->settings()->first();
+
+        $this->checkAgeLimit($room, $user);
 
         if ($settings->password !== null && $settings->invitation_only === 1) {
             if (!isset($token)) {
@@ -91,6 +96,20 @@ class VotingRoomAuthorizationMiddleware
         }
 
         return false;
+    }
+
+    private function checkAgeLimit($room, $user)
+    {
+        $settings = $room->settings;
+
+        $minimumAge = $settings->minimum_age;
+        $maximumAge = $settings->maximum_age;
+
+        $userAge = Carbon::parse($user->birth_date)->diffInYears();
+
+        if ($userAge < $minimumAge || $userAge > $maximumAge) {
+            throw new AuthorizationException('Invalid age range.');
+        }
     }
 
     private function isUserInvited($room, $user, $token)

@@ -1677,8 +1677,8 @@
                 x="15"
                 y="257"
             >
-                There is no way Immma
-                <tspan x="35" y="292">let you pass through!</tspan>
+                Look here!
+                <tspan x="35" y="292">{{ error }}</tspan>
                 <tspan fill="#000" font-size="65" x="100" y="357">403</tspan>
                 <tspan fill="#000" font-size="15" x="93" y="381.2">
                     Access Forbidden.
@@ -1692,8 +1692,8 @@
                 x="15"
                 y="255"
             >
-                There is no way Immma
-                <tspan x="35" y="290">let you pass through!</tspan>
+                Look here!
+                <tspan x="35" y="290">{{ error }}</tspan>
                 <tspan fill="#BF3E73" font-size="65" x="100" y="355">403</tspan>
                 <tspan fill="#6BA184" font-size="15" x="93" y="380">
                     Access Forbidden.
@@ -1702,6 +1702,12 @@
         </g>
     </svg>
 </template>
+
+<script setup>
+const props = defineProps(["error"]);
+
+console.log(props.error);
+</script>
 
 <style scoped>
 svg {

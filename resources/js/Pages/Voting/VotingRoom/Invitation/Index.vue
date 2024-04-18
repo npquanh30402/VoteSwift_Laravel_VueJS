@@ -113,8 +113,6 @@ const updateSetting = (key, value) => {
     formData.append(key, value);
 
     votingSettingStore.updateSettings(props.room.id, formData);
-
-    $toast.success("Updated successfully");
 };
 
 const toggleInvitation = () => {
