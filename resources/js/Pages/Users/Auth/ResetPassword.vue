@@ -1,40 +1,20 @@
 <template>
     <div>
-        <h1 class="text-center mt-3">Register</h1>
+        <h1 class="text-center mt-3">Reset Password</h1>
         <div class="row justify-content-center my-5">
             <form
                 class="col-md-6 shadow p-5 border rounded"
-                @submit.prevent="register"
+                @submit.prevent="reset"
             >
-                <div class="mb-3">
-                    <label class="form-label" for="username">Username</label>
-                    <input
-                        id="username"
-                        v-model="form.username"
-                        class="form-control"
-                        type="text"
-                    />
-                    <p
-                        v-if="form.errors.username"
-                        class="m-0 small text-danger"
-                    >
-                        {{ form.errors.username }}
-                    </p>
-                </div>
                 <div class="mb-3">
                     <label class="form-label" for="email">Email address</label>
                     <input
                         id="email"
                         v-model="form.email"
                         class="form-control"
+                        disabled
                         type="email"
                     />
-                    <p v-if="form.errors.email" class="m-0 small text-danger">
-                        {{ form.errors.email }}
-                    </p>
-                    <div v-else id="emailHelp" class="form-text">
-                        We'll never share your email with anyone else.
-                    </div>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="password">Password</label>
@@ -56,13 +36,18 @@
                         >Confirm Password</label
                     >
                     <input
-                        class="form-control"
-                        type="password"
                         id="password_confirmation"
                         v-model="form.password_confirmation"
+                        class="form-control"
+                        type="password"
                     />
                 </div>
-                <button type="submit" class="btn btn-primary">Register</button>
+                <div>
+                    <input :value="form.token" name="token" type="hidden" />
+                </div>
+                <button class="btn btn-primary float-end" type="submit">
+                    Reset
+                </button>
             </form>
         </div>
     </div>
@@ -71,28 +56,17 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { useToast } from "vue-toast-notification";
 
-const $toast = useToast();
+const props = defineProps(["token", "email"]);
+
 const form = useForm({
-    username: null,
-    email: null,
+    email: props.email,
     password: null,
     password_confirmation: null,
+    token: props.token,
 });
 
-function register() {
-    form.post(
-        route("register.store"),
-        {
-            onSuccess: () => {
-                $toast.success("Registration successfully");
-            },
-            onError: (errors) => {
-                $toast.error(errors.register);
-            },
-        },
-        form,
-    );
+function reset() {
+    form.post(route("password.update"));
 }
 </script>

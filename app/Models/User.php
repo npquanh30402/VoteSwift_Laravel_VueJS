@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -77,11 +76,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(UserSetting::class, 'user_id', 'id');
     }
 
-    public function rooms()
-    {
-        return $this->hasMany(VotingRoom::class, 'user_id', 'id');
-    }
-
     public function messages()
     {
         return $this->hasMany(Message::class, 'sender_id', 'id');
@@ -97,6 +91,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->rooms()->whereHas('settings', function ($query) {
             $query->where('public_visibility', true);
         })->get();
+    }
+
+    public function rooms()
+    {
+        return $this->hasMany(VotingRoom::class, 'user_id', 'id');
     }
 
     public function hasVoted()
@@ -132,16 +131,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->friendsFrom()->where('friends.accepted', false);
     }
 
-    public function pendingFriendsTo()
-    {
-        return $this->friendsTo()->where('friends.accepted', false);
-    }
-
     public function friendsFrom()
     {
         return $this->belongsToMany(User::class, 'friends', 'friend_id', 'user_id')
             ->select('users.*', 'friends.accepted')
             ->withTimestamps();
+    }
+
+    public function pendingFriendsTo()
+    {
+        return $this->friendsTo()->where('friends.accepted', false);
     }
 
     public function friendsTo()
