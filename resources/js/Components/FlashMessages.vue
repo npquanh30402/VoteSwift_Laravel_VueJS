@@ -1,16 +1,10 @@
 <template>
-    <div>
-        <!--        <div class="alert alert-success w-50 mx-auto mt-3" v-if="flashSuccess">-->
-        <!--            {{ flashSuccess }}-->
-        <!--        </div>-->
-        <!--        <div class="alert alert-danger w-50 mx-auto mt-3" v-else-if="flashError">-->
-        <!--            {{ flashError }}-->
-        <!--        </div>-->
+    <div class="d-none">
         <div v-if="flashSuccess">
-            {{ toastSuccess }}
+            {{ toastSuccess() }}
         </div>
         <div v-if="flashError">
-            {{ toastError }}
+            {{ toastError() }}
         </div>
     </div>
 </template>
@@ -25,6 +19,6 @@ const toast = useToast();
 const flashSuccess = computed(() => usePage().props.flash.success);
 const flashError = computed(() => usePage().props.flash.error);
 
-const toastSuccess = computed(() => toast.success(flashSuccess.value));
-const toastError = computed(() => toast.error(flashError.value));
+const toastSuccess = () => toast.success(flashSuccess.value);
+const toastError = () => toast.error(flashError.value);
 </script>
