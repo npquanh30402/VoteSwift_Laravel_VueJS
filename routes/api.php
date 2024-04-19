@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Controllers\Api\CandidateController;
 use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\FriendController;
@@ -41,6 +40,8 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::get('/room/{room}/invitations', [InvitationController::class, 'getInvitations'])->name('api.room.invitation.index');
     Route::post('/room/{room}/invitations', [InvitationController::class, 'store'])->name('api.room.invitation.store');
+
+    Route::post('/room/{room}/csv', [InvitationController::class, 'importInvitationsFromCSV'])->name('api.room.invitation.csv');
 
     Route::get('/room/{room}/invitations/mail', [InvitationMailController::class, 'index'])->name('api.room.invitation.mail.index');
     Route::post('/room/{room}/invitations/mail', [InvitationMailController::class, 'storeOrUpdate'])->name('api.room.invitation.mail.store');

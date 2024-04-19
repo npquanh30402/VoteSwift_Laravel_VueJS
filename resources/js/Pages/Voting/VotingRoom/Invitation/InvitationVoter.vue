@@ -62,8 +62,37 @@
                 class="card border border-3 border-success-subtle p-3 shadow-sm form-group d-flex flex-column"
                 style="height: 50vh"
             >
-                <div class="d-flex justify-content-between">
-                    <span>User Selected:</span>
+                <div class="row justify-content-between">
+                    <div class="col-md-3">
+                        <span>User Selected:</span>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="hstack justify-content-between">
+                            <label class="form-label" for="csv_file"
+                                >Import Users:</label
+                            >
+                            <VTooltip :skidding="-48">
+                                <i class="bi bi-info-circle"></i>
+
+                                <template #popper>
+                                    <div>
+                                        <p>The file must be in CSV format.</p>
+                                        <code> id,username,email </code>
+                                        <br />
+                                        <code>1,user_1,user_1@example.com</code>
+                                        <br />
+                                        <code>...</code>
+                                    </div>
+                                </template>
+                            </VTooltip>
+                        </div>
+                        <input
+                            id="csv_file"
+                            class="form-control form-control-sm"
+                            type="file"
+                            @change="importUsers"
+                        />
+                    </div>
                 </div>
                 <div
                     class="card-body overflow-auto vstack justify-content-between"
@@ -126,11 +155,9 @@ import { route } from "ziggy-js";
 import { usePage } from "@inertiajs/vue3";
 import { computed, onMounted, ref } from "vue";
 import { useInvitationStore } from "@/Stores/invitations.js";
-import { useToast } from "vue-toast-notification";
 import { watchDebounced } from "@vueuse/core";
 
 const props = defineProps(["room"]);
-const $toast = useToast();
 
 const authUser = computed(() => usePage().props.authUser.user);
 const invitationStore = useInvitationStore();
@@ -204,13 +231,24 @@ const removeFromInvite = (userIdToRemove) => {
     }
 };
 
-const submit = () => {
+const importUsers = (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("csv_file", file);
+
+    invitationStore.importInvitations(props.room.id, formData);
+};
+
+const submit = async () => {
     const data = {
         user_ids: userInvitationList.value,
     };
 
-    invitationStore.storeInvitations(props.room.id, data);
-
-    $toast.success("Saved successfully");
+    await invitationStore.storeInvitations(props.room.id, data);
 };
 </script>
