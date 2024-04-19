@@ -147,7 +147,7 @@ const helper = useHelper();
 
 const music = computed(() => usePage().props.authUser.music);
 const isMusicPlayerEnable = computed(
-    () => props.userSettings.music_player_enabled === 1,
+    () => props.userSettings?.music_player_enabled === 1,
 );
 
 const registerOrLogin = ref(false);

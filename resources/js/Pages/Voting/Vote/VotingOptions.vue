@@ -113,8 +113,10 @@ import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useHelper } from "@/Services/helper.js";
 import { route } from "ziggy-js";
 import CandidateOptions from "@/Pages/Voting/Vote/StartVoting/CandidateOptions.vue";
+import { useVoteStore } from "@/Stores/vote.js";
 
 const props = defineProps(["room", "questions", "voteCounts", "roomSettings"]);
+const voteStore = useVoteStore();
 const votingResultStore = useVotingResultStore();
 const helper = useHelper();
 const currentImageDisplay = ref(null);

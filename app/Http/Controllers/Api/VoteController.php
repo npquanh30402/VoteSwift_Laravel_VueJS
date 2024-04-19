@@ -36,26 +36,29 @@ class VoteController extends Controller
             if (!empty($candidateIds)) {
                 foreach ($candidateIds as $candidateId) {
                     if ($candidateId !== -1) {
-                        $this->createVote($candidateId);
+                        $candidate = $question->candidates()->findOrFail($candidateId);
+                        $this->createVote($room, $question, $candidate);
                     }
                 }
             }
         }
 
-//        $nestedResults = Vote::getQuestionResults($room->questions);
-//        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
-//
-//        broadcast(new ResultUpdate($nestedResults, $voteCountsInTimeInterval));
+        $nestedResults = Vote::getQuestionResults($room->questions);
+        $voteCountsInTimeInterval = Vote::calculateVoteCountsInTimeInterval($room);
+
+        broadcast(new ResultUpdate($nestedResults, $voteCountsInTimeInterval));
 
         return response()->json([
             'message' => 'Your vote has been submitted successfully.',
         ]);
     }
 
-    private function createVote($candidateId)
+    private function createVote($room, $question, $candidate)
     {
         $vote = new Vote();
-        $vote->candidate_id = $candidateId;
+        $vote->voting_room_id = $room->id;
+        $vote->question_id = $question->id;
+        $vote->candidate_id = $candidate->id;
         $vote->user_id = auth()->user()->id;
 
         $vote->save();
