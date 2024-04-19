@@ -12,9 +12,11 @@ class VotingRoomController extends Controller
 {
     public function publishRoom(VotingRoom $room)
     {
-//        if ($room->is_published) {
-//            return back()->with('error', 'Voting room is already published!');
-//        }
+        if ($room->is_published) {
+            return back()->with('error', 'Voting room is already published!');
+        }
+
+        $settings = $room->settings;
 
         if ($room->questions()->count() < 1) {
             return back()->with('error', 'Voting room must have at least 1 question!');
@@ -30,7 +32,9 @@ class VotingRoomController extends Controller
 
         $room->user->notify(new RoomPublish($room));
 
-        InvitationController::sendInvitation($room);
+        if ($settings->invitation_only === 1) {
+            InvitationController::sendInvitation($room);
+        }
 
         return back()->with('success', 'Voting room published successfully!');
     }

@@ -9,7 +9,7 @@
         <div v-if="flashSuccess">
             {{ toastSuccess }}
         </div>
-        <div v-else>
+        <div v-if="flashError">
             {{ toastError }}
         </div>
     </div>
