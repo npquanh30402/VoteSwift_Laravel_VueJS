@@ -139,7 +139,7 @@ import NotificationIcon from "@/Layouts/Header/NotificationIcon.vue";
 import ChatIcon from "@/Layouts/Header/ChatIcon.vue";
 import FriendSetup from "@/Layouts/Header/FriendSetup.vue";
 
-const props = defineProps(["authUser"]);
+const props = defineProps(["authUser", "userSettings"]);
 
 const $toast = useToast();
 
@@ -147,7 +147,7 @@ const helper = useHelper();
 
 const music = computed(() => usePage().props.authUser.music);
 const isMusicPlayerEnable = computed(
-    () => props.authUser.settings?.music_player_enabled === 1,
+    () => props.userSettings.music_player_enabled === 1,
 );
 
 const registerOrLogin = ref(false);

@@ -1,5 +1,5 @@
 <template>
-    <TheHeader :authUser="authUser"></TheHeader>
+    <TheHeader :authUser="authUser" :userSettings="userSettings"></TheHeader>
     <FlashMessages></FlashMessages>
     <transition mode="out-in" name="fade">
         <div :key="$page.url">
@@ -20,6 +20,7 @@ import { computed } from "vue";
 import ScrollToTop from "@/Components/ScrollToTop.vue";
 
 const authUser = computed(() => usePage().props.authUser.user);
+const userSettings = computed(() => usePage().props.authUser.settings);
 </script>
 
 <style>
