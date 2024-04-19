@@ -41,7 +41,7 @@ return new class extends Migration {
 
             // Age range access
             $table->unsignedInteger('minimum_age')->default(18);
-            $table->unsignedInteger('maximum_age')->default(18);
+            $table->unsignedInteger('maximum_age')->default(99);
 
             $table->timestamps();
 

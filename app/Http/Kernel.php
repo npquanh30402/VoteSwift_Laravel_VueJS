@@ -6,6 +6,7 @@ use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckFriendship;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\PreventDuplicateVotes;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\PreventVotingAfterEndMiddleware;
 use App\Http\Middleware\PreventVotingTimeMiddleware;
@@ -76,6 +77,7 @@ class Kernel extends HttpKernel
         'verified' => EnsureEmailIsVerified::class,
         'voting_room_authorization' => VotingRoomAuthorizationMiddleware::class,
         'prevent_voting_time' => PreventVotingTimeMiddleware::class,
+        'prevent_duplicate_votes' => PreventDuplicateVotes::class,
         'check_friendship' => CheckFriendship::class
     ];
 }

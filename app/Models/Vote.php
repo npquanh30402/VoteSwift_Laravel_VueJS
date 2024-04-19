@@ -12,10 +12,7 @@ class Vote extends Model
 {
     use HasFactory;
 
-    public function candidate()
-    {
-        return $this->belongsTo(Candidate::class, 'candidate_id', 'id');
-    }
+    protected $table = 'votes';
 
     public static function getQuestionResults($questions)
     {
@@ -108,5 +105,20 @@ class Vote extends Model
         }
 
         return [$times, $voteCounts];
+    }
+
+    public function room()
+    {
+        return $this->belongsTo(VotingRoom::class, 'voting_room_id', 'id');
+    }
+
+    public function question()
+    {
+        return $this->belongsTo(Question::class, 'question_id', 'id');
+    }
+
+    public function candidate()
+    {
+        return $this->belongsTo(Candidate::class, 'candidate_id', 'id');
     }
 }

@@ -88,6 +88,11 @@ class VotingRoom extends Model
         return $this;
     }
 
+    public function votes()
+    {
+        return $this->hasMany(Vote::class, 'voting_room_id', 'id');
+    }
+
     public function startVote()
     {
         $this->update(['vote_started' => true]);

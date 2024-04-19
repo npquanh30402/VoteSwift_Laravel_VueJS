@@ -50,6 +50,8 @@ class UserSeeder extends Seeder
                                     // Ensure each user votes for each candidate only once
                                     if (!$voter->hasVotedForCandidate($candidate)) {
                                         Vote::factory()->create([
+                                            'voting_room_id' => $candidate->question->voting_room_id,
+                                            'question_id' => $candidate->question->id,
                                             'candidate_id' => $candidate->id,
                                             'user_id' => $voter->id,
                                         ]);
