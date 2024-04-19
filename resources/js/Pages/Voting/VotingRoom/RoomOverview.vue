@@ -21,15 +21,13 @@
                         <div class="col-md-6 d-flex">
                             <OverviewCardDetails>
                                 <template #header>Start Date</template>
-                                {{
-                                    new Date(room?.start_time).toLocaleString()
-                                }}
+                                {{ startTime }}
                             </OverviewCardDetails>
                         </div>
                         <div class="col-md-6 d-flex">
                             <OverviewCardDetails>
                                 <template #header>End Date</template>
-                                {{ new Date(room?.end_time).toLocaleString() }}
+                                {{ endTime }}
                             </OverviewCardDetails>
                         </div>
                     </div>
@@ -97,11 +95,16 @@ import { useClipboard } from "@vueuse/core";
 import { useToast } from "vue-toast-notification";
 import OverviewCard from "@/Pages/Voting/VotingRoom/Overview/OverviewCard.vue";
 import OverviewCardDetails from "@/Pages/Voting/VotingRoom/Overview/OverviewCardDetails.vue";
+import { fromZonedTime } from "date-fns-tz";
+import { format } from "date-fns";
+import moment from "moment-timezone";
+import { useHelper } from "@/Services/helper.js";
 
 const props = defineProps(["room"]);
 
 const toast = useToast();
 const isReady = ref(false);
+const helper = useHelper();
 const roomStore = useVotingRoomStore();
 const questionStore = useQuestionStore();
 const candidateStore = useCandidateStore();
@@ -135,6 +138,18 @@ const customCopy = () => {
     copy();
     toast.success("Copied to clipboard!");
 };
+
+const startTime = computed(() =>
+    helper.formatDate(
+        helper.convertToLocal(room.value.start_time, helper.getUserTimeZone()),
+    ),
+);
+
+const endTime = computed(() =>
+    helper.formatDate(
+        helper.convertToLocal(room.value.end_time, helper.getUserTimeZone()),
+    ),
+);
 
 onMounted(async () => {
     await roomStore.fetchRooms();

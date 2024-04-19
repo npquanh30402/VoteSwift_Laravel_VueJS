@@ -1,69 +1,72 @@
 <template>
-    <div v-if="roomSettings && invitedUsers && roomAttachments">
-        <VotingSidebar
-            :room="room"
-            :roomAttachments="roomAttachments"
-            :roomSettings="roomSettings"
-        />
-
-        <BaseModal
-            id="RoomDescriptionModal"
-            class="modal-dialog-scrollable"
-            data-bs-backdrop="true"
-            title="Room Description"
-        >
-            <MdPreview
-                :editorId="'room_' + room.id"
-                :modelValue="room.room_description"
-            />
-        </BaseModal>
-
-        <div v-if="isRealtimeEnabled || isChatEnable">
-            <VotingOnlineUser
-                :invitedUsers="invitedUsers"
-                :isUserOnline="isUserOnline"
-                :onlineUsers="onlineUsers"
-                :owner="owner"
+    <div>
+        <div v-if="isReady">
+            <VotingSidebar
                 :room="room"
+                :roomAttachments="roomAttachments"
                 :roomSettings="roomSettings"
-                style="z-index: 999"
             />
-            <VotingChat
-                v-if="isChatEnable"
-                :channelBroadcast="channelBroadcast"
-                :room="room"
-                :roomSettings="roomSettings"
-                style="z-index: 999"
-            />
+
+            <BaseModal
+                id="RoomDescriptionModal"
+                class="modal-dialog-scrollable"
+                data-bs-backdrop="true"
+                title="Room Description"
+            >
+                <MdPreview
+                    :editorId="'room_' + room.id"
+                    :modelValue="room.room_description"
+                />
+            </BaseModal>
+
+            <div v-if="isRealtimeEnabled || isChatEnable">
+                <VotingOnlineUser
+                    :invitedUsers="invitedUsers"
+                    :isUserOnline="isUserOnline"
+                    :onlineUsers="onlineUsers"
+                    :owner="owner"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    style="z-index: 999"
+                />
+                <VotingChat
+                    v-if="isChatEnable"
+                    :channelBroadcast="channelBroadcast"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    style="z-index: 999"
+                />
+            </div>
+
+            <VotingNote :room="room" :roomSettings="roomSettings" />
+
+            <div class="text-center mb-4">
+                <h3>Time remaining:</h3>
+                <VotingClock :date="room.end_time" />
+            </div>
+
+            <transition mode="out-in" name="fade">
+                <component
+                    :is="tabs[currentTab]"
+                    v-if="roomSettings.invitation_only"
+                    :channelBroadcast="channelBroadcast"
+                    :isReadyToStart="isReadyToStart"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    @switch-tab="currentTab = $event"
+                    @start-voting="startVoting"
+                ></component>
+                <component
+                    :is="tabs[currentTab]"
+                    v-else
+                    :channelBroadcast="channelBroadcast"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    @switch-tab="currentTab = $event"
+                ></component>
+            </transition>
         </div>
-
-        <VotingNote :room="room" :roomSettings="roomSettings" />
-
-        <div class="text-center mb-4">
-            <h3>Time remaining:</h3>
-            <VotingClock :date="room.end_time" />
-        </div>
-
-        <transition mode="out-in" name="fade">
-            <component
-                :is="tabs[currentTab]"
-                v-if="roomSettings.invitation_only"
-                :channelBroadcast="channelBroadcast"
-                :isReadyToStart="isReadyToStart"
-                :room="room"
-                :roomSettings="roomSettings"
-                @switch-tab="currentTab = $event"
-                @start-voting="startVoting"
-            ></component>
-            <component
-                :is="tabs[currentTab]"
-                v-else
-                :channelBroadcast="channelBroadcast"
-                :room="room"
-                :roomSettings="roomSettings"
-                @switch-tab="currentTab = $event"
-            ></component>
-        </transition>
+        <BaseLoading v-else />
     </div>
 </template>
 
@@ -71,7 +74,6 @@
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import Welcome from "@/Pages/Voting/Vote/Welcome.vue";
 import StartVoting from "@/Pages/Voting/Vote/StartVoting.vue";
-import VotingClock from "@/Components/VotingClock.vue";
 import BaseModal from "@/Components/BaseModal.vue";
 import { MdPreview } from "md-editor-v3";
 import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
@@ -85,9 +87,13 @@ import VotingOnlineUser from "@/Pages/Voting/Vote/VotingOnlineUser.vue";
 import { useAttachmentStore } from "@/Stores/attachments.js";
 import VotingSubmit from "@/Pages/Voting/Vote/VotingSubmit.vue";
 import VotingNote from "@/Pages/Voting/Vote/Note/VotingNote.vue";
+import VotingClock from "@/Pages/Voting/Vote/VotingClock.vue";
+import BaseLoading from "@/Components/BaseLoading.vue";
 
 const props = defineProps(["room", "owner"]);
 const $toast = useToast();
+
+const isReady = ref(false);
 
 const votingSettingStore = useVotingSettingStore();
 const invitationStore = useInvitationStore();
@@ -219,26 +225,30 @@ const leaveRoom = () => {
         .catch(() => $toast.error("Failed to leave the room"));
 };
 
-onMounted(() => {
+onMounted(async () => {
     voteStore.setupChannel(props.room.id);
     window.addEventListener("beforeunload", leaveRoom);
 
     joinRoom();
 
-    votingSettingStore.fetchSettings(props.room.id).then(() => setupRealTime());
+    await votingSettingStore
+        .fetchSettings(props.room.id)
+        .then(() => setupRealTime());
 
     if (
         invitationStore.invitations[props.room.id] === undefined ||
         invitationStore.invitations[props.room.id].length === 0
     ) {
-        invitationStore.fetchInvitations(props.room.id).then(() => {
+        await invitationStore.fetchInvitations(props.room.id).then(() => {
             invitedUsers.value.unshift(props.owner);
         });
     }
 
-    attachmentStore.fetchAttachments(props.room.id);
+    await attachmentStore.fetchAttachments(props.room.id);
 
     setupRealTime();
+
+    isReady.value = true;
 });
 
 onUnmounted(() => {

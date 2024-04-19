@@ -1,5 +1,7 @@
 import * as DOMPurify from "dompurify/dist/purify.min.js";
 import { formatDistanceToNow } from "date-fns/formatDistanceToNow";
+import { format } from "date-fns";
+import moment from "moment-timezone";
 
 export const useHelper = () => {
     const removeSpecialCharacters = (str) => {
@@ -61,7 +63,25 @@ export const useHelper = () => {
         return count > threshold ? `${threshold}+` : count.toString();
     };
 
+    const formatDate = (date) => format(date, "dd/MM/yyyy, hh:mm a");
+
+    function convertToUtc(date) {
+        return moment(date).utc().format();
+    }
+
+    function convertToLocal(date, timeZone) {
+        return moment(date).tz(timeZone).format();
+    }
+
+    const getUserTimeZone = () => {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    };
+
     return {
+        getUserTimeZone,
+        formatDate,
+        convertToUtc,
+        convertToLocal,
         removeSpecialCharacters,
         sanitizeAndTrim,
         extractFileName,
