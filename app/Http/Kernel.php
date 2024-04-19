@@ -8,6 +8,7 @@ use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\PreventVotingAfterEndMiddleware;
+use App\Http\Middleware\PreventVotingTimeMiddleware;
 use App\Http\Middleware\RedirectIfAuthenticated;
 use App\Http\Middleware\TrimStrings;
 use App\Http\Middleware\TrustProxies;
@@ -74,7 +75,7 @@ class Kernel extends HttpKernel
         'throttle' => ThrottleRequests::class,
         'verified' => EnsureEmailIsVerified::class,
         'voting_room_authorization' => VotingRoomAuthorizationMiddleware::class,
-        'prevent_voting_after_end' => PreventVotingAfterEndMiddleware::class,
+        'prevent_voting_time' => PreventVotingTimeMiddleware::class,
         'check_friendship' => CheckFriendship::class
     ];
 }

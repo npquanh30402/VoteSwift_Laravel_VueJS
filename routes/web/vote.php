@@ -19,7 +19,7 @@ Route::group(['prefix' => '/voting', 'middleware' => 'auth'], function () {
         // Vote routes
         Route::get('/{room}/vote/password/token/{token?}', [VoteController::class, 'passwordForm'])->name('vote.password.form');
         Route::post('/{room}/vote/password/token/{token?}', [VoteController::class, 'passwordEntry'])->name('vote.password.entry');
-        Route::get('/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware('voting_room_authorization');
+        Route::get('/{room}/vote', [VoteController::class, 'main'])->name('vote.main')->middleware(['voting_room_authorization', 'prevent_voting_time']);
     });
 
     // User history route
