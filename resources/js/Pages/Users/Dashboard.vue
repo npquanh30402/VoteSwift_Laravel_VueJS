@@ -6,10 +6,9 @@
                 <UserSidebar @switch-tab="handleSwitchTab"></UserSidebar>
             </div>
             <div class="col-md-8">
-                <transition name="fade" mode="out-in">
+                <transition mode="out-in" name="fade">
                     <component
                         :is="tabs[currentTab]"
-                        :rooms="rooms"
                         :authUserFriends="authUserFriends"
                     ></component>
                 </transition>
@@ -20,18 +19,15 @@
 
 <script setup>
 import UserSidebar from "@/Pages/Users/UserSidebar.vue";
-import { computed, onMounted, ref } from "vue";
+import { ref } from "vue";
 import RoomList from "@/Pages/Voting/VotingRoom/RoomList.vue";
 import UserSettings from "@/Pages/Users/UserSettings.vue";
 import MusicPlayerSettings from "@/Pages/Users/MusicPlayerSettings.vue";
 import Friend from "@/Pages/Users/Friend/Index.vue";
 import UserCalendar from "@/Pages/Users/UserCalendar.vue";
-import { useVotingRoomStore } from "@/Stores/voting-room.js";
 
 const props = defineProps(["authUserFriends"]);
 
-const roomStore = useVotingRoomStore();
-const rooms = computed(() => roomStore.rooms);
 const currentTab = ref("RoomList");
 
 const tabs = {
@@ -45,8 +41,4 @@ const tabs = {
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
-
-onMounted(async () => {
-    await roomStore.fetchRooms();
-});
 </script>

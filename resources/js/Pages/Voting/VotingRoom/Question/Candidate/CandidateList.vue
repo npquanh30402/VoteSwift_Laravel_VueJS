@@ -1,16 +1,6 @@
 <template>
     <div>
-        <button
-            class="btn btn-secondary mb-3"
-            @click="openModal(modals.addCandidateModal)"
-        >
-            Add Candidate
-        </button>
-        <AddCandidate
-            :id="'addCandidateModal' + question.id"
-            :question="question"
-            :room="room"
-        />
+        <AddCandidate :question="question" :room="room" />
         <div class="list-group">
             <div
                 v-for="candidate in candidates"
@@ -31,59 +21,24 @@
                         ><strong>{{ candidate.candidate_title }}</strong></span
                     >
                 </div>
-                <CandidateAction
-                    :candidate="candidate"
-                    :room="room"
-                    @view-candidate="handleViewCandidate"
-                />
+                <CandidateAction :candidate="candidate" :room="room" />
             </div>
         </div>
         <teleport to="body">
             <LightBoxHelper :currentImageDisplay="currentImageDisplay" />
         </teleport>
-        <ViewCandidate
-            :id="'viewCandidateModal' + question.id"
-            :candidate="modalCandidate"
-            :room="room"
-        />
     </div>
 </template>
 
 <script setup>
 import CandidateAction from "@/Pages/Voting/VotingRoom/Question/Candidate/CandidateAction.vue";
-import { onMounted, reactive, ref } from "vue";
-import * as bootstrap from "bootstrap";
+import { ref } from "vue";
 import AddCandidate from "@/Pages/Voting/VotingRoom/Question/Candidate/AddCandidate.vue";
-import ViewCandidate from "@/Pages/Voting/VotingRoom/Question/Candidate/ViewCandidate.vue";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(["room", "question", "candidates"]);
 
-const modalCandidate = ref(null);
 const currentImageDisplay = ref(null);
-const modals = reactive({
-    addCandidateModal: "addCandidateModal" + props.question.id,
-    viewCandidateModal: "viewCandidateModal" + props.question.id,
-});
-
-onMounted(() => {
-    modals.addCandidateModal = new bootstrap.Modal(
-        document.getElementById(modals.addCandidateModal),
-    );
-    modals.viewCandidateModal = new bootstrap.Modal(
-        document.getElementById(modals.viewCandidateModal),
-    );
-});
-
-function openModal(modal, candidate = null) {
-    modalCandidate.value = candidate;
-    modal.show();
-}
-
-const handleViewCandidate = (candidate) => {
-    modalCandidate.value = candidate;
-    modals.viewCandidateModal.show();
-};
 
 const showImage = (e) => {
     currentImageDisplay.value = e;

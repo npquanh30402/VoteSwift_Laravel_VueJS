@@ -19,6 +19,10 @@ class PreventDuplicateVotes
         $userId = auth()->id();
         $room = $request->route('room');
 
+        if ($userId == $room->user_id) {
+            return $next($request);
+        }
+
         $existingVote = Vote::where('user_id', $userId)
             ->where('voting_room_id', $room->id)
             ->exists();

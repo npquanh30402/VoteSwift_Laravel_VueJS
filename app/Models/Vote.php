@@ -41,6 +41,8 @@ class Vote extends Model
             $nestedResults[] = $questionArray;
         }
 
+//        dd($nestedResults);
+
         return $nestedResults;
     }
 

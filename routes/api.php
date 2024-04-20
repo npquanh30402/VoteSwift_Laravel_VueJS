@@ -102,4 +102,6 @@ Route::group(['middleware' => 'web'], function () {
     Route::delete('/room/{room}/user/{user}/choices', [VoteController::class, 'deleteUserChoices'])->name('api.room.vote.delete.choices');
 
     Route::post('/room/{room}/user/{user}/feedback', [FeedbackController::class, 'store'])->name('api.room.user.feedback.store');
+
+    Route::get('/room/{room}/votes', [VoteController::class, 'getVotes'])->name('api.room.votes.get');
 });

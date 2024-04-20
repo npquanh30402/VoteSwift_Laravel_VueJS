@@ -1,12 +1,15 @@
 <template>
     <div>
-        <button
-            class="btn btn-primary"
-            @click="openModal(modals.addQuestionModal)"
-        >
+        <button class="btn btn-primary" @click="dialogVisible = true">
             Add
         </button>
-        <BaseModal :id="modals.addQuestionModal" title="Create a Question">
+        <Dialog
+            v-model:visible="dialogVisible"
+            :style="{ width: '80vw' }"
+            header="Add Question"
+            maximizable
+            modal
+        >
             <form class="row" @submit.prevent="submit">
                 <div class="col-md-8">
                     <div class="mb-3">
@@ -35,6 +38,7 @@
                             class="btn btn-primary"
                             data-bs-dismiss="modal"
                             type="submit"
+                            @click="dialogVisible = false"
                         >
                             Add
                         </button>
@@ -97,20 +101,20 @@
                     </div>
                 </div>
             </form>
-        </BaseModal>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
-import BaseModal from "@/Components/BaseModal.vue";
 import { useForm } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { onMounted, reactive, ref } from "vue";
+import { ref } from "vue";
 import { MdEditor } from "md-editor-v3";
 import { useQuestionStore } from "@/Stores/questions.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useHelper } from "@/Services/helper.js";
-import * as bootstrap from "bootstrap";
+
+import Dialog from "primevue/dialog";
 
 const props = defineProps(["room"]);
 const helper = useHelper();
@@ -122,6 +126,8 @@ const imgSrc = ref(null);
 const showImage = (e) => {
     currentImageDisplay.value = e;
 };
+
+const dialogVisible = ref(false);
 
 const form = useForm({
     question_title: "",
@@ -157,6 +163,9 @@ const submit = () => {
     }
 
     questionStore.storeQuestion(props.room.id, formData);
+
+    currentImageDisplay.value = null;
+    imgSrc.value = null;
 };
 
 function handleFileChange(event) {
@@ -190,18 +199,4 @@ const onUploadImg = async (files, callback) => {
     );
     callback(res.map((item) => item.data.image));
 };
-
-const modals = reactive({
-    addQuestionModal: "addQuestionModal",
-});
-
-onMounted(() => {
-    modals.addQuestionModal = new bootstrap.Modal(
-        document.getElementById(modals.addQuestionModal),
-    );
-});
-
-function openModal(modal) {
-    modal.show();
-}
 </script>

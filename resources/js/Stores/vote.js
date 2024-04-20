@@ -1,6 +1,8 @@
 import { defineStore } from "pinia";
 import { route } from "ziggy-js";
 import { useToast } from "vue-toast-notification";
+import { ref } from "vue";
+import axios from "axios";
 
 const toast = useToast();
 export const useVoteStore = defineStore("vote", () => {
@@ -14,6 +16,32 @@ export const useVoteStore = defineStore("vote", () => {
 
     const setupChannel = (roomId) => {
         channelBroadcast.channelName += roomId;
+    };
+
+    const votes = ref({});
+    const voteCounts = ref({});
+
+    const fetchVotes = async (roomId) => {
+        // if (!!votes.value[roomId]) {
+        //     return;
+        // }
+
+        const response = await axios.get(route("api.room.votes.get", roomId));
+
+        if (response.status === 200) {
+            votes.value[roomId] = response.data.data;
+
+            votes.value[roomId].forEach((vote) => {
+                const candidateId = vote.candidate_id;
+                if (!voteCounts[roomId]) {
+                    voteCounts[roomId] = {};
+                }
+                if (!voteCounts[roomId][candidateId]) {
+                    voteCounts[roomId][candidateId] = 0;
+                }
+                voteCounts[roomId][candidateId]++;
+            });
+        }
     };
 
     const setupEchoJoinListener = (
@@ -108,6 +136,9 @@ export const useVoteStore = defineStore("vote", () => {
     };
 
     return {
+        votes,
+        voteCounts,
+        fetchVotes,
         setupChannel,
         startVoting,
         storeVotes,

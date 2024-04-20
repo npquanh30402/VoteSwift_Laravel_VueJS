@@ -20,6 +20,16 @@ use Illuminate\Support\Facades\DB;
 
 class VoteController extends Controller
 {
+    public function getVotes(VotingRoom $room)
+    {
+        $votes = $room->votes;
+
+        return response()->json([
+            'data' => $votes,
+            'message' => 'Votes retrieved successfully',
+        ]);
+    }
+
     public function storeVotes(VotingRoom $room, Request $request)
     {
         $selectedOptions = json_decode($request->selectedOptions, true);

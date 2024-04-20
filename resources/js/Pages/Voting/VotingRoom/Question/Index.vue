@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="isLoading">
         <div>
             <AddQuestion :room="room"></AddQuestion>
             <div class="mt-3 d-flex flex-column gap-3">
@@ -32,7 +32,6 @@
                                 <QuestionAction
                                     :question="question"
                                     :room="room"
-                                    @view-question="handleViewQuestion"
                                 />
                             </div>
                         </div>
@@ -42,7 +41,7 @@
                             "
                         />
                     </div>
-                    <div v-if="isReady" class="card-body d-flex flex-column">
+                    <div class="card-body d-flex flex-column">
                         <transition mode="out-in" name="fade">
                             <component
                                 :is="tabs[currentTabs[index]]"
@@ -68,28 +67,23 @@
             <teleport to="body">
                 <LightBoxHelper :currentImageDisplay="currentImageDisplay" />
             </teleport>
-            <ViewQuestion
-                :id="'viewQuestionModal' + room.id"
-                :question="modalQuestion"
-                :room="room"
-            />
         </div>
     </div>
+    <BaseLoading v-else />
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { VueAwesomePaginate } from "vue-awesome-paginate";
 import QuestionSidebar from "@/Pages/Voting/VotingRoom/Question/QuestionSidebar.vue";
 import CandidateList from "@/Pages/Voting/VotingRoom/Question/Candidate/CandidateList.vue";
 import QuestionRule from "@/Pages/Voting/VotingRoom/Question/QuestionRule.vue";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import AddQuestion from "@/Pages/Voting/VotingRoom/Question/AddQuestion.vue";
-import * as bootstrap from "bootstrap";
 import QuestionAction from "@/Pages/Voting/VotingRoom/Question/QuestionAction.vue";
-import ViewQuestion from "@/Pages/Voting/VotingRoom/Question/ViewQuestion.vue";
 import { useQuestionStore } from "@/Stores/questions.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
+import BaseLoading from "@/Components/BaseLoading.vue";
 
 const props = defineProps(["room"]);
 const questionStore = useQuestionStore();
@@ -117,35 +111,22 @@ const tabs = {
     QuestionRule,
 };
 
-const modalQuestion = ref(null);
-const modals = reactive({
-    viewQuestionModal: "viewQuestionModal" + props.room.id,
-});
-
 const populateTabs = () => {
     if (questions.value) {
         currentTabs.value = questions.value.map(() => "CandidateList");
     }
 };
 
-const isReady = ref(false);
+const isLoading = ref(false);
 
 onMounted(async () => {
     await questionStore.fetchQuestions(props.room.id);
     await CandidateStore.fetchCandidates(props.room.id);
 
     populateTabs();
-    isReady.value = true;
 
-    modals.viewQuestionModal = new bootstrap.Modal(
-        document.getElementById(modals.viewQuestionModal),
-    );
+    isLoading.value = true;
 });
-
-const handleViewQuestion = (question) => {
-    modalQuestion.value = question;
-    modals.viewQuestionModal.show();
-};
 
 const handleSwitchTab = (tabName, index) => {
     currentTabs.value[index] = tabName;

@@ -1,149 +1,170 @@
 <template>
     <div>
-        <button class="btn btn-info vertical-button" type="button" @click="openSidebar(bsOffcanvas)">Sidebar
+        <button
+            class="btn btn-info vertical-button"
+            type="button"
+            @click="sidebarVisible = true"
+        >
+            Sidebar
         </button>
-        <BaseOffcanvas id="sidebar" title="Sidebar">
-            <div class="list-group">
-                <div class="accordion" id="SidebarAccordion">
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#OverviewCollapse" aria-expanded="false"
-                                    aria-controls="OverviewCollapse">
-                                <span>Overview</span>
-                            </button>
-                        </h2>
-
-                        <div id="OverviewCollapse" class="accordion-collapse collapse"
-                             data-bs-parent="#SidebarAccordion">
-                            <div class="accordion-body">Nothing currently</div>
-                        </div>
+        <Sidebar
+            v-model:visible="sidebarVisible"
+            header="Sidebar"
+            style="width: 30rem"
+        >
+            <Accordion :activeIndex="0">
+                <AccordionTab header="Overview">
+                    <p>Nothing</p>
+                    <div class="d-grid">
+                        <button
+                            class="btn btn-outline-primary"
+                            @click="RoomDescriptionDialogVisible = true"
+                        >
+                            Room Description
+                        </button>
+                        <Dialog
+                            v-model:visible="RoomDescriptionDialogVisible"
+                            :breakpoints="{ '1199px': '75vw', '575px': '90vw' }"
+                            :style="{ width: '50vw' }"
+                            header="Room Description"
+                            maximizable
+                            modal
+                        >
+                            <MdPreview
+                                :editorId="'room_' + room.id"
+                                :modelValue="room.room_description"
+                            />
+                        </Dialog>
                     </div>
-                    <button class="list-group-item list-group-item-action"
-                            @click="openModal(modals.RoomDescriptionModal)">
-                        Room Description
-                    </button>
-                    <div class="accordion-item">
-                        <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                                    data-bs-target="#AttachmentCollapse" aria-expanded="false"
-                                    aria-controls="AttachmentCollapse">
-                                <span>Attachments</span>
-                            </button>
-                        </h2>
+                </AccordionTab>
+                <AccordionTab header="Attachments">
+                    <div>
+                        <div
+                            v-for="file in roomAttachments"
+                            :key="file.path"
+                            class="list-group-item list-group-item-action mb-5 mt-3"
+                        >
+                            <div class="hstack justify-content-between">
+                                <VTooltip>
+                                    <span>{{
+                                        helper.truncateFileName(
+                                            helper.extractFileName(
+                                                file.file_name,
+                                            ),
+                                            25,
+                                        )
+                                    }}</span>
 
-                        <div id="AttachmentCollapse" class="accordion-collapse collapse"
-                             data-bs-parent="#SidebarAccordion">
-                            <div class="accordion-body">
+                                    <template #popper>
+                                        {{ file.file_name }}
+                                    </template>
+                                </VTooltip>
                                 <div
-                                    class="list-group vstack justify-content-between align-items-center overflow-auto"
-                                    style="height: 50vh">
-                                    <div v-for="file in roomAttachments" :key="file.path"
-                                         class="list-group-item list-group-item-action">
-                                        <VTooltip>
-                                            <span>{{
-                                                    helper.truncateFileName(helper.extractFileName(file.file_name), 25)
-                                                }}</span>
-
-                                            <template #popper>
-                                                {{ file.file_name }}
-                                            </template>
-                                        </VTooltip>
-                                        <div class="float-end hstack gap-3 justify-content-center align-items-center">
-                                            <div
-                                                class="hstack gap-3 justify-content-center align-items-center">
-                                                <i v-if="imageFiles.includes(file)"
-                                                   class="bi bi-eye icon text-success"
-                                                   @click="showImage(file.file_path)"></i>
-                                                <i v-if="musicFiles.includes(file) && currentFile !== file"
-                                                   class="bi bi-play-fill icon text-success"
-                                                   @click="handlePlaySpecify(file)"></i>
-                                                <i v-if="currentFile === file"
-                                                   class="bi bi-pause-fill icon text-success"
-                                                   @click="handlePause"></i>
-                                                <a :href="file.file_path"><i
-                                                    class="bi bi-download icon text-dark"></i></a>
-                                            </div>
-                                        </div>
+                                    class="hstack gap-3 justify-content-center align-items-center"
+                                >
+                                    <div
+                                        class="hstack gap-3 justify-content-center align-items-center"
+                                    >
+                                        <i
+                                            v-if="imageFiles.includes(file)"
+                                            class="bi bi-eye icon text-success"
+                                            @click="showImage(file.file_path)"
+                                        ></i>
+                                        <i
+                                            v-if="
+                                                musicFiles.includes(file) &&
+                                                currentFile !== file
+                                            "
+                                            class="bi bi-play-fill icon text-success"
+                                            @click="handlePlaySpecify(file)"
+                                        ></i>
+                                        <i
+                                            v-if="currentFile === file"
+                                            class="bi bi-pause-fill icon text-success"
+                                            @click="handlePause"
+                                        ></i>
+                                        <a :href="file.file_path"
+                                            ><i
+                                                class="bi bi-download icon text-dark"
+                                            ></i
+                                        ></a>
                                     </div>
-                                    <teleport to="body">
-                                        <LightBoxHelper :currentImageDisplay="currentImageDisplay"/>
-                                    </teleport>
                                 </div>
                             </div>
                         </div>
+                        <teleport to="body">
+                            <LightBoxHelper
+                                :currentImageDisplay="currentImageDisplay"
+                            />
+                        </teleport>
                     </div>
-                </div>
-            </div>
+                </AccordionTab>
+            </Accordion>
+
             <div v-show="musicFiles.length && currentFile">
                 <MusicPlayer
+                    :currentFile="currentFile"
                     :music="musicFiles"
-                    :currentFile="currentFile"/>
+                    class="text-dark"
+                />
             </div>
-        </BaseOffcanvas>
+        </Sidebar>
     </div>
 </template>
 <script setup>
-import BaseOffcanvas from "@/Components/BaseOffcanvas.vue";
-import {computed, onMounted, reactive, ref} from "vue";
-import * as bootstrap from "bootstrap";
+import { computed, onMounted, ref } from "vue";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import MusicPlayer from "@/Components/MusicPlayer.vue";
-import {useHelper} from "@/Services/helper.js";
+import { useHelper } from "@/Services/helper.js";
+import Dialog from "primevue/dialog";
+import { MdPreview } from "md-editor-v3";
+import Sidebar from "primevue/sidebar";
+import Accordion from "primevue/accordion";
+import AccordionTab from "primevue/accordiontab";
 
-const props = defineProps(['room', 'roomSettings', 'roomAttachments'])
-const helper = useHelper()
-const onlineUsers = computed(() => props.onlineUsers)
-const isUserOnline = computed(() => props.isUserOnline)
-const currentImageDisplay = ref(null)
-const bsOffcanvas = ref(null);
-const modals = reactive({
-    RoomDescriptionModal: 'RoomDescriptionModal'
-})
+const props = defineProps(["room", "roomSettings", "roomAttachments"]);
+const helper = useHelper();
+const onlineUsers = computed(() => props.onlineUsers);
+const isUserOnline = computed(() => props.isUserOnline);
+const currentImageDisplay = ref(null);
 
-const currentFile = ref(null)
+const currentFile = ref(null);
+
+const RoomDescriptionDialogVisible = ref(false);
+const sidebarVisible = ref(false);
 
 onMounted(() => {
-    bsOffcanvas.value = new bootstrap.Offcanvas('#sidebar')
-    modals.RoomDescriptionModal = new bootstrap.Modal(document.getElementById(modals.RoomDescriptionModal));
-
     filterFiles(props.roomAttachments);
-})
-
-function openModal(modal) {
-    modal.show()
-}
-
-function openSidebar(modal) {
-    modal.show();
-}
+});
 
 const showImage = (filePath) => {
     currentImageDisplay.value = {
         target: {
-            src: filePath
-        }
+            src: filePath,
+        },
     };
-}
+};
 
 const handlePlaySpecify = (file) => {
     currentFile.value = file;
-}
+};
 const handlePause = () => {
     currentFile.value = null;
-}
+};
 
 const imageFiles = ref([]);
 const musicFiles = ref([]);
 const otherFiles = ref([]);
 
-const imageFileTypes = new Set(['jpg', 'jpeg', 'png', 'gif']);
-const musicFileTypes = new Set(['mp3', 'wav', 'flac', 'ogg']);
+const imageFileTypes = new Set(["jpg", "jpeg", "png", "gif"]);
+const musicFileTypes = new Set(["mp3", "wav", "flac", "ogg"]);
 
 function filterFiles(roomAttachments) {
     for (let i = 0; i < roomAttachments.length; i++) {
         const file = roomAttachments[i];
-        const fileType = file.file_name.substring(file.file_name.lastIndexOf('.') + 1).toLowerCase();
+        const fileType = file.file_name
+            .substring(file.file_name.lastIndexOf(".") + 1)
+            .toLowerCase();
 
         if (imageFileTypes.has(fileType)) {
             imageFiles.value.push(file);
@@ -161,7 +182,6 @@ function filterFiles(roomAttachments) {
         musicFiles.value[i].url = file.file_path;
     }
 }
-
 </script>
 
 <style scoped>

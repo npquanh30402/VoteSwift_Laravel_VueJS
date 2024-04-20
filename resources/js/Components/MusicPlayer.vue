@@ -1,6 +1,6 @@
 <template>
     <div class="vstack justify-content-center">
-        <p class="text-white">{{ title }}</p>
+        <p>{{ title }}</p>
         <audio-player
             ref="audioPlayerRef"
             :audio-list="audioList.map((elm) => elm.url)"

@@ -1,67 +1,131 @@
 <template>
-    <div>
-        <div class="card shadow-sm border-0 mb-3 overflow-auto">
-            <div class="card-header text-bg-dark text-center">Room List</div>
-            <table class="table table-sm small table-bordered table align-middle mb-0">
-                <!-- Table header -->
-                <tr class="table-secondary">
-                    <th>ID</th>
-                    <th>Room Name</th>
-                    <th>Start Time</th>
-                    <th>End Time</th>
-                    <th>Status</th>
-                    <th class="text-center">Actions</th>
-                </tr>
-                <!-- Table rows -->
-                <tr v-for="room in paginatedRooms" :key="room.id">
-                    <td>{{ room.id }}</td>
-                    <td>{{ room.room_name }}</td>
-                    <td>{{ formattedDate(room?.start_time) }}
-                    </td>
-                    <td>{{ formattedDate(room?.end_time) }}</td>
-                    <td>{{ room.is_published === 1 ? 'Published' : 'Draft' }}</td>
-                    <td>
+    <div v-if="!isLoading">
+        <div class="card">
+            <DataTable
+                v-model:filters="filters"
+                :globalFilterFields="['id', 'room_name', 'displayStatus']"
+                :rows="5"
+                :rowsPerPageOptions="[5, 10, 20, 50]"
+                :value="rooms"
+                dataKey="id"
+                filterDisplay="row"
+                paginator
+                removableSort
+                tableStyle="min-width: 50rem"
+            >
+                <template #header>
+                    <div class="d-flex justify-content-end">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"
+                                        ><i class="bi bi-search"></i
+                                    ></span>
+                                </div>
+                                <input
+                                    v-model="filters['global'].value"
+                                    class="form-control"
+                                    placeholder="Keyword Search"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </template>
+                <template #empty> No data found.</template>
+                <Column field="id" header="ID" sortable></Column>
+
+                <Column filterField="room_name" header="Room Name">
+                    <template #body="{ data }">
+                        {{ data.room_name }}
+                    </template>
+                    <template #filter="{ filterModel, filterCallback }">
+                        <input
+                            v-model="filterModel.value"
+                            class="form-control"
+                            placeholder="Search by room name"
+                            type="text"
+                            @input="filterCallback()"
+                        />
+                    </template>
+                </Column>
+
+                <Column field="start_time" header="Start Time" sortable>
+                    <template #body="slotProps">
+                        {{ formatDate(slotProps.data.start_time) }}
+                    </template>
+                </Column>
+                <Column field="end_time" header="End Time" sortable>
+                    <template #body="slotProps">
+                        {{ formatDate(slotProps.data.end_time) }}
+                    </template>
+                </Column>
+                <Column field="displayStatus" header="Status" sortable>
+                    <template #body="slotProps">
+                        <span
+                            :class="
+                                slotProps.data.displayStatus === 'Published'
+                                    ? 'text-bg-success'
+                                    : 'text-bg-warning'
+                            "
+                            class="badge"
+                            >{{ slotProps.data.displayStatus }}</span
+                        >
+                    </template>
+                </Column>
+                <Column header="Action">
+                    <template #body="slotProps">
                         <div class="d-grid">
-                            <Link :href="route('room.dashboard', room.id)" class="btn btn-sm btn-secondary">Details
+                            <Link
+                                :href="
+                                    route('room.dashboard', slotProps.data.id)
+                                "
+                                class="btn btn-sm btn-secondary"
+                                >Details
                             </Link>
                         </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="d-flex justify-content-end">
-            <vue-awesome-paginate
-                :total-items="rooms.length"
-                :items-per-page="5"
-                :max-pages-shown="5"
-                v-model="currentPage"
-                :on-click="onClickHandler"
-                v-if="rooms.length"
-            />
+                    </template>
+                </Column>
+            </DataTable>
         </div>
     </div>
+    <BaseLoading v-else />
 </template>
 
 <script setup>
-import {Link} from "@inertiajs/vue3";
-import {route} from "ziggy-js";
-import {computed, ref} from "vue";
-import {VueAwesomePaginate} from "vue-awesome-paginate";
+import { Link } from "@inertiajs/vue3";
+import { route } from "ziggy-js";
+import { computed, onMounted, ref } from "vue";
 import "vue-awesome-paginate/dist/style.css";
-import useFormattedDate from "@/Composables/useFormattedDate.js";
+import DataTable from "primevue/datatable";
+import Column from "primevue/column";
+import { useHelper } from "@/Services/helper.js";
+import { useVotingRoomStore } from "@/Stores/voting-room.js";
+import BaseLoading from "@/Components/BaseLoading.vue";
+import { FilterMatchMode } from "primevue/api";
 
-const props = defineProps(["rooms"]);
+const roomStore = useVotingRoomStore();
+const helper = useHelper();
+const isLoading = ref(true);
 
-const onClickHandler = (page) => {
-    currentPage.value = page
-};
+const rooms = computed(() => {
+    return roomStore.rooms.map((item) => {
+        return {
+            ...item,
+            displayStatus: item.is_published === 1 ? "Published" : "Draft",
+        };
+    });
+});
 
-const formattedDate = useFormattedDate();
+const formatDate = helper.formatDate;
 
-const currentPage = ref(1);
-const paginatedRooms = computed(() => {
-    const startIndex = (currentPage.value - 1) * 5;
-    const endIndex = startIndex + 5;
-    return props.rooms.slice(startIndex, endIndex);
+const filters = ref({
+    global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+    room_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
+});
+
+onMounted(async () => {
+    await roomStore.fetchRooms();
+
+    isLoading.value = false;
 });
 </script>

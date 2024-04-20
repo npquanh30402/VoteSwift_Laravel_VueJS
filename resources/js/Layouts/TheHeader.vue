@@ -51,7 +51,7 @@
                                 <MusicPlayer
                                     v-if="isMusicPlayerEnable"
                                     :music="music"
-                                    class="me-5"
+                                    class="me-5 text-white"
                                     style="transform: scale(0.8)"
                                 />
 
