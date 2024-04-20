@@ -63,7 +63,12 @@ export const useHelper = () => {
         return count > threshold ? `${threshold}+` : count.toString();
     };
 
-    const formatDate = (date) => format(date, "dd/MM/yyyy, hh:mm a");
+    const formatDate = (date) => {
+        if (!date) {
+            return "Not set";
+        }
+        return format(date, "dd/MM/yyyy, hh:mm a");
+    };
 
     function convertToUtc(date) {
         return moment(date).utc().format();

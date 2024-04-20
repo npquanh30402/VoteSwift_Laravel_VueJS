@@ -52,6 +52,7 @@
                         </div>
                     </div>
                 </template>
+                <template #empty> No data found.</template>
                 <Column expander style="width: 5rem" />
                 <Column field="username" header="Username">
                     <template #body="slotProps">

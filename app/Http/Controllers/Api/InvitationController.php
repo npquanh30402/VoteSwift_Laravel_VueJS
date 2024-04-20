@@ -23,12 +23,7 @@ class InvitationController extends Controller
             $data = [];
 
             foreach ($reader->getSheetIterator() as $sheet) {
-                $firstRow = true;
                 foreach ($sheet->getRowIterator() as $row) {
-                    if ($firstRow) {
-                        $firstRow = false;
-                        continue;
-                    }
                     $rowData = [];
                     foreach ($row->getCells() as $cell) {
                         $rowData[] = $cell->getValue();

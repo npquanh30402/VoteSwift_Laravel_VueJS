@@ -100,15 +100,6 @@ class AuthController extends Controller
         }
     }
 
-    public function sendEmailVerificationNotification(Request $request): void
-    {
-        try {
-            $this->notificationService->sendEmailVerificationNotification($request);
-        } catch (Exception $e) {
-            Log::debug('Error sending email verification notification: ' . $e->getMessage());
-        }
-    }
-
     public function logout(Request $request): ?RedirectResponse
     {
         try {
@@ -131,6 +122,8 @@ class AuthController extends Controller
                 throw new RuntimeException("Registration failed.");
             }
 
+            $user->sendEmailVerificationNotification();
+
             auth()->login($user);
 
             return redirect()->route('homepage');
@@ -138,6 +131,15 @@ class AuthController extends Controller
             return back()->withErrors([
                 'message' => 'Registration failed: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    public function sendEmailVerificationNotification(Request $request): void
+    {
+        try {
+            $this->notificationService->sendEmailVerificationNotification($request);
+        } catch (Exception $e) {
+            Log::debug('Error sending email verification notification: ' . $e->getMessage());
         }
     }
 

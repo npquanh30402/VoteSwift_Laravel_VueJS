@@ -36,7 +36,6 @@
                     <div class="text-end">
                         <button
                             class="btn btn-primary"
-                            data-bs-dismiss="modal"
                             type="submit"
                             @click="dialogVisible = false"
                         >

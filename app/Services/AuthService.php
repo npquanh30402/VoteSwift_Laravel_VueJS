@@ -6,7 +6,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class AuthService
@@ -49,7 +49,7 @@ class AuthService
             $user = new User();
             $user->username = $requestData['username'];
             $user->email = $requestData['email'];
-            $user->password = Crypt::encryptString($requestData['password']);
+            $user->password = Hash::make($requestData['password']);
 
             $user->save();
 

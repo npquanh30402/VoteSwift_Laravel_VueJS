@@ -39,7 +39,6 @@
                     <div class="text-end">
                         <button
                             class="btn btn-warning"
-                            data-bs-dismiss="modal"
                             type="submit"
                             @click="viewQuestionDialogVisible = false"
                         >

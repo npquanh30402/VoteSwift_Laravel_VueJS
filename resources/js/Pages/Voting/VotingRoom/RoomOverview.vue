@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div v-if="isReady">
+        <div v-if="isReady && room">
             <div class="row">
                 <div class="col-md-9">
                     <div class="row mb-3">
@@ -95,9 +95,6 @@ import { useClipboard } from "@vueuse/core";
 import { useToast } from "vue-toast-notification";
 import OverviewCard from "@/Pages/Voting/VotingRoom/Overview/OverviewCard.vue";
 import OverviewCardDetails from "@/Pages/Voting/VotingRoom/Overview/OverviewCardDetails.vue";
-import { fromZonedTime } from "date-fns-tz";
-import { format } from "date-fns";
-import moment from "moment-timezone";
 import { useHelper } from "@/Services/helper.js";
 
 const props = defineProps(["room"]);
@@ -139,17 +136,25 @@ const customCopy = () => {
     toast.success("Copied to clipboard!");
 };
 
-const startTime = computed(() =>
-    helper.formatDate(
-        helper.convertToLocal(room.value.start_time, helper.getUserTimeZone()),
-    ),
-);
+const startTime = computed(() => {
+    const start_time = room.value.start_time;
+    if (!start_time) {
+        return "Not set";
+    }
+    return helper.formatDate(
+        helper.convertToLocal(start_time, helper.getUserTimeZone()),
+    );
+});
 
-const endTime = computed(() =>
-    helper.formatDate(
-        helper.convertToLocal(room.value.end_time, helper.getUserTimeZone()),
-    ),
-);
+const endTime = computed(() => {
+    const end_time = room.value.end_time;
+    if (!end_time) {
+        return "Not set";
+    }
+    return helper.formatDate(
+        helper.convertToLocal(end_time, helper.getUserTimeZone()),
+    );
+});
 
 onMounted(async () => {
     await roomStore.fetchRooms();

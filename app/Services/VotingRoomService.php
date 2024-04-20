@@ -84,7 +84,7 @@ class VotingRoomService
 
             $room->settings()->create();
 
-            return $room;
+            return VotingRoom::findOrFail($room->id);
         } catch (Exception $e) {
             Log::debug('Error creating question: ' . $e->getMessage());
             throw $e;
