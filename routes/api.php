@@ -104,4 +104,5 @@ Route::group(['middleware' => 'web'], function () {
     Route::post('/room/{room}/user/{user}/feedback', [FeedbackController::class, 'store'])->name('api.room.user.feedback.store');
 
     Route::get('/room/{room}/votes', [VoteController::class, 'getVotes'])->name('api.room.votes.get');
+    Route::get('/room/{room}/result-page-votes', [VoteController::class, 'getResultPageVotes'])->name('api.room.vote.results.get');
 });

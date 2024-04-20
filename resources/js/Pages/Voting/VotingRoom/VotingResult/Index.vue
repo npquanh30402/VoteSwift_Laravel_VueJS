@@ -1,20 +1,24 @@
 <template>
-    <div>
-        <button @click="test">Test</button>
+    <div v-if="!isLoading">
+        <!--        <button @click="test">Test</button>-->
         <Sidebar :tabs="tabData" @switch-tab="handleSwitchTab" />
         <div class="mt-3">
             <transition mode="out-in" name="fade">
                 <KeepAlive>
                     <component
                         :is="tabData[currentTab].component"
+                        :candidates="candidates"
                         :nestedResults="nestedResults"
+                        :questions="questions"
                         :room="room"
                         :voteCountsInTimeInterval="voteCountsInTimeInterval"
+                        :votes="votes"
                     ></component>
                 </KeepAlive>
             </transition>
         </div>
     </div>
+    <BaseLoading v-else />
 </template>
 <script setup>
 import { computed, onMounted, ref } from "vue";
@@ -24,6 +28,9 @@ import VotingCharts from "@/Pages/Voting/VotingRoom/VotingResult/VotingCharts.vu
 import { useQuestionStore } from "@/Stores/questions.js";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import { useVoteStore } from "@/Stores/vote.js";
+import BaseLoading from "@/Components/BaseLoading.vue";
+
+const isLoading = ref(true);
 
 const props = defineProps([
     "room",
@@ -40,6 +47,7 @@ const voteStore = useVoteStore();
 const questions = computed(() => questionStore.questions[room.value.id]);
 const candidates = computed(() => candidateStore.candidates[room.value.id]);
 const votes = computed(() => voteStore.votes[room.value.id]);
+
 const voteCounts = computed(() => {
     const voteCounts = {};
     votes.value.forEach((vote) => {
@@ -57,6 +65,8 @@ onMounted(async () => {
     await questionStore.fetchQuestions(room.value.id);
     await candidateStore.fetchCandidates(room.value.id);
     await voteStore.fetchVotes(room.value.id);
+
+    isLoading.value = false;
 });
 
 const test = () => {

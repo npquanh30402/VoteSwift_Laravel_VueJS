@@ -17,8 +17,8 @@ class UserService
         try {
             $oldAvatar = $user->avatar;
 
-            $user->first_name = HelperService::encryptAndStripTags($requestData['first_name']);
-            $user->last_name = HelperService::encryptAndStripTags($requestData['last_name']);
+//            $user->first_name = HelperService::encryptAndStripTags($requestData['first_name']);
+//            $user->last_name = HelperService::encryptAndStripTags($requestData['last_name']);
             $user->phone = HelperService::encryptAndStripTags(($requestData['phone']));
             $user->address = HelperService::encryptAndStripTags($requestData['address']);
 

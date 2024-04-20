@@ -25,7 +25,11 @@
                             :id="inputId(candidate.id)"
                             :checked="!question.isSkipped ? false : null"
                             :name="inputName(question.id)"
-                            :required="!question.isSkipped"
+                            :required="
+                                !question.isSkipped &&
+                                inputType(question.allow_multiple_votes) !==
+                                    'checkbox'
+                            "
                             :type="inputType(question.allow_multiple_votes)"
                             class="form-check-input fs-3"
                             @click="onClick(question.id, candidate.id)"

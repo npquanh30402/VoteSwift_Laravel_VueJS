@@ -20,6 +20,21 @@ export const useVoteStore = defineStore("vote", () => {
 
     const votes = ref({});
     const voteCounts = ref({});
+    const voteResults = ref({});
+
+    const fetchVoteResults = async (roomId, flag = false) => {
+        if (!!voteResults.value[roomId] && flag === false) {
+            return;
+        }
+
+        const response = await axios.get(
+            route("api.room.vote.results.get", roomId),
+        );
+
+        if (response.status === 200) {
+            voteResults.value[roomId] = response.data.data;
+        }
+    };
 
     const fetchVotes = async (roomId) => {
         // if (!!votes.value[roomId]) {
@@ -139,6 +154,8 @@ export const useVoteStore = defineStore("vote", () => {
         votes,
         voteCounts,
         fetchVotes,
+        voteResults,
+        fetchVoteResults,
         setupChannel,
         startVoting,
         storeVotes,

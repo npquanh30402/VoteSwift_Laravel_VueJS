@@ -123,4 +123,9 @@ class Vote extends Model
     {
         return $this->belongsTo(Candidate::class, 'candidate_id', 'id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 }
