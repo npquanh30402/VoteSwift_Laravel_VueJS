@@ -1,84 +1,82 @@
 <template>
-    <div>
-        <form v-if="isReady" @submit.prevent="submit">
-            <div class="row gx-3">
-                <div class="col-md-12">
-                    <div class="mb-3">
-                        <label class="mb-2" for="room_name">Date/Time:</label>
-                        <VueDatePicker
-                            v-model="form.date"
-                            :min-date="new Date(Date.now() - 86400000)"
-                            disabled
-                            multi-calendars
-                            range
-                        />
-                        <p v-if="errorMessage" class="m-0 small text-danger">
-                            {{ errorMessage }}
-                        </p>
-                    </div>
+    <form v-if="!isLoading" @submit.prevent="submit">
+        <div class="row gx-3">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label class="mb-2" for="room_name">Date/Time:</label>
+                    <VueDatePicker
+                        v-model="form.date"
+                        :min-date="new Date(Date.now() - 86400000)"
+                        disabled
+                        multi-calendars
+                        range
+                    />
+                    <p v-if="errorMessage" class="m-0 small text-danger">
+                        {{ errorMessage }}
+                    </p>
                 </div>
+            </div>
 
-                <div class="col-md-12">
-                    <div class="mb-3 row row-cols-2">
+            <div class="col-md-12">
+                <div class="mb-3 row row-cols-2">
+                    <div>
                         <div>
-                            <div>
-                                <span>Timezone: {{ activeTz.tz }}</span>
-                                <br />
-                                <span
-                                    >Offset:
-                                    {{
-                                        activeTz.offset > 0
-                                            ? `+${activeTz.offset}`
-                                            : activeTz.offset
-                                    }}</span
-                                >
-                            </div>
-                            <div>
-                                <input
-                                    v-model="selectedTz"
-                                    class="tz-range-slider"
-                                    max="22"
-                                    min="0"
-                                    type="range"
-                                />
-                            </div>
-                            <div>
-                                <span>Time preview:</span>
-                                <VueDatePicker
-                                    v-model="form.date"
-                                    :timezone="tz"
-                                    disabled
-                                    range
-                                />
-                            </div>
+                            <span>Timezone: {{ activeTz.tz }}</span>
+                            <br />
+                            <span
+                                >Offset:
+                                {{
+                                    activeTz.offset > 0
+                                        ? `+${activeTz.offset}`
+                                        : activeTz.offset
+                                }}</span
+                            >
                         </div>
                         <div>
+                            <input
+                                v-model="selectedTz"
+                                class="tz-range-slider"
+                                max="22"
+                                min="0"
+                                type="range"
+                            />
+                        </div>
+                        <div>
+                            <span>Time preview:</span>
                             <VueDatePicker
                                 v-model="form.date"
-                                :min-date="new Date(Date.now() - 86400000)"
-                                inline
-                                multi-calendars
+                                :timezone="tz"
+                                disabled
                                 range
                             />
                         </div>
                     </div>
-                </div>
-
-                <div class="col-md-12">
-                    <div class="d-grid">
-                        <button
-                            :class="{ disabled: errorMessage }"
-                            class="btn btn-sm btn-success p-3"
-                            type="submit"
-                        >
-                            Update
-                        </button>
+                    <div>
+                        <VueDatePicker
+                            v-model="form.date"
+                            :min-date="new Date(Date.now() - 86400000)"
+                            inline
+                            multi-calendars
+                            range
+                        />
                     </div>
                 </div>
             </div>
-        </form>
-        <BaseLoading v-else />
-    </div>
+
+            <div class="col-md-12">
+                <div class="d-grid">
+                    <button
+                        :class="{ disabled: errorMessage }"
+                        class="btn btn-sm btn-success p-3"
+                        type="submit"
+                    >
+                        Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+    <BaseLoading v-else />
 </template>
 
 <script setup>
@@ -86,15 +84,11 @@ import { useForm } from "@inertiajs/vue3";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import { computed, onMounted, ref, watch } from "vue";
 import { useVotingRoomStore } from "@/Stores/voting-room.js";
-import { useToast } from "vue-toast-notification";
 import BaseLoading from "@/Components/BaseLoading.vue";
-import { fromZonedTime, toZonedTime } from "date-fns-tz";
-import moment from "moment-timezone";
 import { useHelper } from "@/Services/helper.js";
 
-const isReady = ref(false);
+const isLoading = ref(true);
 const props = defineProps(["room"]);
-const toast = useToast();
 const helper = useHelper();
 const votingRoomStore = useVotingRoomStore();
 const selectedTz = ref(11);
@@ -210,24 +204,18 @@ onMounted(async () => {
 
     updateSelectedTz();
 
-    isReady.value = true;
+    isLoading.value = false;
 });
 
-const submit = () => {
-    try {
-        const startTimeUtc = helper.convertToUtc(form.date[0]);
-        const endTimeUtc = helper.convertToUtc(form.date[1]);
+const submit = async () => {
+    const startTimeUtc = helper.convertToUtc(form.date[0]);
+    const endTimeUtc = helper.convertToUtc(form.date[1]);
 
-        const formData = new FormData();
-        formData.append("start_time", startTimeUtc);
-        formData.append("end_time", endTimeUtc);
-        formData.append("activeTz", activeTz.value.tz);
+    const formData = new FormData();
+    formData.append("start_time", startTimeUtc);
+    formData.append("end_time", endTimeUtc);
+    formData.append("activeTz", activeTz.value.tz);
 
-        votingRoomStore.updateRoom(props.room.id, formData);
-
-        toast.success("Room updated successfully");
-    } catch (e) {
-        toast.error("Failed to update room");
-    }
+    await votingRoomStore.updateRoom(props.room.id, formData);
 };
 </script>

@@ -27,7 +27,10 @@ class VotingRoomController extends Controller
         try {
             $rooms = $this->votingRoomService->getUserRooms();
 
-            return response()->json($rooms);
+            return response()->json([
+                'data' => $rooms,
+                'message' => 'Voting rooms retrieved successfully!',
+            ]);
         } catch (Exception $e) {
             return response()->json(['message' => 'Error getting voting rooms: ' . $e->getMessage()], 500);
         }
@@ -38,9 +41,12 @@ class VotingRoomController extends Controller
         try {
             $room = $this->votingRoomService->updateVotingRoom($request, $room);
 
-            return response()->json($room->decryptVotingRoom());
+            return response()->json([
+                'data' => $room->decryptVotingRoom(),
+                'message' => 'Voting room updated successfully!',
+            ]);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Error updating voting room: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -49,7 +55,7 @@ class VotingRoomController extends Controller
         try {
             $this->votingRoomService->deleteVotingRoom($room);
 
-            return response()->json(['message' => 'Voting room deleted successfully!'], 204);
+            return response()->json(['message' => 'Voting room deleted successfully!']);
         } catch (Exception $e) {
             return response()->json(['message' => 'Error deleting voting room: ' . $e->getMessage()], 500);
         }
@@ -61,7 +67,10 @@ class VotingRoomController extends Controller
             $room = $this->votingRoomService->storeVotingRoom($request);
             $this->notificationService->sendRoomCreationNotification($room);
 
-            return response()->json($room->decryptVotingRoom(), 201);
+            return response()->json([
+                'data' => $room->decryptVotingRoom(),
+                'message' => 'Voting room created successfully!',
+            ], 201);
         } catch (Exception $e) {
             return response()->json(['message' => 'Error creating voting room: ' . $e->getMessage()], 500);
         }
