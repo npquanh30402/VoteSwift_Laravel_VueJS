@@ -8,7 +8,14 @@
                 active: currentTab === tab.componentName,
                 'opacity-50 fw-bold text-bg-danger':
                     tab.componentName === 'DeleteRoom',
-                'opacity-100': currentTab === 'DeleteRoom',
+                'opacity-100':
+                    currentTab === 'DeleteRoom' ||
+                    currentTab === 'RoomPublish' ||
+                    currentTab === 'RoomDuplication',
+                'opacity-50 fw-bold text-bg-success':
+                    tab.componentName === 'RoomPublish',
+                'opacity-50 fw-bold text-bg-warning':
+                    tab.componentName === 'RoomDuplication',
             }"
             class="list-group-item list-group-item-action"
             @click="switchTab(tab.componentName)"

@@ -60,6 +60,7 @@ import InvitationPage from "@/Pages/Voting/VotingRoom//Invitation/Index.vue";
 import RoomExtra from "@/Pages/Voting/VotingRoom/Features/RoomExtra.vue";
 import { useVotingRoomStore } from "@/Stores/voting-room.js";
 import BaseLoading from "@/Components/BaseLoading.vue";
+import RoomDuplication from "@/Pages/Voting/VotingRoom/RoomDuplication.vue";
 
 const isLoading = ref(true);
 const props = defineProps([
@@ -152,6 +153,12 @@ const tabData = {
         name: "Publish",
         icon: "bi-megaphone-fill",
         componentName: "RoomPublish",
+    },
+    RoomDuplication: {
+        component: RoomDuplication,
+        name: "Duplicate",
+        icon: "bi bi-copy",
+        componentName: "RoomDuplication",
     },
     DeleteRoom: {
         component: DeleteRoom,

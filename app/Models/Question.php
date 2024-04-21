@@ -11,6 +11,12 @@ class Question extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'question_title',
+        'question_description',
+        'question_image'
+    ];
+
     public function room()
     {
         return $this->belongsTo(VotingRoom::class, 'voting_room_id', 'id');

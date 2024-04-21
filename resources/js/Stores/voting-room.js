@@ -9,6 +9,35 @@ const toast = useToast();
 export const useVotingRoomStore = defineStore("room", () => {
     const rooms = ref([]);
 
+    const duplicateRoom = async (roomId) => {
+        try {
+            const response = await axios.get(
+                route(`api.room.duplicate`, roomId),
+            );
+
+            if (response.status === 200) {
+                const fetchedRoom = response.data.data;
+
+                rooms.value.push(fetchedRoom);
+
+                let htmlContent = `<strong>${response.data.message}</strong><br>Click here to go to the room dashboard`;
+
+                toast.open({
+                    message: htmlContent,
+                    type: "success",
+                    duration: 5000,
+                    onClick: () => {
+                        router.get(
+                            route("room.dashboard", response.data.data.id),
+                        );
+                    },
+                });
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
+
     const fetchARoom = async (roomId) => {
         const roomExists = rooms.value.some((room) => room.id === roomId);
 
@@ -108,5 +137,13 @@ export const useVotingRoomStore = defineStore("room", () => {
         }
     };
 
-    return { rooms, fetchRooms, fetchARoom, storeRoom, updateRoom, deleteRoom };
+    return {
+        rooms,
+        fetchRooms,
+        fetchARoom,
+        storeRoom,
+        updateRoom,
+        duplicateRoom,
+        deleteRoom,
+    };
 });
