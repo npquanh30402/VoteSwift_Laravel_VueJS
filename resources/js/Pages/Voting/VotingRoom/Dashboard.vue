@@ -1,49 +1,51 @@
 <template>
-    <div class="row">
-        <div class="col">
-            <h1 class="display-6 text-center fw-bold">Room Dashboard</h1>
-        </div>
-    </div>
-    <div class="my-3">
-        <div class="row justify-content-center">
-            <div class="col-md-2">
-                <BallotSidebar
-                    :tabData="tabData"
-                    @switch-tab="handleSwitchTab"
-                ></BallotSidebar>
+    <div v-if="!isLoading">
+        <div class="row">
+            <div class="col">
+                <h1 class="display-6 text-center fw-bold">Room Dashboard</h1>
             </div>
-            <div class="col-md-9">
-                <div class="card shadow-sm border-0 mb-3 overflow-auto">
-                    <div class="card-header text-bg-dark text-center">
-                        <i :class="tabData[currentTab].icon" class="bi"></i>
-                        {{ tabData[currentTab].name }}
-                    </div>
-                    <div class="card-body">
-                        <transition mode="out-in" name="fade">
-                            <KeepAlive>
-                                <component
-                                    :is="tabData[currentTab].component"
-                                    :nestedResults="nestedResults"
-                                    :room="room"
-                                    :voteCountsInTimeInterval="
-                                        voteCountsInTimeInterval
-                                    "
-                                ></component>
-                            </KeepAlive>
-                        </transition>
+        </div>
+        <div class="my-3">
+            <div class="row justify-content-center">
+                <div class="col-md-2">
+                    <BallotSidebar
+                        :tabData="tabData"
+                        @switch-tab="handleSwitchTab"
+                    ></BallotSidebar>
+                </div>
+                <div class="col-md-9">
+                    <div class="card shadow-sm border-0 mb-3 overflow-auto">
+                        <div class="card-header text-bg-dark text-center">
+                            <i :class="tabData[currentTab].icon" class="bi"></i>
+                            {{ tabData[currentTab].name }}
+                        </div>
+                        <div class="card-body">
+                            <transition mode="out-in" name="fade">
+                                <KeepAlive>
+                                    <component
+                                        :is="tabData[currentTab].component"
+                                        :nestedResults="nestedResults"
+                                        :room="room"
+                                        :voteCountsInTimeInterval="
+                                            voteCountsInTimeInterval
+                                        "
+                                    ></component>
+                                </KeepAlive>
+                            </transition>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <BaseLoading v-else />
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import DescriptionPage from "@/Pages/Voting/VotingRoom/DescriptionPage.vue";
 import QuestionsPage from "@/Pages/Voting/VotingRoom/Question/Index.vue";
 import AttachmentPage from "@/Pages/Voting/VotingRoom/AttachmentPage.vue";
-// import VotingResult from "@/Pages/Voting/Vote/VotingResult.vue";
 import VotingResult from "@/Pages/Voting/VotingRoom/VotingResult/Index.vue";
 import BallotSidebar from "@/Pages/Voting/VotingRoom/BallotSidebar.vue";
 import UpdateTitleDesc from "@/Pages/Voting/VotingRoom/Features/UpdateTitleDesc.vue";
@@ -56,12 +58,21 @@ import RoomRealtime from "@/Pages/Voting/VotingRoom/RoomRealtime.vue";
 import RoomOverview from "@/Pages/Voting/VotingRoom/RoomOverview.vue";
 import InvitationPage from "@/Pages/Voting/VotingRoom//Invitation/Index.vue";
 import RoomExtra from "@/Pages/Voting/VotingRoom/Features/RoomExtra.vue";
+import { useVotingRoomStore } from "@/Stores/voting-room.js";
+import BaseLoading from "@/Components/BaseLoading.vue";
 
+const isLoading = ref(true);
 const props = defineProps([
     "room",
     "nestedResults",
     "voteCountsInTimeInterval",
 ]);
+
+const roomStore = useVotingRoomStore();
+
+const room = computed(() =>
+    roomStore.rooms.find((room) => room.id === props.room.id),
+);
 
 const tabData = {
     RoomOverview: {
@@ -155,4 +166,11 @@ const currentTab = ref(tabData.RoomOverview.componentName);
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
+
+onMounted(async () => {
+    await roomStore.fetchRooms();
+    // await roomStore.fetchARoom(props.room.id);
+
+    isLoading.value = false;
+});
 </script>

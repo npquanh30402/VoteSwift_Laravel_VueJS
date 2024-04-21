@@ -38,6 +38,7 @@ createInertiaApp({
         createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(pinia)
+            // .use(router)
             .use(ZiggyVue)
             .use(ToastPlugin)
             .use(FloatingVue)

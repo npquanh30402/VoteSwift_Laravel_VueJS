@@ -107,13 +107,14 @@ const questionStore = useQuestionStore();
 const candidateStore = useCandidateStore();
 const invitationStore = useInvitationStore();
 
-const room = computed(() => {
-    for (const room of roomStore.rooms) {
-        if (room.id === props.room.id) {
-            return room;
-        }
-    }
-});
+// const room = computed(() => {
+//     for (const room of roomStore.rooms) {
+//         if (room.id === props.room.id) {
+//             return room;
+//         }
+//     }
+// });
+const room = computed(() => props.room);
 
 const invitationCount = computed(
     () => Object.keys(invitationStore.invitations[props.room.id]).length,

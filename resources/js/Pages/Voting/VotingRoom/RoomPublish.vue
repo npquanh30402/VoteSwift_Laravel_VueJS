@@ -15,13 +15,14 @@ const isLoading = ref(true);
 const props = defineProps(["room"]);
 const roomStore = useVotingRoomStore();
 
-const room = computed(() => {
-    for (const room of roomStore.rooms) {
-        if (room.id === props.room.id) {
-            return room;
-        }
-    }
-});
+// const room = computed(() => {
+//     for (const room of roomStore.rooms) {
+//         if (room.id === props.room.id) {
+//             return room;
+//         }
+//     }
+// });
+const room = computed(() => props.room);
 
 const submit = async () => {
     const formData = new FormData();
@@ -31,7 +32,7 @@ const submit = async () => {
 };
 
 onMounted(async () => {
-    await roomStore.fetchRooms();
+    // await roomStore.fetchRooms();
 
     isLoading.value = false;
 });

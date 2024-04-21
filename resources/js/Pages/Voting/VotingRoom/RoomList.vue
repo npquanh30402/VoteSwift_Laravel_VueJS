@@ -123,6 +123,12 @@ const filters = ref({
     room_name: { value: null, matchMode: FilterMatchMode.CONTAINS },
 });
 
+// const vueRouter = useRouter();
+//
+// function goToDashboard(roomId) {
+//     vueRouter.push({ name: "room-dashboard", params: { roomId: roomId } });
+// }
+
 onMounted(async () => {
     await roomStore.fetchRooms();
 

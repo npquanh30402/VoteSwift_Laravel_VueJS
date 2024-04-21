@@ -22,6 +22,20 @@ class VotingRoomController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function fetchAVotingRoom(VotingRoom $room): JsonResponse
+    {
+        try {
+            $room = $this->votingRoomService->fetchRoom($room);
+
+            return response()->json([
+                'data' => $room,
+                'message' => 'Voting room retrieved successfully!',
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function index(): JsonResponse
     {
         try {
@@ -32,7 +46,7 @@ class VotingRoomController extends Controller
                 'message' => 'Voting rooms retrieved successfully!',
             ]);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Error getting voting rooms: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -57,7 +71,7 @@ class VotingRoomController extends Controller
 
             return response()->json(['message' => 'Voting room deleted successfully!']);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Error deleting voting room: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
@@ -72,7 +86,7 @@ class VotingRoomController extends Controller
                 'message' => 'Voting room created successfully!',
             ], 201);
         } catch (Exception $e) {
-            return response()->json(['message' => 'Error creating voting room: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

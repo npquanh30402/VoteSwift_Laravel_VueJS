@@ -93,13 +93,14 @@ const helper = useHelper();
 const votingRoomStore = useVotingRoomStore();
 const selectedTz = ref(11);
 
-const room = computed(() => {
-    for (const room of votingRoomStore.rooms) {
-        if (room.id === props.room.id) {
-            return room;
-        }
-    }
-});
+// const room = computed(() => {
+//     for (const room of votingRoomStore.rooms) {
+//         if (room.id === props.room.id) {
+//             return room;
+//         }
+//     }
+// });
+const room = computed(() => props.room);
 
 const timezone = ref({ timezone: undefined });
 
@@ -200,7 +201,7 @@ function updateSelectedTz() {
 }
 
 onMounted(async () => {
-    await votingRoomStore.fetchRooms();
+    // await votingRoomStore.fetchRooms();
 
     updateSelectedTz();
 

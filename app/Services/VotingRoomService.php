@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Http\Controllers\InvitationController;
 use App\Http\Requests\VotingRoomRequest;
+use App\Models\User;
 use App\Models\VotingRoom;
 use App\Notifications\RoomPublish;
 use Carbon\Carbon;
@@ -16,6 +17,19 @@ use RuntimeException;
 
 class VotingRoomService
 {
+    /**
+     * @throws Exception
+     */
+    public function fetchRoom(VotingRoom $room)
+    {
+        try {
+            return $room->decryptVotingRoom();
+        } catch (Exception $e) {
+            Log::debug('Error fetching room: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
     /**
      * @throws Exception
      */

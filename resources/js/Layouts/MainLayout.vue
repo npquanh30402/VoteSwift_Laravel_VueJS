@@ -6,6 +6,7 @@
             <slot></slot>
         </div>
     </transition>
+    <!--    <RouterView />-->
     <TheFooter></TheFooter>
 
     <ScrollToTop />

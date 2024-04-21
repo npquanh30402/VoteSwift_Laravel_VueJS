@@ -64,9 +64,10 @@ const isLoading = ref(true);
 const props = defineProps(["room"]);
 const helper = useHelper();
 const votingRoomStore = useVotingRoomStore();
-const room = computed(() =>
-    votingRoomStore.rooms.find((room) => room.id === props.room.id),
-);
+// const room = computed(() =>
+//     votingRoomStore.rooms.find((room) => room.id === props.room.id),
+// );
+const room = computed(() => props.room);
 
 const form = useForm({
     room_name: room.value?.room_name,
@@ -102,7 +103,7 @@ watch(
 );
 
 onMounted(async () => {
-    await votingRoomStore.fetchRooms();
+    // await votingRoomStore.fetchRooms();
 
     isLoading.value = false;
 });

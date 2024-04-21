@@ -28,7 +28,8 @@ Route::group(['middleware' => 'web'], function () {
     Route::put('notification/{notification}/mark-as-read', NotificationSeenController::class)->name('api.notification.read');
     Route::put('user/{user}notification/mark-all-as-read', [NotificationController::class, 'markAllAsRead'])->name('api.notification.all.read');
 
-    Route::get('/room/', [VotingRoomController::class, 'index'])->name('api.room.index');
+    Route::get('/rooms/', [VotingRoomController::class, 'index'])->name('api.room.index');
+    Route::get('/room/{room}', [VotingRoomController::class, 'fetchAVotingRoom'])->name('api.room.show');
     Route::post('/room/', [VotingRoomController::class, 'store'])->name('api.room.store');
     Route::put('/room/{room}', [VotingRoomController::class, 'update'])->name('api.room.update');
     Route::delete('/room/{room}', [VotingRoomController::class, 'delete'])->name('api.room.destroy');

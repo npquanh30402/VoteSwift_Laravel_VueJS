@@ -9,6 +9,20 @@ const toast = useToast();
 export const useVotingRoomStore = defineStore("room", () => {
     const rooms = ref([]);
 
+    const fetchARoom = async (roomId) => {
+        const roomExists = rooms.value.some((room) => room.id === roomId);
+
+        if (roomExists) return;
+
+        const response = await axios.get(route(`api.room.show`, roomId));
+
+        if (response.status === 200) {
+            const fetchedRoom = response.data.data;
+
+            rooms.value.push(fetchedRoom);
+        }
+    };
+
     const fetchRooms = async () => {
         if (rooms.value?.length > 0) {
             return;
@@ -94,5 +108,5 @@ export const useVotingRoomStore = defineStore("room", () => {
         }
     };
 
-    return { rooms, fetchRooms, storeRoom, updateRoom, deleteRoom };
+    return { rooms, fetchRooms, fetchARoom, storeRoom, updateRoom, deleteRoom };
 });

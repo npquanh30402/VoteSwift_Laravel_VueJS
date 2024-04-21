@@ -46,6 +46,7 @@
         "vue-awesome-paginate": "^1.1.46",
         "vue-chartjs": "^5.3.0",
         "vue-easy-lightbox": "^1.19.0",
+        "vue-router": "^4.3.2",
         "vue-simple-calendar": "^7.1.0",
         "vue-toast-notification": "^3.1.2",
         "ziggy-js": "^2.0.5"

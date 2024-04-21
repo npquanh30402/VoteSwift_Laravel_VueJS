@@ -16,14 +16,14 @@ import BaseLoading from "@/Components/BaseLoading.vue";
 
 const isLoading = ref(true);
 const props = defineProps(["room"]);
-const votingRoomStore = useVotingRoomStore();
-
-const room = computed(() =>
-    votingRoomStore.rooms.find((room) => room.id === props.room.id),
-);
+// const votingRoomStore = useVotingRoomStore();
+//
+// const room = computed(() =>
+//     votingRoomStore.rooms.find((room) => room.id === props.room.id),
+// );
 
 onMounted(async () => {
-    await votingRoomStore.fetchRooms();
+    // await votingRoomStore.fetchRooms();
 
     isLoading.value = false;
 });
