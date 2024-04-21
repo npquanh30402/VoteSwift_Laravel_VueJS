@@ -7,6 +7,7 @@
                         <input
                             id="passwordSwitch"
                             v-model="isPasswordEnable"
+                            :class="{ 'un-interactive': isPublish }"
                             class="form-check-input"
                             role="switch"
                             type="checkbox"
@@ -32,11 +33,12 @@
                             <input
                                 id="require_password"
                                 v-model="form.require_password"
+                                :class="{ 'un-interactive': isPublish }"
                                 class="form-control form-control-sm"
                                 name="require_password"
                                 type="password"
                             />
-                            <div class="ms-auto mt-3">
+                            <div v-if="!isPublish" class="ms-auto mt-3">
                                 <button class="btn btn-primary" type="submit">
                                     Save
                                 </button>
@@ -80,14 +82,12 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import { computed, onActivated, onMounted, ref, watch } from "vue";
-import { useToast } from "vue-toast-notification";
 import { useVotingSettingStore } from "@/Stores/voting-settings.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(["room"]);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const votingSettingStore = useVotingSettingStore();
-const $toast = useToast();
 const currentImageDisplay = ref(null);
 
 const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);

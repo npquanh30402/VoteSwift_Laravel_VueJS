@@ -21,6 +21,7 @@
                         >
                         <input
                             v-model="form.candidate_title"
+                            :class="{ 'un-interactive': isPublish }"
                             class="form-control"
                             placeholder="Enter Candidate Title"
                             type="text"
@@ -32,12 +33,14 @@
                         >
                         <MdEditor
                             v-model="form.candidate_description"
+                            :class="{ 'un-interactive': isPublish }"
                             language="en-US"
                             @onUploadImg="onUploadImg"
                         ></MdEditor>
                     </div>
                     <div class="text-end">
                         <button
+                            v-if="!isPublish"
                             class="btn btn-warning"
                             type="submit"
                             @click="viewCandidateDialogVisible = false"
@@ -47,7 +50,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 vstack">
-                    <div class="form-group mb-4">
+                    <div v-if="!isPublish" class="form-group mb-4">
                         <label class="form-label" for="candidate_image"
                             >Image:</label
                         >
@@ -83,7 +86,7 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { MdEditor } from "md-editor-v3";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
@@ -93,7 +96,7 @@ import Dialog from "primevue/dialog";
 const props = defineProps(["room", "candidate"]);
 const helper = useHelper();
 const CandidateStore = useCandidateStore();
-
+const isPublish = computed(() => props.room.is_published === 1);
 const viewCandidateDialogVisible = ref(false);
 
 const form = useForm({

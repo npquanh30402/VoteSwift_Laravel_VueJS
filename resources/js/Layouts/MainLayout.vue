@@ -25,6 +25,11 @@ const userSettings = computed(() => usePage().props.authUser.settings);
 </script>
 
 <style>
+.un-interactive {
+    pointer-events: none;
+    opacity: 0.75;
+}
+
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.3s ease-out;

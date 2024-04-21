@@ -1,6 +1,6 @@
 <template>
     <div>
-        <AddCandidate :question="question" :room="room" />
+        <AddCandidate v-if="!isPublish" :question="question" :room="room" />
         <div class="list-group">
             <div
                 v-for="candidate in candidates"
@@ -32,12 +32,12 @@
 
 <script setup>
 import CandidateAction from "@/Pages/Voting/VotingRoom/Question/Candidate/CandidateAction.vue";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import AddCandidate from "@/Pages/Voting/VotingRoom/Question/Candidate/AddCandidate.vue";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 
 const props = defineProps(["room", "question", "candidates"]);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const currentImageDisplay = ref(null);
 
 const showImage = (e) => {

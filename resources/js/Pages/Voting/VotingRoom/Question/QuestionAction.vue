@@ -6,6 +6,7 @@
             <div class="list-group">
                 <ViewQuestion :question="question" :room="room" />
                 <button
+                    v-if="!isPublish"
                     class="text-danger list-group-item"
                     @click="deleteQuestion"
                 >
@@ -25,10 +26,11 @@
 <script setup>
 import { useQuestionStore } from "@/Stores/questions.js";
 import ViewQuestion from "@/Pages/Voting/VotingRoom/Question/ViewQuestion.vue";
+import { computed } from "vue";
 
 const props = defineProps(["room", "question"]);
 const questionStore = useQuestionStore();
-
+const isPublish = computed(() => props.room.is_published === 1);
 const deleteQuestion = () => {
     questionStore.deleteQuestion(props.room.id, props.question.id);
 };

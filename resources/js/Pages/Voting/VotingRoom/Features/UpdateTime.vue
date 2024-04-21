@@ -54,6 +54,7 @@
                     <div>
                         <VueDatePicker
                             v-model="form.date"
+                            :class="{ 'un-interactive': isPublish }"
                             :min-date="new Date(Date.now() - 86400000)"
                             inline
                             multi-calendars
@@ -63,7 +64,7 @@
                 </div>
             </div>
 
-            <div class="col-md-12">
+            <div v-if="!isPublish" class="col-md-12">
                 <div class="d-grid">
                     <button
                         :class="{ disabled: errorMessage }"
@@ -101,7 +102,7 @@ const selectedTz = ref(11);
 //     }
 // });
 const room = computed(() => props.room);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const timezone = ref({ timezone: undefined });
 
 const timezones = [

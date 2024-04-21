@@ -7,6 +7,7 @@
                     <input
                         id="room_name"
                         v-model="form.room_name"
+                        :class="{ 'un-interactive': isPublish }"
                         class="form-control form-control-sm"
                         name="room_name"
                         required
@@ -37,7 +38,10 @@
             <div class="col-md-12">
                 <div class="d-grid">
                     <button
-                        :class="{ disabled: errorMessages.room_name }"
+                        :class="{
+                            disabled: errorMessages.room_name,
+                            'd-none': isPublish,
+                        }"
                         class="btn btn-sm btn-success p-3"
                         type="submit"
                     >
@@ -68,7 +72,7 @@ const votingRoomStore = useVotingRoomStore();
 //     votingRoomStore.rooms.find((room) => room.id === props.room.id),
 // );
 const room = computed(() => props.room);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const form = useForm({
     room_name: room.value?.room_name,
     room_description: room.value?.room_description,

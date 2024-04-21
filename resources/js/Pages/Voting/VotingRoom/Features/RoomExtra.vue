@@ -9,6 +9,7 @@
                             <input
                                 id="minimumAge"
                                 v-model="form.minimum_age"
+                                :class="{ 'un-interactive': isPublish }"
                                 class="form-control"
                                 placeholder="minimum age"
                                 required
@@ -28,6 +29,7 @@
                             <input
                                 id="maximumAge"
                                 v-model="form.maximum_age"
+                                :class="{ 'un-interactive': isPublish }"
                                 class="form-control"
                                 placeholder="maximum age"
                                 required
@@ -49,6 +51,7 @@
                     <input
                         id="publicSwitch"
                         v-model="form.public_visibility"
+                        :class="{ 'un-interactive': isPublish }"
                         class="form-check-input"
                         role="switch"
                         type="checkbox"
@@ -60,6 +63,7 @@
                 </div>
             </div>
             <div
+                v-if="!isPublish"
                 :class="{
                     'un-interactive':
                         errorMessages.minimum_age || errorMessages.maximum_age,
@@ -79,6 +83,7 @@ import BaseLoading from "@/Components/BaseLoading.vue";
 
 const props = defineProps(["room"]);
 const isReady = ref(false);
+const isPublish = computed(() => props.room.is_published === 1);
 const votingSettingStore = useVotingSettingStore();
 
 const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);

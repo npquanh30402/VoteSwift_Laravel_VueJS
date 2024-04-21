@@ -8,6 +8,7 @@
                     <input
                         id="SpecificVoterSwitch"
                         v-model="onlyInvitation"
+                        :class="{ 'un-interactive': isPublish }"
                         class="form-check-input"
                         role="switch"
                         type="checkbox"
@@ -24,6 +25,7 @@
                     <input
                         id="waitVoterSwitch"
                         v-model="waitForVoters"
+                        :class="{ 'un-interactive': isPublish }"
                         class="form-check-input"
                         role="switch"
                         type="checkbox"
@@ -61,13 +63,11 @@
 import { usePage } from "@inertiajs/vue3";
 import { computed, onMounted, ref, watch } from "vue";
 import { useVotingSettingStore } from "@/Stores/voting-settings.js";
-import { useToast } from "vue-toast-notification";
 import InvitationVoter from "@/Pages/Voting/VotingRoom/Invitation/InvitationVoter.vue";
 import InvitationMail from "@/Pages/Voting/VotingRoom/Invitation/InvitationMail.vue";
 import InvitationSidebar from "@/Pages/Voting/VotingRoom/Invitation/InvitationSidebar.vue";
 
 const props = defineProps(["room"]);
-const $toast = useToast();
 const votingSettingStore = useVotingSettingStore();
 
 const authUser = computed(() => usePage().props.authUser.user);
@@ -75,7 +75,7 @@ const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);
 
 const onlyInvitation = ref(false);
 const waitForVoters = ref(false);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const tabData = {
     InvitationVoter: {
         component: InvitationVoter,

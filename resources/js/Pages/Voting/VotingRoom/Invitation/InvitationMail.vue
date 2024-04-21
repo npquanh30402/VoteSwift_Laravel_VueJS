@@ -5,6 +5,7 @@
             <input
                 id="emailSubject"
                 v-model="form.mail_subject"
+                :class="{ 'un-interactive': isPublish }"
                 class="form-control"
                 placeholder="Enter your voting topic here..."
                 type="email"
@@ -18,6 +19,7 @@
                 @onUploadImg="onUploadImg"
             />
             <div
+                v-if="!isPublish"
                 :class="
                     isMailExist
                         ? 'justify-content-between'
@@ -55,7 +57,7 @@ import { useHelper } from "@/Services/helper.js";
 const props = defineProps(["room"]);
 const $toast = useToast();
 const { sanitizeAndTrim } = useHelper();
-
+const isPublish = computed(() => props.room.is_published === 1);
 const {
     invitationMails,
     fetchInvitationMail,

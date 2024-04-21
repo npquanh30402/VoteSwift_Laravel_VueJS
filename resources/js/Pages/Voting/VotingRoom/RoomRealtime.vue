@@ -5,6 +5,7 @@
                 class="hstack gap-3 align-items-center justify-content-between"
             >
                 <div
+                    :class="{ 'un-interactive': isPublish }"
                     class="hstack gap-3 justify-content-center align-items-center"
                 >
                     <div class="form-check form-switch">
@@ -85,7 +86,6 @@
 import { usePage } from "@inertiajs/vue3";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useVotingSettingStore } from "@/Stores/voting-settings.js";
-import { useToast } from "vue-toast-notification";
 import BaseNoContent from "@/Components/BaseNoContent.vue";
 import { useHelper } from "@/Services/helper.js";
 import NotificationVotingList from "@/Pages/Voting/VotingRoom/Components/NotificationVotingList.vue";
@@ -93,10 +93,9 @@ import RealtimeChart from "@/Pages/Voting/VotingRoom/Components/RealtimeChart.vu
 import RealtimeSidebar from "@/Pages/Voting/VotingRoom/Components/RealtimeSidebar.vue";
 
 const props = defineProps(["room"]);
-const $toast = useToast();
 const helper = useHelper();
 const votingSettingStore = useVotingSettingStore();
-
+const isPublish = computed(() => props.room.is_published === 1);
 const tabs = {
     NotificationVotingList,
     RealtimeChart,

@@ -1,7 +1,7 @@
 <template>
     <div v-if="isLoading">
         <div>
-            <AddQuestion :room="room"></AddQuestion>
+            <AddQuestion v-if="!isPublish" :room="room"></AddQuestion>
             <div class="mt-3 d-flex flex-column gap-3">
                 <div
                     v-for="(question, index) in paginatedQuestions"
@@ -98,7 +98,7 @@ const paginatedQuestions = computed(() => {
     const endIndex = startIndex + 5;
     return questions.value?.slice(startIndex, endIndex);
 });
-
+const isPublish = computed(() => props.room.is_published === 1);
 watch(
     () => questions.value,
     () => {

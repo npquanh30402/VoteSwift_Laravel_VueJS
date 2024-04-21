@@ -6,6 +6,7 @@
             <div class="list-group">
                 <ViewCandidate :candidate="candidate" :room="room" />
                 <button
+                    v-if="!isPublish"
                     class="text-danger list-group-item"
                     @click="deleteCandidate"
                 >
@@ -25,9 +26,10 @@
 <script setup>
 import { useCandidateStore } from "@/Stores/candidates.js";
 import ViewCandidate from "@/Pages/Voting/VotingRoom/Question/Candidate/ViewCandidate.vue";
+import { computed } from "vue";
 
 const props = defineProps(["room", "candidate"]);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const CandidateStore = useCandidateStore();
 
 const deleteCandidate = () => {

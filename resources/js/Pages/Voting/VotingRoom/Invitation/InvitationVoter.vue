@@ -1,6 +1,7 @@
 <template>
     <div class="row g-3">
         <div
+            v-if="!isPublish"
             class="col-md-4 vstack justify-content-between gap-3"
             style="height: 50vh"
         >
@@ -57,7 +58,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div :class="{ 'col-md-8': !isPublish }">
             <div
                 class="card border border-3 border-success-subtle p-3 shadow-sm form-group d-flex flex-column"
                 style="height: 50vh"
@@ -66,7 +67,7 @@
                     <div class="col-md-3">
                         <span>User Selected:</span>
                     </div>
-                    <div class="col-md-6">
+                    <div v-if="!isPublish" class="col-md-6">
                         <div class="hstack justify-content-between">
                             <label class="form-label" for="csv_file"
                                 >Import Users:</label
@@ -95,6 +96,7 @@
                     </div>
                 </div>
                 <div
+                    :class="{ 'un-interactive': isPublish }"
                     class="card-body overflow-auto vstack justify-content-between"
                 >
                     <div class="list-group vstack align-items-center">
@@ -136,6 +138,7 @@
                     </div>
                     <div class="ms-auto">
                         <button
+                            v-if="!isPublish"
                             class="btn btn-primary"
                             type="button"
                             @click="submit"
@@ -167,7 +170,7 @@ const userInvitationList = computed(
 
 const search_query = ref("");
 const users = ref([]);
-
+const isPublish = computed(() => props.room.is_published === 1);
 watchDebounced(
     search_query,
     () => {

@@ -21,6 +21,7 @@
                         >
                         <input
                             v-model="form.question_title"
+                            :class="{ 'un-interactive': isPublish }"
                             class="form-control"
                             placeholder="Enter Question Title"
                             type="text"
@@ -32,12 +33,14 @@
                         >
                         <MdEditor
                             v-model="form.question_description"
+                            :class="{ 'un-interactive': isPublish }"
                             language="en-US"
                             @onUploadImg="onUploadImg"
                         ></MdEditor>
                     </div>
                     <div class="text-end">
                         <button
+                            v-if="!isPublish"
                             class="btn btn-warning"
                             type="submit"
                             @click="viewQuestionDialogVisible = false"
@@ -52,6 +55,7 @@
                         <input
                             id="allow_multiple_votes"
                             v-model="form.allow_multiple_votes"
+                            :class="{ 'un-interactive': isPublish }"
                             class="form-check-input"
                             type="checkbox"
                         />
@@ -66,6 +70,7 @@
                         <input
                             id="allow_skipping"
                             v-model="form.allow_skipping"
+                            :class="{ 'un-interactive': isPublish }"
                             class="form-check-input"
                             type="checkbox"
                         />
@@ -74,7 +79,7 @@
                         >
                         <p class="m-0 small text-danger"></p>
                     </div>
-                    <div class="form-group mb-4">
+                    <div v-if="!isPublish" class="form-group mb-4">
                         <label class="form-label" for="question_image"
                             >Image:</label
                         >
@@ -110,7 +115,7 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { MdEditor } from "md-editor-v3";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useQuestionStore } from "@/Stores/questions.js";
@@ -122,7 +127,7 @@ const helper = useHelper();
 const questionStore = useQuestionStore();
 const currentImageDisplay = ref(null);
 const imgSrc = ref(null);
-
+const isPublish = computed(() => props.room.is_published === 1);
 const viewQuestionDialogVisible = ref(false);
 
 const form = useForm({

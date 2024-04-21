@@ -4,7 +4,10 @@
             <div
                 class="hstack gap-3 align-items-center justify-content-between"
             >
-                <div class="form-check form-switch">
+                <div
+                    :class="{ 'un-interactive': isPublish }"
+                    class="form-check form-switch"
+                >
                     <input
                         id="chatSwitch"
                         v-model="isChatEnable"
@@ -45,7 +48,10 @@
                         <div
                             class="hstack gap-3 align-items-center justify-content-between"
                         >
-                            <div class="form-check form-switch">
+                            <div
+                                :class="{ 'un-interactive': isPublish }"
+                                class="form-check form-switch"
+                            >
                                 <input
                                     id="chatHistorySwitch"
                                     v-model="isChatHistory"
@@ -69,7 +75,10 @@
                             </VTooltip>
                         </div>
                         <div class="hstack gap-3 align-items-center">
-                            <div class="form-check form-switch">
+                            <div
+                                :class="{ 'un-interactive': isPublish }"
+                                class="form-check form-switch"
+                            >
                                 <input
                                     id="chatUploadSwitch"
                                     v-model="isChatUpload"
@@ -104,15 +113,11 @@ import { usePage } from "@inertiajs/vue3";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useVotingChatStore } from "@/Stores/voting-chat.js";
 import { useVotingSettingStore } from "@/Stores/voting-settings.js";
-import { useToast } from "vue-toast-notification";
-
-import VotingChat from "@/Pages/Voting/Vote/VotingChat.vue";
 import VotingMessage from "@/Pages/Voting/Vote/Chat/VotingMessage.vue";
 import BaseNoContent from "@/Components/BaseNoContent.vue";
 
 const props = defineProps(["room"]);
-const $toast = useToast();
-
+const isPublish = computed(() => props.room.is_published === 1);
 const votingSettingStore = useVotingSettingStore();
 const votingChatStore = useVotingChatStore();
 
