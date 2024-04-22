@@ -6,7 +6,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, defineProps, computed } from "vue";
+import { onMounted, onUnmounted, ref, computed } from "vue";
 import { intervalToDuration } from "date-fns";
 import { useHelper } from "@/Services/helper.js";
 

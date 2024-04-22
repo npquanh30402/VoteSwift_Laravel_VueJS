@@ -47,6 +47,7 @@ import DescriptionPage from "@/Pages/Voting/VotingRoom/DescriptionPage.vue";
 import QuestionsPage from "@/Pages/Voting/VotingRoom/Question/Index.vue";
 import AttachmentPage from "@/Pages/Voting/VotingRoom/AttachmentPage.vue";
 import VotingResult from "@/Pages/Voting/VotingRoom/VotingResult/Index.vue";
+import UserAttendance from "@/Pages/Voting/VotingRoom/UserAttendance/Index.vue";
 import BallotSidebar from "@/Pages/Voting/VotingRoom/BallotSidebar.vue";
 import UpdateTitleDesc from "@/Pages/Voting/VotingRoom/Features/UpdateTitleDesc.vue";
 import UpdateTime from "@/Pages/Voting/VotingRoom/Features/UpdateTime.vue";
@@ -141,6 +142,12 @@ const tabData = {
         name: "Extra",
         icon: "bi-star-fill",
         componentName: "RoomExtra",
+    },
+    UserAttendance: {
+        component: UserAttendance,
+        name: "User Attendance",
+        icon: "bi bi-check2-all",
+        componentName: "UserAttendance",
     },
     VotingResult: {
         component: VotingResult,

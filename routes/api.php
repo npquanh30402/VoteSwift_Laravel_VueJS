@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\InvitationMailController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\NotificationSeenController;
 use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\UserJoinTimeController;
 use App\Http\Controllers\Api\UserMessageController;
 use App\Http\Controllers\Api\VoteController;
 use App\Http\Controllers\Api\VotingChatController;
@@ -21,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/images/{room}/upload', [VotingRoomAttachmentController::class, 'store'])->name('api.room.attachment.store');
 
 Route::group(['middleware' => 'web'], function () {
+    Route::get('/room/{room}/join-times', [UserJoinTimeController::class, 'index'])->name('api.user.join.time.index');
+
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
 
     Route::get('/notifications/', [NotificationController::class, 'index'])->name('api.notifications.index');

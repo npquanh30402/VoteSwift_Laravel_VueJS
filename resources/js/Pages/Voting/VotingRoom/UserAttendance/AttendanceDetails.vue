@@ -7,7 +7,7 @@
                 :globalFilterFields="['username', 'email']"
                 :rows="10"
                 :rowsPerPageOptions="[5, 10, 20, 50]"
-                :value="Object.values(voteResults)"
+                :value="Object.values(attendances)"
                 dataKey="id"
                 paginator
                 removableSort
@@ -82,31 +82,36 @@
                     </template>
                 </Column>
 
-                <Column field="vote_date" header="Vote Date" sortable>
-                    <template #body="slotProps">
-                        <span>{{ formatDate(slotProps.data.vote_date) }}</span>
-                    </template>
-                </Column>
-
                 <template #expansion="slotProps">
                     <div class="p-3">
-                        <h5>{{ slotProps.data.username }} choices:</h5>
-                        <DataTable :value="slotProps.data.votes" removableSort>
+                        <DataTable :value="slotProps.data.joins" removableSort>
                             <Column header="#" headerStyle="width:3rem">
                                 <template #body="slotProps" sortable>
                                     {{ slotProps.index + 1 }}
                                 </template>
                             </Column>
                             <Column
-                                field="question_title"
-                                header="Question"
+                                field="join_time"
+                                header="Join Time"
                                 sortable
-                            ></Column>
+                            >
+                                <template #body="slotProps">
+                                    <span>{{
+                                        formatDate(slotProps.data.join_time)
+                                    }}</span>
+                                </template>
+                            </Column>
                             <Column
-                                field="candidate_title"
-                                header="Candidate"
+                                field="leave_time"
+                                header="Leave Time"
                                 sortable
-                            ></Column>
+                            >
+                                <template #body="slotProps">
+                                    <span>{{
+                                        formatDate(slotProps.data.leave_time)
+                                    }}</span>
+                                </template>
+                            </Column>
                         </DataTable>
                     </div>
                 </template>
@@ -125,15 +130,16 @@ import Button from "primevue/button";
 import BaseLoading from "@/Components/BaseLoading.vue";
 import { useHelper } from "@/Services/helper.js";
 import { FilterMatchMode } from "primevue/api";
+import { useVotingAttendanceStore } from "@/Stores/voting-attendance.js";
 
 const isLoading = ref(true);
 
 const props = defineProps(["room"]);
-const voteStore = useVoteStore();
+const attendanceStore = useVotingAttendanceStore();
 const helper = useHelper();
 const formatDate = helper.formatDate;
 
-const voteResults = computed(() => voteStore.voteResults[props.room.id]);
+const attendances = computed(() => attendanceStore.attendances[props.room.id]);
 
 const filters = ref({
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -144,7 +150,7 @@ const expandedRows = ref({});
 const onRowExpand = (event) => {};
 const onRowCollapse = (event) => {};
 const expandAll = () => {
-    expandedRows.value = voteResults.value.reduce(
+    expandedRows.value = attendances.value.reduce(
         (acc, p) => (acc[p.id] = true) && acc,
         {},
     );
@@ -156,13 +162,13 @@ const collapseAll = () => {
 const refreshData = async () => {
     isLoading.value = true;
 
-    await voteStore.fetchVoteResults(props.room.id, true);
+    await attendanceStore.fetchAttendances(props.room.id, true);
 
     isLoading.value = false;
 };
 
 onMounted(async () => {
-    await voteStore.fetchVoteResults(props.room.id);
+    await attendanceStore.fetchAttendances(props.room.id);
 
     isLoading.value = false;
 });
