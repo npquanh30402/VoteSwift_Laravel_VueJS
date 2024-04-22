@@ -22,6 +22,8 @@ use Illuminate\Support\Facades\Route;
 Route::post('/images/{room}/upload', [VotingRoomAttachmentController::class, 'store'])->name('api.room.attachment.store');
 
 Route::group(['middleware' => 'web'], function () {
+    Route::get('/room/{room}/winning', [VoteController::class, 'handleTieAndCreateNewVotingRound'])->name('api.room.vote.handleTie');
+
     Route::get('/room/{room}/join-times', [UserJoinTimeController::class, 'index'])->name('api.user.join.time.index');
 
     Route::post('/images/upload', [ImageUploadController::class, 'store'])->name('api.image.upload');
@@ -55,12 +57,6 @@ Route::group(['middleware' => 'web'], function () {
 
     Route::get('/room/{room}/settings/', [VotingRoomSettingController::class, 'getSettings'])->name('api.room.setting.index');
     Route::put('/room/{room}/settings/', [VotingRoomSettingController::class, 'updateSettings'])->name('api.room.setting.update');
-
-
-//    Route::get('/chat/{user}', [ChatController::class, 'index'])->name('api.user.chat.index');
-//    Route::post('/chat/{user}', [ChatController::class, 'store'])->name('api.user.chat.store');
-//    Route::get('/chat/', [ChatController::class, 'getUnreadAll'])->name('api.user.chat.unread.all');
-//    Route::post('/chat/{user}/read', [ChatController::class, 'markRead'])->name('api.user.chat.read.all');
 
     Route::get('/chat/sender/{sender}/receiver/{receiver}', [UserMessageController::class, 'index'])->name('api.user.chat.index');
     Route::get('/chat/user/{user}/unread', [UserMessageController::class, 'fetchUnreadMessages'])->name('api.user.chat.unread');

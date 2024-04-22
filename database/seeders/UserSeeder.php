@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
                     ->has(
                         Question::factory(random_int(2, 5))->afterCreating(function (Question $question) {
                             // Generate a random number of candidates for the question
-                            $numCandidates = random_int(2, 5);
+                            $numCandidates = random_int(2, 10);
 
                             // Create candidates for the question
                             $candidates = Candidate::factory($numCandidates)->create([

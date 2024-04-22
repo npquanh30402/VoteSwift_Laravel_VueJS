@@ -10,11 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class PreventVotingTimeMiddleware
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param Closure(Request): (Response) $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $room = $request->route('room');
@@ -28,11 +23,15 @@ class PreventVotingTimeMiddleware
             return redirect()->route('homepage')->with('error', 'Voting room is not published.');
         }
 
-        if (Carbon::now()->lessThan(Carbon::parse($room->start_time))) {
+        $now = Carbon::now();
+
+        if ($now->lt(Carbon::parse($room->start_time))) {
             return redirect()->route('homepage')->with('error', 'Voting has not started for this room yet.');
         }
 
-        if (Carbon::now()->greaterThan(Carbon::parse($room->end_time))) {
+        if ($now->gt(Carbon::parse($room->end_time))) {
+            $room->endVote();
+            
             return redirect()->route('homepage')->with('error', 'Voting has ended for this room.');
         }
 

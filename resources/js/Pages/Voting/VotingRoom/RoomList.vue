@@ -28,6 +28,11 @@
                                     placeholder="Keyword Search"
                                 />
                             </div>
+                            <i
+                                class="bi bi-arrow-clockwise"
+                                style="cursor: pointer"
+                                @click="refreshData"
+                            ></i>
                         </div>
                     </div>
                 </template>
@@ -62,14 +67,19 @@
                 <Column field="displayStatus" header="Status" sortable>
                     <template #body="slotProps">
                         <span
-                            :class="
-                                slotProps.data.displayStatus === 'Published'
-                                    ? 'text-bg-success'
-                                    : 'text-bg-warning'
-                            "
+                            :class="{
+                                'text-bg-danger':
+                                    slotProps.data.displayStatus === 'Ended',
+                                'text-bg-success':
+                                    slotProps.data.displayStatus ===
+                                    'Published',
+                                'text-bg-warning':
+                                    slotProps.data.displayStatus === 'Draft',
+                            }"
                             class="badge"
-                            >{{ slotProps.data.displayStatus }}</span
                         >
+                            {{ slotProps.data.displayStatus }}
+                        </span>
                     </template>
                 </Column>
                 <Column header="Action">
@@ -109,9 +119,13 @@ const isLoading = ref(true);
 
 const rooms = computed(() => {
     return roomStore.rooms.map((item) => {
+        let displayStatus = item.is_published === 1 ? "Published" : "Draft";
+
+        if (item.has_ended === 1) displayStatus = "Ended";
+
         return {
             ...item,
-            displayStatus: item.is_published === 1 ? "Published" : "Draft",
+            displayStatus: displayStatus,
         };
     });
 });
@@ -128,6 +142,14 @@ const filters = ref({
 // function goToDashboard(roomId) {
 //     vueRouter.push({ name: "room-dashboard", params: { roomId: roomId } });
 // }
+
+const refreshData = async () => {
+    isLoading.value = true;
+
+    await roomStore.fetchRooms(true);
+
+    isLoading.value = false;
+};
 
 onMounted(async () => {
     await roomStore.fetchRooms();

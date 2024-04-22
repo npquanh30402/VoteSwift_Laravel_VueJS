@@ -109,6 +109,27 @@ class Vote extends Model
         return [$times, $voteCounts];
     }
 
+    public static function getWinningOptions(VotingRoom $room)
+    {
+        $votesPerCandidate = Vote::select('question_id', 'candidate_id', DB::raw('COUNT(*) as vote_count'))
+            ->where('voting_room_id', $room->id)
+            ->groupBy('question_id', 'candidate_id')
+            ->get();
+
+        $winningCandidates = [];
+
+        foreach ($votesPerCandidate->groupBy('question_id') as $questionId => $votes) {
+            $maxVotes = $votes->max('vote_count');
+            $winners = $votes->filter(function ($vote) use ($maxVotes) {
+                return $vote->vote_count == $maxVotes;
+            });
+
+            $winningCandidates[$questionId] = $winners->pluck('candidate_id');
+        }
+
+        return $winningCandidates;
+    }
+
     public function room()
     {
         return $this->belongsTo(VotingRoom::class, 'voting_room_id', 'id');

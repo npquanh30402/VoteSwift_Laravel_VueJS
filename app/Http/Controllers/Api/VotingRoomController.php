@@ -12,8 +12,6 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class VotingRoomController extends Controller
 {
@@ -74,6 +72,10 @@ class VotingRoomController extends Controller
                 $newQuestion->save();
 
                 foreach ($question->candidates as $candidate) {
+                    if ($candidate->question_id !== $question->id) {
+                        continue;
+                    }
+                    
                     $oldCandidate = $candidate->decryptCandidate();
 
                     $newCandidate = $oldCandidate->replicate()->fill([

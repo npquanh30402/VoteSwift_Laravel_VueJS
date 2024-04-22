@@ -9,6 +9,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-2">
                     <BallotSidebar
+                        :room="room"
                         :tabData="tabData"
                         @switch-tab="handleSwitchTab"
                     ></BallotSidebar>

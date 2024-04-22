@@ -4,20 +4,26 @@
         <button
             v-for="tab in tabDataArray"
             :key="tab.componentName"
-            :class="{
-                active: currentTab === tab.componentName,
-                'opacity-50 fw-bold text-bg-danger':
-                    tab.componentName === 'DeleteRoom',
-                'opacity-100':
-                    currentTab === 'DeleteRoom' ||
-                    currentTab === 'RoomPublish' ||
-                    currentTab === 'RoomDuplication',
-                'opacity-50 fw-bold text-bg-success':
-                    tab.componentName === 'RoomPublish',
-                'opacity-50 fw-bold text-bg-warning':
-                    tab.componentName === 'RoomDuplication',
-            }"
-            class="list-group-item list-group-item-action"
+            :class="[
+                'list-group-item',
+                'list-group-item-action',
+                {
+                    active: currentTab === tab.componentName,
+                    'opacity-50 fw-bold text-bg-danger':
+                        tab.componentName === 'DeleteRoom',
+                    'opacity-50 fw-bold text-bg-success':
+                        tab.componentName === 'RoomPublish',
+                    'opacity-50 fw-bold text-bg-warning':
+                        tab.componentName === 'RoomDuplication',
+                    'opacity-100':
+                        currentTab === tab.componentName &&
+                        [
+                            'DeleteRoom',
+                            'RoomPublish',
+                            'RoomDuplication',
+                        ].includes(tab.componentName),
+                },
+            ]"
             @click="switchTab(tab.componentName)"
         >
             <i :class="tab.icon" class="bi me-2"></i>
@@ -29,7 +35,7 @@
 <script setup>
 import { computed, ref } from "vue";
 
-const props = defineProps(["tabData"]);
+const props = defineProps(["tabData", "room"]);
 const emit = defineEmits(["switch-tab"]);
 
 const tabDataArray = computed(() => {

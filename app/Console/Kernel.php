@@ -9,6 +9,7 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('room:check-status')->everyFiveMinutes();
     }
 
     protected function commands(): void

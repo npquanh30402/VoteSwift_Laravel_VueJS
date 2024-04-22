@@ -36,26 +36,15 @@ export const useVoteStore = defineStore("vote", () => {
         }
     };
 
-    const fetchVotes = async (roomId) => {
-        // if (!!votes.value[roomId]) {
-        //     return;
-        // }
+    const fetchVotes = async (roomId, flag = false) => {
+        if (!!votes.value[roomId] && flag === false) {
+            return;
+        }
 
         const response = await axios.get(route("api.room.votes.get", roomId));
 
         if (response.status === 200) {
             votes.value[roomId] = response.data.data;
-
-            votes.value[roomId].forEach((vote) => {
-                const candidateId = vote.candidate_id;
-                if (!voteCounts[roomId]) {
-                    voteCounts[roomId] = {};
-                }
-                if (!voteCounts[roomId][candidateId]) {
-                    voteCounts[roomId][candidateId] = 0;
-                }
-                voteCounts[roomId][candidateId]++;
-            });
         }
     };
 

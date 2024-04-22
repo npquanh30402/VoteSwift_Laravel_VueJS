@@ -29,6 +29,7 @@ import { useQuestionStore } from "@/Stores/questions.js";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import { useVoteStore } from "@/Stores/vote.js";
 import BaseLoading from "@/Components/BaseLoading.vue";
+import VotingOverview from "@/Pages/Voting/VotingRoom/VotingResult/VotingOverview.vue";
 
 const isLoading = ref(true);
 
@@ -104,6 +105,11 @@ const test = () => {
 };
 
 const tabData = {
+    VotingOverview: {
+        component: VotingOverview,
+        name: "Overview",
+        componentName: "VotingOverview",
+    },
     VotingDetails: {
         component: VotingDetails,
         name: "Details",
@@ -116,7 +122,7 @@ const tabData = {
     },
 };
 
-const currentTab = ref(tabData.VotingDetails.componentName);
+const currentTab = ref(tabData.VotingOverview.componentName);
 
 const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;

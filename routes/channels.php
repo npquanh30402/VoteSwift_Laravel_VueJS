@@ -21,6 +21,10 @@ Broadcast::channel('result-update', function ($user) {
     return true;
 });
 
+Broadcast::channel('voting.result.{room}', function (User $user, VotingRoom $room) {
+    return $user->id === $room->user_id;
+});
+
 Broadcast::channel('chat.{user}', function ($user) {
     return ['id' => $user->id, 'username' => $user->username, 'avatar' => $user->avatar];
 });

@@ -39,6 +39,9 @@ class VotingRoomService
             $user = Auth::user();
             if ($user) {
                 return $user->rooms()->get()->transform(function ($room) {
+                    if (Carbon::now()->gt(Carbon::parse($room->end_time)))
+                        $room->endVote();
+
                     return $room->decryptVotingRoom();
                 });
             }

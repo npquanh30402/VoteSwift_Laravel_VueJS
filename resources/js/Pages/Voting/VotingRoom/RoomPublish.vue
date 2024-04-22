@@ -1,14 +1,26 @@
 <template>
-    <div v-if="!isLoading">
-        <button class="btn btn-primary" @click="submit">Publish Room</button>
+    <div v-if="!isLoading" class="text-center">
+        <div v-if="!room.is_published">
+            <p class="display-5">Confirm Room Publication</p>
+            <p class="text-secondary">
+                Once published, you won't be able to change the room settings.
+            </p>
+            <p class="text-danger">
+                This action is irreversible. Are you sure you want to proceed?
+            </p>
+            <button class="btn btn-primary" @click="submit">
+                Publish Room
+            </button>
+        </div>
+        <div v-else>
+            <p class="display-5">Room Published</p>
+        </div>
     </div>
-    <BaseLoading v-else />
 </template>
 
 <script setup>
 import { useVotingRoomStore } from "@/Stores/voting-room.js";
 import { computed, onMounted, ref } from "vue";
-import BaseLoading from "@/Components/BaseLoading.vue";
 
 const isLoading = ref(true);
 

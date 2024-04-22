@@ -9,6 +9,35 @@ const toast = useToast();
 export const useVotingRoomStore = defineStore("room", () => {
     const rooms = ref([]);
 
+    const handleTie = async (roomId) => {
+        try {
+            const response = await axios.get(
+                route(`api.room.vote.handleTie`, roomId),
+            );
+
+            if (response.status === 200) {
+                const fetchedRoom = response.data.data;
+
+                rooms.value.push(fetchedRoom);
+
+                let htmlContent = `<strong>${response.data.message}</strong><br>Click here to go to the room dashboard`;
+
+                toast.open({
+                    message: htmlContent,
+                    type: "success",
+                    duration: 5000,
+                    onClick: () => {
+                        router.get(
+                            route("room.dashboard", response.data.data.id),
+                        );
+                    },
+                });
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
+
     const duplicateRoom = async (roomId) => {
         try {
             const response = await axios.get(
@@ -39,21 +68,38 @@ export const useVotingRoomStore = defineStore("room", () => {
     };
 
     const fetchARoom = async (roomId) => {
-        const roomExists = rooms.value.some((room) => room.id === roomId);
+        try {
+            const index = rooms.value.findIndex((room) => room.id === roomId);
 
-        if (roomExists) return;
+            if (index !== -1) {
+                const response = await axios.get(
+                    route(`api.room.show`, roomId),
+                );
 
-        const response = await axios.get(route(`api.room.show`, roomId));
+                if (response.status === 200) {
+                    rooms.value[index] = response.data.data;
 
-        if (response.status === 200) {
-            const fetchedRoom = response.data.data;
-
-            rooms.value.push(fetchedRoom);
+                    toast.success(response.data.message);
+                }
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
+
+        // const roomExists = rooms.value.some((room) => room.id === roomId);
+        // if (roomExists) return;
+
+        // const response = await axios.get(route(`api.room.show`, roomId));
+        //
+        // if (response.status === 200) {
+        //     const fetchedRoom = response.data.data;
+        //
+        //     rooms.value.push(fetchedRoom);
+        // }
     };
 
-    const fetchRooms = async () => {
-        if (rooms.value?.length > 0) {
+    const fetchRooms = async (flag = false) => {
+        if (rooms.value?.length > 0 && flag === false) {
             return;
         }
 
@@ -145,5 +191,6 @@ export const useVotingRoomStore = defineStore("room", () => {
         updateRoom,
         duplicateRoom,
         deleteRoom,
+        handleTie,
     };
 });
