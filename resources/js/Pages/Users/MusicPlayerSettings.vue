@@ -105,7 +105,6 @@
 import { router, useForm, usePage } from "@inertiajs/vue3";
 import { route } from "ziggy-js";
 import { computed, ref } from "vue";
-import { Link } from "@inertiajs/vue3";
 import { useToast } from "vue-toast-notification";
 
 const $toast = useToast();
@@ -117,7 +116,7 @@ const isMusicPlayerEnable = ref(
 
 const toggleMusicPlayer = () => {
     isMusicPlayerEnable.value = !isMusicPlayerEnable.value;
-    router.post(route("user.music.settings"), {
+    router.post(route("user.music.settings.update"), {
         isMusicPlayerEnable: isMusicPlayerEnable.value,
     });
 

@@ -10,15 +10,15 @@ export const useUserStore = defineStore("user", () => {
 
     const searchUsers = async (keyword) => {
         try {
-            const userExists = users.value.some(
-                (user) =>
-                    user.username.includes(keyword) ||
-                    user.email.includes(keyword),
-            );
-
-            if (userExists) {
-                return;
-            }
+            // const userExists = users.value.some(
+            //     (user) =>
+            //         user.username.includes(keyword) ||
+            //         user.email.includes(keyword),
+            // );
+            //
+            // if (userExists) {
+            //     return;
+            // }
 
             const response = await axios.get(route("api.users.search"), {
                 params: {

@@ -5,17 +5,7 @@
         <div class="row g-4 mb-5 align-items-stretch">
             <!-- Real-Time Voting -->
             <div class="col-md-4 d-flex">
-                <CardPreview>
-                    <div>
-                        <i class="bi bi-stopwatch" style="font-size: 2em"></i>
-                        <h5 class="card-title">Real-Time Voting</h5>
-                        <p class="card-text">
-                            Cast your votes and see the results in real-time,
-                            allowing you to instantly gauge public opinion.
-                        </p>
-                    </div>
-                    <button class="btn btn-primary">Start Voting</button>
-                </CardPreview>
+                <RoomSearch />
             </div>
 
             <!-- Live Results -->
@@ -32,7 +22,6 @@
                             dynamic charts and graphs showing real-time trends.
                         </p>
                     </div>
-                    <button class="btn btn-primary">View Results</button>
                 </CardPreview>
             </div>
 
@@ -48,7 +37,11 @@
                             complex surveys.
                         </p>
                     </div>
-                    <button class="btn btn-primary mt-4">Create a Poll</button>
+                    <Link
+                        :href="route('room.create')"
+                        class="btn btn-primary mt-4"
+                        >Create a Poll
+                    </Link>
                 </CardPreview>
             </div>
 
@@ -80,7 +73,13 @@
                             controlled access to the voting system.
                         </p>
                     </div>
-                    <button class="btn btn-primary mt-4">Register</button>
+                    <Link
+                        v-if="authUser === null"
+                        :href="route('register')"
+                        class="btn btn-primary mt-4"
+                    >
+                        Register
+                    </Link>
                 </CardPreview>
             </div>
 
@@ -95,30 +94,28 @@
                             and monitor results.
                         </p>
                     </div>
-                    <button class="btn btn-primary mt-4">Admin</button>
+                    <Link
+                        :href="route('dashboard.user')"
+                        class="btn btn-primary mt-4"
+                        >Admin
+                    </Link>
                 </CardPreview>
             </div>
 
             <!-- Friendship and Private Chat -->
             <div class="col-md-4 d-flex">
-                <CardPreview>
-                    <div>
-                        <i class="bi bi-people" style="font-size: 2em"></i>
-                        <i class="bi bi-chat-dots" style="font-size: 2em"></i>
-                        <h5 class="card-title">Friendship and Private Chat</h5>
-                        <p class="card-text">
-                            Users can make friends within the app and have
-                            private chats for secure communication.
-                        </p>
-                    </div>
-                    <button class="btn btn-primary mt-4">
-                        Find a friend now!
-                    </button>
-                </CardPreview>
+                <UserSearch />
             </div>
         </div>
     </div>
 </template>
 <script setup>
 import CardPreview from "@/Pages/Index/CardPreview.vue";
+import UserSearch from "@/Pages/Index/Actions/UserSearch.vue";
+import { route } from "ziggy-js";
+import { Link, usePage } from "@inertiajs/vue3";
+import { computed } from "vue";
+import RoomSearch from "@/Pages/Index/Actions/RoomSearch.vue";
+
+const authUser = computed(() => usePage().props.authUser.user);
 </script>
