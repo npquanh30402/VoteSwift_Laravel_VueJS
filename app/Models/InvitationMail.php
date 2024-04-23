@@ -18,6 +18,11 @@ class InvitationMail extends Model
 
     protected $table = 'invitation_mails';
 
+    public function room()
+    {
+        return $this->belongsTo(VotingRoom::class, 'voting_room_id', 'id');
+    }
+
     public function decryptInvitationMail()
     {
         $this->mail_subject = Crypt::decryptString($this->mail_subject);

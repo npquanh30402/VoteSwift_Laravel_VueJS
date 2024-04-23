@@ -113,7 +113,7 @@ for (let i = 0; i < attachments.value?.length; i++) {
 
 const uppy = new Uppy({
     restrictions: {
-        maxFileSize: 5000000,
+        maxFileSize: 10000000,
     },
 })
     .use(Webcam)

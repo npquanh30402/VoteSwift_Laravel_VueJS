@@ -37,6 +37,8 @@ class InvitationMailController extends Controller
 
     public function storeOrUpdate(VotingRoom $room, StoreAndUpdateInvitationMailRequest $request): JsonResponse
     {
+        $this->authorize('update', $room);
+
         DB::beginTransaction();
         try {
             if ($room->invitationMail) {
@@ -70,6 +72,7 @@ class InvitationMailController extends Controller
 
     public function delete(InvitationMail $invitationMail)
     {
+        $this->authorize('delete', $invitationMail);
         DB::beginTransaction();
         try {
             $invitationMail->delete();

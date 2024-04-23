@@ -31,6 +31,8 @@ class VotingRoomController extends Controller
 
     public function handleTieAndCreateNewVotingRound(VotingRoom $room)
     {
+        $this->authorize('view', $room);
+
         DB::beginTransaction();
         try {
             $winningOptions = Vote::getWinningOptions($room);
@@ -151,6 +153,8 @@ class VotingRoomController extends Controller
 
     public function duplicate(VotingRoom $room)
     {
+        $this->authorize('view', $room);
+
         DB::beginTransaction();
         try {
             $original = $room->decryptVotingRoom();
@@ -285,6 +289,8 @@ class VotingRoomController extends Controller
 
     public function update(Request $request, VotingRoom $room): JsonResponse
     {
+        $this->authorize('update', $room);
+
         DB::beginTransaction();
         try {
             if (isset($request->room_name)) {
@@ -331,6 +337,8 @@ class VotingRoomController extends Controller
 
     public function publish(VotingRoom $room)
     {
+        $this->authorize('update', $room);
+
         DB::beginTransaction();
         try {
             if ($room->is_published) {
@@ -371,6 +379,8 @@ class VotingRoomController extends Controller
 
     public function delete(VotingRoom $room): ?JsonResponse
     {
+        $this->authorize('delete', $room);
+
         DB::beginTransaction();
         try {
             $room->delete();

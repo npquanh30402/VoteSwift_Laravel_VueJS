@@ -31,6 +31,8 @@ class VotingRoomAttachmentController extends Controller
 
     public function store(VotingRoom $room, Request $request)
     {
+        $this->authorize('create', $room);
+
         DB::beginTransaction();
         try {
             if ($request->hasFile('file')) {

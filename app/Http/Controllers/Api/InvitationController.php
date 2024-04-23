@@ -28,7 +28,7 @@ class InvitationController extends Controller
 
             $startTime = Carbon::parse($room->start_time);
             $endTime = Carbon::parse($room->end_time);
-            $durationInMinutes = $endTime->diffInMinutes($startTime);
+            $durationUntilEnd = $endTime->diffInSeconds(now());
 
             foreach ($invitedUserIds as $userId) {
                 $user = User::find($userId);
@@ -36,11 +36,7 @@ class InvitationController extends Controller
                 if ($user) {
                     $token = Str::random(64);
 
-                    while (Cache::has("ballot.tkn.{$token}")) {
-                        $token = Str::random(64);
-                    }
-
-                    Cache::put("ballot.tkn.{$token}", $user->id, $durationInMinutes);
+                    Cache::put("ballot.tkn.{$token}", $user->id, $durationUntilEnd);
 
                     $invitationUrl = route('vote.main', ['token' => $token, 'room' => $room]);
 
@@ -60,6 +56,8 @@ class InvitationController extends Controller
 
     public function importInvitationsFromCSV(VotingRoom $room, ImportInvitationsRequest $request)
     {
+        $this->authorize('create', $room);
+
         DB::beginTransaction();
         try {
             if (!$request->hasFile('csv_file')) {
@@ -155,6 +153,8 @@ class InvitationController extends Controller
 
     public function store(VotingRoom $room, Request $request)
     {
+        $this->authorize('create', $room);
+
         DB::beginTransaction();
         try {
             $existingInvitations = Invitation::where('voting_room_id', $room->id)

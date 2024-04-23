@@ -21,6 +21,8 @@
                     class="d-flex justify-content-between gap-3 align-items-center"
                 >
                     <div class="w-100">
+                        <CandidateInfo :candidate="candidate" />
+
                         <input
                             :id="inputId(candidate.id)"
                             :checked="!question.isSkipped ? false : null"
@@ -62,7 +64,6 @@
                             class="img-fluid me-3 img-style"
                             @click="showImage"
                         />
-                        <CandidateInfo :candidate="candidate" />
                     </div>
                 </div>
             </div>

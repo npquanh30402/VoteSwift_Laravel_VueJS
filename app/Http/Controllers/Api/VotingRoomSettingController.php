@@ -42,6 +42,8 @@ class VotingRoomSettingController extends Controller
 
     public function update(VotingRoom $room, Request $request)
     {
+        $this->authorize('update', $room);
+
         DB::beginTransaction();
         try {
             $updates = [];
