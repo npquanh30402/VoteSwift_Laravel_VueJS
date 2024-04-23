@@ -33,7 +33,7 @@ class CandidateRequest extends FormRequest
         return [
             'candidate_title' => 'required|string|min:10|max:100',
             'candidate_description' => 'nullable',
-            'candidate_image' => 'nullable|image',
+            'candidate_image' => 'nullable',
         ];
     }
 }

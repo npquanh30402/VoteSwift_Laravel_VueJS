@@ -33,7 +33,9 @@ class QuestionRequest extends FormRequest
         return [
             'question_title' => 'required|string|min:10|max:100',
             'question_description' => 'nullable',
-            'question_image' => 'nullable|image',
+            'question_image' => 'nullable',
+            'allow_multiple_votes' => 'nullable',
+            'allow_skipping' => 'nullable',
         ];
     }
 }

@@ -56,8 +56,8 @@ class QuestionController extends Controller
 
                 $question->question_title = HelperService::encryptAndStripTags($iValue[0]);
                 $question->question_description = HelperService::encryptAndStripTags($iValue[1]);
-                $question->allow_multiple_votes = $iValue[2];
-                $question->allow_skipping = $iValue[3];
+                $question->allow_multiple_votes = $iValue[2] === 'true' ? 1 : 0;
+                $question->allow_skipping = $iValue[3] === 'true' ? 1 : 0;
                 $question->voting_room_id = $room->id;
 
                 $question->save();
@@ -110,11 +110,11 @@ class QuestionController extends Controller
             $question->question_description = HelperService::encryptAndStripTags($request->question_description);
 
             if ($request->allow_multiple_votes) {
-                $question->allow_multiple_votes = $request->allow_multiple_votes ? 1 : 0;
+                $question->allow_multiple_votes = $request->allow_multiple_votes === 'true' ? 1 : 0;
             }
 
             if ($request->allow_skipping) {
-                $question->allow_skipping = $request->allow_skipping ? 1 : 0;
+                $question->allow_skipping = $request->allow_skipping === 'true' ? 1 : 0;
             }
 
             if ($request->hasFile('question_image')) {

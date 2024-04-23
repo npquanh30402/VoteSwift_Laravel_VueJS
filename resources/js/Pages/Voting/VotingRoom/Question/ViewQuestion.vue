@@ -145,11 +145,11 @@ const isPublish = computed(() => props.room.is_published === 1);
 const viewQuestionDialogVisible = ref(false);
 
 const form = useForm({
-    question_title: props.question?.question_title,
-    question_description: props.question?.question_description,
-    question_image: props.question?.question_image,
-    allow_multiple_votes: props.question?.allow_multiple_votes,
-    allow_skipping: props.question?.allow_skipping,
+    question_title: props.question.question_title,
+    question_description: props.question.question_description,
+    question_image: props.question.question_image,
+    allow_multiple_votes: props.question.allow_multiple_votes === 1,
+    allow_skipping: props.question.allow_skipping === 1,
 });
 
 const errorMessages = reactive({
@@ -198,13 +198,9 @@ const submit = async () => {
 
     formData.append("question_image", form.question_image);
 
-    if (form.allow_multiple_votes) {
-        formData.append("allow_multiple_votes", form.allow_multiple_votes);
-    }
+    formData.append("allow_multiple_votes", form.allow_multiple_votes);
 
-    if (form.allow_skipping) {
-        formData.append("allow_skipping", form.allow_skipping);
-    }
+    formData.append("allow_skipping", form.allow_skipping);
 
     await questionStore.updateQuestion(
         props.room.id,
