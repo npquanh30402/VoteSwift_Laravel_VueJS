@@ -56,11 +56,7 @@ const handleLoadPage = (url, page) => {
 };
 
 const handleMarkAllAsRead = async () => {
-    const response = await notificationStore.markAllAsRead(authUser.value.id);
-
-    if (response.status === 200) {
-        toast.success(response.data.message);
-    }
+    await notificationStore.markAllAsRead(authUser.value.id);
 };
 
 onMounted(() => {

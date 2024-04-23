@@ -12,7 +12,7 @@ export const useVotingRoomStore = defineStore("room", () => {
     const handleTie = async (roomId) => {
         try {
             const response = await axios.get(
-                route(`api.room.vote.handleTie`, roomId),
+                route("api.rooms.tie.create", roomId),
             );
 
             if (response.status === 200) {
@@ -41,7 +41,7 @@ export const useVotingRoomStore = defineStore("room", () => {
     const duplicateRoom = async (roomId) => {
         try {
             const response = await axios.get(
-                route(`api.room.duplicate`, roomId),
+                route("api.room.duplicate", roomId),
             );
 
             if (response.status === 200) {
@@ -73,7 +73,7 @@ export const useVotingRoomStore = defineStore("room", () => {
 
             if (index !== -1) {
                 const response = await axios.get(
-                    route(`api.room.show`, roomId),
+                    route("api.room.show", roomId),
                 );
 
                 if (response.status === 200) {
@@ -85,17 +85,6 @@ export const useVotingRoomStore = defineStore("room", () => {
         } catch (error) {
             toast.error(error.response.data.message);
         }
-
-        // const roomExists = rooms.value.some((room) => room.id === roomId);
-        // if (roomExists) return;
-
-        // const response = await axios.get(route(`api.room.show`, roomId));
-        //
-        // if (response.status === 200) {
-        //     const fetchedRoom = response.data.data;
-        //
-        //     rooms.value.push(fetchedRoom);
-        // }
     };
 
     const fetchRooms = async (flag = false) => {
@@ -103,7 +92,7 @@ export const useVotingRoomStore = defineStore("room", () => {
             return;
         }
 
-        const response = await axios.get(route("api.room.index"));
+        const response = await axios.get(route("api.rooms.index"));
 
         if (response.status === 200) {
             rooms.value = response.data.data;
@@ -168,7 +157,7 @@ export const useVotingRoomStore = defineStore("room", () => {
     const deleteRoom = async (roomId) => {
         try {
             const response = await axios.delete(
-                route("api.room.destroy", roomId),
+                route("api.room.delete", roomId),
             );
 
             if (response.status === 200) {
@@ -177,6 +166,28 @@ export const useVotingRoomStore = defineStore("room", () => {
                 toast.success(response.data.message);
 
                 router.get(route("dashboard.user"));
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
+
+    const publishRoom = async (roomId) => {
+        try {
+            const response = await axios.post(
+                route("api.room.publish", roomId),
+            );
+
+            if (response.status === 200) {
+                const index = rooms.value.findIndex(
+                    (room) => room.id === roomId,
+                );
+
+                if (index !== -1) {
+                    rooms.value[index] = response.data.data;
+
+                    toast.success(response.data.message);
+                }
             }
         } catch (error) {
             toast.error(error.response.data.message);
@@ -192,5 +203,6 @@ export const useVotingRoomStore = defineStore("room", () => {
         duplicateRoom,
         deleteRoom,
         handleTie,
+        publishRoom,
     };
 });

@@ -53,19 +53,14 @@ const submitFeedback = async () => {
     const formData = new FormData();
     if (feedback.value) {
         formData.append("feedback", helper.sanitizeAndTrim(feedback.value));
+
+        await feedbackStore.storeFeedback(
+            authUser.value.id,
+            props.room.id,
+            formData,
+        );
     }
 
-    try {
-        feedbackStore
-            .storeFeedback(authUser.value.id, props.room.id, formData)
-            .then((response) => {
-                if (response.status === 200) {
-                    toast.success("Feedback submitted successfully");
-                    feedbackSubmitted.value = true;
-                }
-            });
-    } catch (error) {
-        toast.error("Error while submitting feedback");
-    }
+    feedbackSubmitted.value = true;
 };
 </script>

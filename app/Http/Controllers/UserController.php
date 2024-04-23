@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UserRequest;
 use App\Models\User;
 use App\Models\UserSetting;
-use App\Services\FriendService;
-use App\Services\HelperService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,33 +13,25 @@ use Inertia\Inertia;
 
 class UserController extends Controller
 {
-    protected $friendService;
+    protected $userService;
 
-    public function __construct(FriendService $friendService, UserService $userService)
+    public function __construct(UserService $userService)
     {
-        $this->friendService = $friendService;
         $this->userService = $userService;
     }
 
-    protected $userService;
-
-    public function search(Request $request)
+    public function profile(User $user)
     {
-        $query = $request->input('query');
+        $public_rooms = $user->getPublicRooms();
 
-        $users = User::where('id', $query)
-            ->orWhere('username', 'like', "%$query%")
-            ->orWhere('email', 'like', "%$query%")
-            ->get();
+        $public_rooms->map(function ($room) {
+            $room->room_name = Crypt::decryptString($room->room_name);
+        });
 
-        return response()->json($users);
-    }
-
-    public function showMusicPlayerSettings()
-    {
-        $music = Auth::user()->music;
-
-        return Inertia::render('Users/MusicPlayerSettings', compact('music'));
+        return Inertia::render('Users/UserProfile', [
+            'user' => $user->decryptUser(),
+            'public_rooms' => $public_rooms
+        ]);
     }
 
     public function updateMusicPlayerSettings(Request $request)
@@ -58,27 +48,6 @@ class UserController extends Controller
         $authUser->settings->save();
     }
 
-    public function profile(User $user)
-    {
-        $public_rooms = $user->getPublicRooms();
-
-        $public_rooms->map(function ($room) {
-            $room->room_name = Crypt::decryptString($room->room_name);
-        });
-
-//        dd($user->decryptUser());
-
-        return Inertia::render('Users/UserProfile', [
-            'user' => $user->decryptUser(),
-            'public_rooms' => $public_rooms
-        ]);
-    }
-
-    public function showSettings()
-    {
-        return Inertia::render('Users/UserSettings');
-    }
-
     public function storeInformation(UserRequest $request)
     {
         $user = auth()->user();
@@ -88,8 +57,6 @@ class UserController extends Controller
 
     public function getDashboard()
     {
-        $authUserFriends = $this->friendService->getFriends(auth()->user());
-
-        return Inertia::render('Users/Dashboard', compact('authUserFriends'));
+        return Inertia::render('Users/Dashboard');
     }
 }

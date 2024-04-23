@@ -6,11 +6,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class UserJoinTime extends Model
+class UserAttendance extends Model
 {
     use HasFactory;
 
-    protected $table = 'user_join_times';
+    protected $table = 'user_attendances';
 
     public function user()
     {

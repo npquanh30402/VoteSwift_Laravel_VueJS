@@ -57,16 +57,17 @@
 <script setup>
 import { MdEditor } from "md-editor-v3";
 import { useForm } from "@inertiajs/vue3";
-import { route } from "ziggy-js";
 import { useVotingRoomStore } from "@/Stores/voting-room.js";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useHelper } from "@/Services/helper.js";
 import BaseLoading from "@/Components/BaseLoading.vue";
+import { useEtcStore } from "@/Stores/etc.js";
 
 const isLoading = ref(true);
 
 const props = defineProps(["room"]);
 const helper = useHelper();
+const etcStore = useEtcStore();
 const votingRoomStore = useVotingRoomStore();
 // const room = computed(() =>
 //     votingRoomStore.rooms.find((room) => room.id === props.room.id),
@@ -112,26 +113,7 @@ onMounted(async () => {
     isLoading.value = false;
 });
 
-const onUploadImg = async (files, callback) => {
-    const res = await Promise.all(
-        files.map((file) => {
-            return new Promise((rev, rej) => {
-                const form = new FormData();
-                form.append("image", file);
-
-                axios
-                    .post(route("api.image.upload"), form, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    })
-                    .then((res) => rev(res))
-                    .catch((error) => rej(error));
-            });
-        }),
-    );
-    callback(res.map((item) => item.data.image));
-};
+const onUploadImg = etcStore.onUploadImg;
 
 const submit = async () => {
     const formData = new FormData();

@@ -21,35 +21,42 @@ export const useUserChatStore = defineStore("userChat", () => {
     };
 
     const setupEchoPrivateListener = (userId) => {
-        Echo.private(channelBroadcast.channelName + userId).listen(
-            channelBroadcast.eventName,
-            handleReceivedMessage,
-        );
+        try {
+            Echo.private(channelBroadcast.channelName + userId).listen(
+                channelBroadcast.eventName,
+                handleReceivedMessage,
+            );
+        } catch (error) {
+            toast.error(error);
+        }
     };
 
     const markRead = async (receiverId, senderId) => {
-        if (unreadMessages.value[senderId]) {
-            const response = await axios.post(
-                route("api.user.chat.mark-read", {
-                    receiver: receiverId,
-                    sender: senderId,
-                }),
-            );
+        try {
+            if (unreadMessages.value[senderId]) {
+                const response = await axios.post(
+                    route("api.chat.mark-read", {
+                        receiver: receiverId,
+                        sender: senderId,
+                    }),
+                );
 
-            if (response.status === 200) {
-                totalUnreadMessages.value -= Object.values(
-                    unreadMessages.value[senderId],
-                ).length;
-                unreadMessages.value[senderId] = [];
+                if (response.status === 200) {
+                    totalUnreadMessages.value -= Object.values(
+                        unreadMessages.value[senderId],
+                    ).length;
+                    unreadMessages.value[senderId] = [];
+                }
             }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const fetchUnreadMessages = async (userId) => {
         try {
-            const response = await axios.get(
-                route("api.user.chat.unread", userId),
-            );
+            const response = await axios.get(route("api.chats.unread", userId));
+
             if (response.status === 200) {
                 response.data.data.forEach((message) => {
                     const senderId = message.message.sender_id;
@@ -64,10 +71,7 @@ export const useUserChatStore = defineStore("userChat", () => {
                 ).reduce((total, messages) => total + messages.length, 0);
             }
         } catch (error) {
-            console.error(
-                "Error fetching unread messages for user ID " + userId + ":",
-                error,
-            );
+            toast.error(error.response.data.message);
         }
     };
 
@@ -82,7 +86,7 @@ export const useUserChatStore = defineStore("userChat", () => {
             }
 
             const response = await axios.get(
-                route("api.user.chat.index", {
+                route("api.chats.index", {
                     sender: senderId,
                     receiver: receiverId,
                 }),
@@ -92,10 +96,7 @@ export const useUserChatStore = defineStore("userChat", () => {
                 messages.value[receiverId] = response.data.data;
             }
         } catch (error) {
-            console.error(
-                "Error fetching messages for recipient ID " + recipientId + ":",
-                error,
-            );
+            toast.error(error.response.data.message);
         }
     };
 
@@ -106,7 +107,7 @@ export const useUserChatStore = defineStore("userChat", () => {
             }
 
             const response = await axios.post(
-                route("api.user.chat.store", {
+                route("api.chat.store", {
                     sender: senderId,
                     receiver: receiverId,
                 }),
@@ -122,29 +123,30 @@ export const useUserChatStore = defineStore("userChat", () => {
                 messages.value[receiverId].push(response.data.data);
             }
         } catch (error) {
-            console.error(
-                "Error storing message for recipient ID " + receiverId + ":",
-                error,
-            );
+            toast.error(error.response.data.message);
         }
     };
 
-    const storeBroadcastMessage = async (senderId, message) => {
-        if (!messages.value[senderId]) {
-            messages.value[senderId] = [];
-        }
+    const storeBroadcastMessage = (senderId, message) => {
+        try {
+            if (!messages.value[senderId]) {
+                messages.value[senderId] = [];
+            }
 
-        messages.value[senderId].push(message);
+            messages.value[senderId].push(message);
 
-        if (!unreadMessages.value[senderId]) {
-            unreadMessages.value[senderId] = [];
-        }
-        unreadMessages.value[senderId].push(message);
+            if (!unreadMessages.value[senderId]) {
+                unreadMessages.value[senderId] = [];
+            }
+            unreadMessages.value[senderId].push(message);
 
-        if (unreadMessages.value[senderId]) {
-            totalUnreadMessages.value = Object.values(
-                unreadMessages.value,
-            ).reduce((total, messages) => total + messages.length, 0);
+            if (unreadMessages.value[senderId]) {
+                totalUnreadMessages.value = Object.values(
+                    unreadMessages.value,
+                ).reduce((total, messages) => total + messages.length, 0);
+            }
+        } catch (error) {
+            toast.error(error);
         }
     };
 

@@ -2,6 +2,9 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import axios from "axios";
 import { route } from "ziggy-js";
+import { useToast } from "vue-toast-notification";
+
+const toast = useToast();
 
 export const useVotingChatStore = defineStore("votingChat", () => {
     const messages = ref({});
@@ -18,23 +21,23 @@ export const useVotingChatStore = defineStore("votingChat", () => {
     const fetchMessages = async (roomId) => {
         try {
             const response = await axios.get(
-                route("api.vote.chat.index", roomId),
+                route("api.rooms.chats.index", roomId),
             );
-            messages.value[roomId] = response.data.messages;
 
-            unreadCounts.value[roomId] = 0;
+            if (response.status === 200) {
+                messages.value[roomId] = response.data.data;
+
+                unreadCounts.value[roomId] = 0;
+            }
         } catch (error) {
-            console.error(
-                "Error fetching messages for recipient ID " + roomId + ":",
-                error,
-            );
+            toast.error(error.response.data.message);
         }
     };
 
     const storeMessage = async (roomId, formData) => {
         try {
-            await window.axios.post(
-                route("api.vote.chat.store", roomId),
+            const response = await window.axios.post(
+                route("api.rooms.chat.store", roomId),
                 formData,
                 {
                     headers: {
@@ -43,10 +46,7 @@ export const useVotingChatStore = defineStore("votingChat", () => {
                 },
             );
         } catch (error) {
-            console.error(
-                "Error storing message for recipient ID " + roomId + ":",
-                error,
-            );
+            toast.error(error.response.data.message);
         }
     };
 

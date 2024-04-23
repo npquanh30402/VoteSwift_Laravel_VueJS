@@ -29,8 +29,13 @@ class Question extends Model
 
     public function decryptQuestion()
     {
-        $this->question_title = Crypt::decryptString($this->question_title);
-        $this->question_description = Crypt::decryptString($this->question_description);
+        if ($this->question_title) {
+            $this->question_title = Crypt::decryptString($this->question_title);
+        }
+
+        if ($this->question_description) {
+            $this->question_description = Crypt::decryptString($this->question_description);
+        }
 
         return $this;
     }

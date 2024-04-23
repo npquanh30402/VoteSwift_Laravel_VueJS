@@ -235,7 +235,7 @@ function submitVotes() {
     formData.append("selectedOptions", JSON.stringify(selectedOptions.value));
     voteStore.storeVotes(props.room.id, formData);
 
-    // emit("switch-tab", "VotingSubmit");
+    emit("switch-tab", "VotingSubmit");
 }
 
 const options = {

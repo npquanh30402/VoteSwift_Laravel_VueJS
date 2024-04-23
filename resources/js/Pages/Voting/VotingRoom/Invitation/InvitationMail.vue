@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div v-if="!isLoading">
         <div class="mb-3">
             <label class="form-label" for="emailSubject">Subject:</label>
             <input
@@ -45,27 +45,26 @@
             </div>
         </div>
     </div>
+    <BaseLoading v-else />
 </template>
 <script setup>
 import { MdEditor } from "md-editor-v3";
-import { route } from "ziggy-js";
-import { computed, onMounted, reactive, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useInvitationMailStore } from "@/Stores/invitationMail.js";
-import { useToast } from "vue-toast-notification";
 import { useHelper } from "@/Services/helper.js";
+import { useEtcStore } from "@/Stores/etc.js";
+import BaseLoading from "@/Components/BaseLoading.vue";
 
+const isLoading = ref(true);
 const props = defineProps(["room"]);
-const $toast = useToast();
-const { sanitizeAndTrim } = useHelper();
-const isPublish = computed(() => props.room.is_published === 1);
-const {
-    invitationMails,
-    fetchInvitationMail,
-    storeInvitationMail,
-    deleteInvitationMail,
-} = useInvitationMailStore();
+const helper = useHelper();
+const sanitizeAndTrim = helper.sanitizeAndTrim;
 
-const mail = computed(() => invitationMails[props.room.id]);
+const isPublish = computed(() => props.room.is_published === 1);
+
+const invitationMailStore = useInvitationMailStore();
+
+const mail = computed(() => invitationMailStore.invitationMails[props.room.id]);
 const isMailExist = computed(() => mail.value !== null);
 
 const form = reactive({
@@ -78,46 +77,27 @@ watch(mail, () => {
     form.mail_content = mail.value?.mail_content;
 });
 
-onMounted(() => fetchInvitationMail(props.room.id));
+onMounted(async () => {
+    await invitationMailStore.fetchInvitationMail(props.room.id);
+
+    isLoading.value = false;
+});
 
 const handleSubmit = async () => {
     const formData = new FormData();
     formData.append("mail_subject", sanitizeAndTrim(form.mail_subject));
     formData.append("mail_content", sanitizeAndTrim(form.mail_content));
 
-    const response = await storeInvitationMail(props.room.id, formData);
-
-    if (response) {
-        $toast.success(response.data.message);
-    }
+    await invitationMailStore.storeInvitationMail(props.room.id, formData);
 };
 
 const handleDelete = async () => {
-    const response = await deleteInvitationMail(props.room.id, mail.value?.id);
-
-    if (response) {
-        $toast.success(response.data.message);
-    }
-};
-
-const onUploadImg = async (files, callback) => {
-    const res = await Promise.all(
-        files.map((file) => {
-            return new Promise((rev, rej) => {
-                const form = new FormData();
-                form.append("image", file);
-
-                axios
-                    .post(route("api.image.upload"), form, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    })
-                    .then((res) => rev(res))
-                    .catch((error) => rej(error));
-            });
-        }),
+    await invitationMailStore.deleteInvitationMail(
+        props.room.id,
+        mail.value?.id,
     );
-    callback(res.map((item) => item.data.image));
 };
+
+const etcStore = useEtcStore();
+const onUploadImg = etcStore.onUploadImg;
 </script>

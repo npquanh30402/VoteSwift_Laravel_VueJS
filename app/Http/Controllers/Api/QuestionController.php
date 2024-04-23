@@ -5,74 +5,147 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Question;
 use App\Models\VotingRoom;
-use App\Services\QuestionService;
+use App\Services\HelperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class QuestionController extends Controller
 {
-    protected QuestionService $questionService;
-
-    public function __construct(QuestionService $questionService)
-    {
-        $this->questionService = $questionService;
-    }
+//    protected QuestionService $questionService;
+//
+//    public function __construct(QuestionService $questionService)
+//    {
+//        $this->questionService = $questionService;
+//    }
 
     public function index(VotingRoom $room): ?JsonResponse
     {
         try {
-            $questions = $this->questionService->getRoomQuestions($room);
+            $questions = $room->questions->each(function ($question) {
+                $question->decryptQuestion();
+            });
 
             return response()->json([
                 'data' => $questions,
                 'message' => 'Questions retrieved successfully',
             ]);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error getting questions: ' . $e->getMessage()], 500);
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
     public function update(Question $question, Request $request): ?JsonResponse
     {
+        DB::beginTransaction();
         try {
-            $question = $this->questionService->updateQuestion($question, $request);
+            $question->question_title = HelperService::encryptAndStripTags($request->question_title);
+
+            $question->question_description = HelperService::encryptAndStripTags($request->question_description);
+
+            if ($request->allow_multiple_votes) {
+                $question->allow_multiple_votes = $request->allow_multiple_votes ? 1 : 0;
+            }
+
+            if ($request->allow_skipping) {
+                $question->allow_skipping = $request->allow_skipping ? 1 : 0;
+            }
+
+            if ($request->hasFile('question_image')) {
+                $oldImage = $question->question_image;
+                $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
+
+                $fileName = HelperService::sanitizeFileName($fileName);
+
+                $request->question_image->storeAs('uploads/questions', $fileName, 'public');
+                $question->question_image = $fileName;
+
+                if ($oldImage !== $question->question_image) {
+                    Storage::delete(str_replace('/storage/', 'public/', $oldImage));
+                }
+            }
+
+            $question->save();
+
+            DB::commit();
 
             return response()->json([
                 'data' => $question->decryptQuestion(),
                 'message' => 'Question updated successfully',
             ]);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error updating question: ' . $e->getMessage()], 500);
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
     public function delete(Question $question): ?JsonResponse
     {
+        DB::beginTransaction();
         try {
-            $this->questionService->deleteQuestion($question);
+            $question->delete();
+
+            DB::commit();
 
             return response()->json(['message' => 'Question deleted successfully']);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error deleting question: ' . $e->getMessage()], 500);
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
     public function store(VotingRoom $room, Request $request): ?JsonResponse
     {
+        DB::beginTransaction();
         try {
-            $question = $this->questionService->storeQuestion($room, $request);
+            $question = new Question();
 
-            if ($question) {
-                return response()->json([
-                    'data' => $question->decryptQuestion(),
-                    'message' => 'Question created successfully',
-                ], 201);
+            $question->question_title = HelperService::encryptAndStripTags($request->question_title);
+
+            if (isset($request->question_description)) {
+                $question->question_description = HelperService::encryptAndStripTags($request->question_description);
             }
 
-            return response()->json(['error' => 'Error creating question'], 500);
+            if ($request->allow_multiple_votes) {
+                $question->allow_multiple_votes = $request->allow_multiple_votes ? 1 : 0;
+            }
+
+            if ($request->allow_skipping) {
+                $question->allow_skipping = $request->allow_skipping ? 1 : 0;
+            }
+
+            if ($request->hasFile('question_image')) {
+                $fileName = uniqid('', true) . '.' . $request->question_image->getClientOriginalExtension();
+
+                $fileName = HelperService::sanitizeFileName($fileName);
+
+                $request->question_image->storeAs('uploads/questions', $fileName, 'public');
+                $question->question_image = $fileName;
+            }
+
+            $question->voting_room_id = $room->id;
+
+            $question->save();
+
+            DB::commit();
+
+            return response()->json([
+                'data' => $question->decryptQuestion(),
+                'message' => 'Question created successfully',
+            ], 201);
         } catch (Exception $e) {
-            return response()->json(['error' => 'Error creating question: ' . $e->getMessage()], 500);
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

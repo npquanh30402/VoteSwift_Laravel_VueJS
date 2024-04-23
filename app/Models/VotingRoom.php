@@ -57,7 +57,7 @@ class VotingRoom extends Model
 
     public function userJoinTimes()
     {
-        return $this->hasMany(UserJoinTime::class, 'room_id', 'id');
+        return $this->hasMany(UserAttendance::class, 'room_id', 'id');
     }
 
     public function userHasAccess($user)
@@ -95,11 +95,11 @@ class VotingRoom extends Model
 
     public function startVote()
     {
-        $this->update(['vote_started' => true]);
+        $this->update(['vote_started' => 1]);
     }
 
     public function endVote()
     {
-        $this->update(['has_ended' => true]);
+        $this->update(['has_ended' => 1]);
     }
 }

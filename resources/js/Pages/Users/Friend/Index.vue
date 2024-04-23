@@ -1,5 +1,5 @@
 <template>
-    <div v-if="friends" class="row">
+    <div v-if="!isLoading" class="row">
         <div class="col-md-3">
             <FriendSideBar
                 :authUserFriends="friends"
@@ -22,8 +22,9 @@
             </div>
         </div>
     </div>
+    <BaseLoading v-else />
 </template>
-n
+
 <script setup>
 import FriendSideBar from "@/Pages/Users/Friend/FriendSideBar.vue";
 import { computed, onMounted, ref } from "vue";
@@ -32,7 +33,9 @@ import FriendRequest from "@/Pages/Users/Friend/friendRequest.vue";
 import RequestSent from "@/Pages/Users/Friend/RequestSent.vue";
 import { useFriendStore } from "@/Stores/friends.js";
 import { usePage } from "@inertiajs/vue3";
+import BaseLoading from "@/Components/BaseLoading.vue";
 
+const isLoading = ref(true);
 const authUser = computed(() => usePage().props.authUser.user);
 
 const friendStore = useFriendStore();
@@ -50,7 +53,9 @@ const handleSwitchTab = (tabName) => {
     currentTab.value = tabName;
 };
 
-onMounted(() => {
-    friendStore.fetchFriends(authUser.value.id);
+onMounted(async () => {
+    await friendStore.fetchFriends(authUser.value.id);
+
+    isLoading.value = false;
 });
 </script>

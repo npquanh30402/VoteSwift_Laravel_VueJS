@@ -19,10 +19,8 @@ Route::group(['prefix' => '/user'], function () {
         Route::resource('notification', NotificationController::class)->only(['index']);
 
         Route::get('/dashboard', [UserController::class, 'getDashboard'])->name('dashboard.user');
-        Route::get('/settings', [UserController::class, 'showSettings'])->name('user.settings');
         Route::put('/settings', [UserController::class, 'storeInformation'])->name('user.settings.update');
-
-        Route::get('/music-settings', [UserController::class, 'showMusicPlayerSettings'])->name('user.music.settings');
+        
         Route::post('/music-settings', [UserController::class, 'updateMusicPlayerSettings'])->name('user.music.settings.update');
         Route::post('/music-settings/upload', [MusicController::class, 'uploadMusic'])->name('user.music.settings.upload');
         Route::delete('/music-settings/{music}/delete', [MusicController::class, 'deleteMusic'])->name('user.music.settings.delete');

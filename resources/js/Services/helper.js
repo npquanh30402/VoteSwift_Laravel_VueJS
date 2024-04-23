@@ -75,7 +75,8 @@ export const useHelper = () => {
     }
 
     function convertToLocal(date, timeZone) {
-        return moment(date).tz(timeZone).format();
+        const utcDate = moment.utc(date);
+        return utcDate.tz(timeZone).format();
     }
 
     const getUserTimeZone = () => {

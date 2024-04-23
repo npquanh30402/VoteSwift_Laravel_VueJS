@@ -9,6 +9,7 @@ use App\Models\VotingRoom;
 use App\Services\HelperService;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class InvitationMailController extends Controller
 {
@@ -18,59 +19,71 @@ class InvitationMailController extends Controller
             $mail = $room->invitationMail;
 
             if ($mail) {
-                $decryptedMail = $mail->decryptInvitationMail();
                 return response()->json([
-                    'data' => $decryptedMail,
+                    'data' => $mail->decryptInvitationMail(),
                     'message' => 'Invitation mail retrieved successfully.',
                 ]);
             }
 
             return response()->json([
-                'data' => null,
-                'message' => 'Invitation mail does not exist for this room.',
+                'message' => 'No invitation mail found.',
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'An error occurred while retrieving the invitation mail.',
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
 
     public function storeOrUpdate(VotingRoom $room, StoreAndUpdateInvitationMailRequest $request): JsonResponse
     {
-        if ($room->invitationMail) {
-            $mail = $room->invitationMail;
-            $mail->update([
-                'mail_subject' => HelperService::encryptAndStripTags($request->mail_subject),
-                'mail_content' => HelperService::encryptAndStripTags($request->mail_content)
-            ]);
-            $message = 'Invitation mail updated successfully.';
-        } else {
-            $mail = $room->invitationMail()->create([
-                'mail_subject' => HelperService::encryptAndStripTags($request->mail_subject),
-                'mail_content' => HelperService::encryptAndStripTags($request->mail_content)
-            ]);
-            $message = 'Invitation mail created successfully.';
-        }
+        DB::beginTransaction();
+        try {
+            if ($room->invitationMail) {
+                $mail = $room->invitationMail;
+                $mail->update([
+                    'mail_subject' => HelperService::encryptAndStripTags($request->mail_subject),
+                    'mail_content' => HelperService::encryptAndStripTags($request->mail_content)
+                ]);
+                $message = 'Invitation mail updated successfully.';
+            } else {
+                $mail = $room->invitationMail()->create([
+                    'mail_subject' => HelperService::encryptAndStripTags($request->mail_subject),
+                    'mail_content' => HelperService::encryptAndStripTags($request->mail_content)
+                ]);
+                $message = 'Invitation mail created successfully.';
+            }
 
-        return response()->json([
-            'data' => $mail->decryptInvitationMail(),
-            'message' => $message,
-        ]);
+            DB::commit();
+
+            return response()->json([
+                'data' => $mail->decryptInvitationMail(),
+                'message' => $message,
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function destroy(InvitationMail $invitationMail)
+    public function delete(InvitationMail $invitationMail)
     {
+        DB::beginTransaction();
         try {
             $invitationMail->delete();
+
+            DB::commit();
 
             return response()->json([
                 'message' => 'Invitation mail deleted successfully.',
             ]);
         } catch (Exception $e) {
+            DB::rollBack();
             return response()->json([
-                'message' => 'Invitation mail not found.',
-            ], 404);
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

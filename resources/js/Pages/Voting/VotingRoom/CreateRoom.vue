@@ -60,35 +60,17 @@ import "@vuepic/vue-datepicker/dist/main.css";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import { useForm } from "@inertiajs/vue3";
-import { route } from "ziggy-js";
 import { useVotingRoomStore } from "@/Stores/voting-room.js";
+import { useEtcStore } from "@/Stores/etc.js";
 
 const roomStore = useVotingRoomStore();
+const etcStore = useEtcStore();
 const form = useForm({
     room_name: "",
     room_description: "",
 });
 
-const onUploadImg = async (files, callback) => {
-    const res = await Promise.all(
-        files.map((file) => {
-            return new Promise((rev, rej) => {
-                const form = new FormData();
-                form.append("image", file);
-
-                axios
-                    .post(route("api.image.upload"), form, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    })
-                    .then((res) => rev(res))
-                    .catch((error) => rej(error));
-            });
-        }),
-    );
-    callback(res.map((item) => item.data.image));
-};
+const onUploadImg = etcStore.onUploadImg;
 
 const submit = async () => {
     const formData = new FormData();

@@ -30,8 +30,13 @@ class Candidate extends Model
 
     public function decryptCandidate()
     {
-        $this->candidate_title = Crypt::decryptString($this->candidate_title);
-        $this->candidate_description = Crypt::decryptString($this->candidate_description);
+        if ($this->candidate_title) {
+            $this->candidate_title = Crypt::decryptString($this->candidate_title);
+        }
+
+        if ($this->candidate_description) {
+            $this->candidate_description = Crypt::decryptString($this->candidate_description);
+        }
 
         return $this;
     }

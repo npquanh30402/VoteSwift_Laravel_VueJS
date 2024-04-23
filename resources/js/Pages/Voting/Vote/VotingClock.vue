@@ -12,27 +12,35 @@ import { useHelper } from "@/Services/helper.js";
 
 const props = defineProps(["date"]);
 const helper = useHelper();
-const date = computed(() =>
-    helper.convertToLocal(props.date, helper.getUserTimeZone()),
-);
-const displayTime = ref(calculateDisplayTime(date));
+
+const date = computed(() => {
+    const localDate = helper.convertToLocal(
+        props.date,
+        helper.getUserTimeZone(),
+    );
+    return new Date(localDate);
+});
+
+const displayTime = ref(calculateDisplayTime(date.value));
 
 function calculateDisplayTime(endDate) {
     const currentTime = new Date();
     const duration = intervalToDuration({ start: currentTime, end: endDate });
 
     return {
-        days: duration.days,
-        hours: duration.hours,
-        minutes: duration.minutes,
-        seconds: duration.seconds,
+        days: duration.days || 0,
+        hours: duration.hours || 0,
+        minutes: duration.minutes || 0,
+        seconds: duration.seconds || 0,
     };
 }
 
 let intervalId;
 
 onMounted(() => {
-    intervalId = setInterval(updateDisplayTime, 1000);
+    intervalId = setInterval(() => {
+        displayTime.value = calculateDisplayTime(date.value);
+    }, 1000);
 });
 
 onUnmounted(() => {
@@ -40,6 +48,6 @@ onUnmounted(() => {
 });
 
 function updateDisplayTime() {
-    displayTime.value = calculateDisplayTime(new Date(props.date));
+    displayTime.value = calculateDisplayTime(date.value);
 }
 </script>

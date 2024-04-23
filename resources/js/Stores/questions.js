@@ -13,61 +13,77 @@ export const useQuestionStore = defineStore("question", () => {
             return;
         }
 
-        const response = await axios.get(
-            route("api.room.question.index", roomId),
-        );
+        try {
+            const response = await axios.get(
+                route("api.rooms.questions.index", roomId),
+            );
 
-        if (response.status === 200) {
-            questions.value[roomId] = response.data.data;
+            if (response.status === 200) {
+                questions.value[roomId] = response.data.data;
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const storeQuestion = async (roomId, formData) => {
-        const response = await axios.post(
-            route("api.room.question.store", roomId),
-            formData,
-        );
+        try {
+            const response = await axios.post(
+                route("api.rooms.question.store", roomId),
+                formData,
+            );
 
-        if (response.status === 201) {
-            questions.value[roomId].push(response.data.data);
-            toast.success(response.data.message);
+            if (response.status === 201) {
+                questions.value[roomId].push(response.data.data);
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const updateQuestion = async (roomId, questionId, formData) => {
         formData.append("_method", "PUT");
 
-        const response = await axios.post(
-            route("api.room.question.update", questionId),
-            formData,
-        );
+        try {
+            const response = await axios.post(
+                route("api.rooms.question.update", questionId),
+                formData,
+            );
 
-        if (response.status === 200) {
-            const questionsInRoom = questions.value[roomId];
-            for (let i = 0; i < questionsInRoom.length; i++) {
-                if (questionsInRoom[i].id === questionId) {
-                    questionsInRoom[i] = response.data.data;
-                    break;
+            if (response.status === 200) {
+                const questionsInRoom = questions.value[roomId];
+                for (let i = 0; i < questionsInRoom.length; i++) {
+                    if (questionsInRoom[i].id === questionId) {
+                        questionsInRoom[i] = response.data.data;
+                        break;
+                    }
                 }
+                toast.success(response.data.message);
             }
-            toast.success(response.data.message);
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const deleteQuestion = async (roomId, questionId) => {
-        const response = await axios.delete(
-            route("api.room.question.destroy", questionId),
-        );
+        try {
+            const response = await axios.delete(
+                route("api.rooms.question.delete", questionId),
+            );
 
-        if (response.status === 200) {
-            const questionsInRoom = questions.value[roomId];
-            for (let i = 0; i < questionsInRoom.length; i++) {
-                if (questionsInRoom[i].id === questionId) {
-                    questionsInRoom.splice(i, 1);
-                    break;
+            if (response.status === 200) {
+                const questionsInRoom = questions.value[roomId];
+                for (let i = 0; i < questionsInRoom.length; i++) {
+                    if (questionsInRoom[i].id === questionId) {
+                        questionsInRoom.splice(i, 1);
+                        break;
+                    }
                 }
+                toast.success(response.data.message);
             }
-            toast.success(response.data.message);
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 

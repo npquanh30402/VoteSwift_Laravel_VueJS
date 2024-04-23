@@ -4,31 +4,60 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class NotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $notifications = $request->user()->notifications()->paginate(10);
+        try {
+            $notifications = $request->user()->notifications()->paginate(10);
 
-        return response()->json($notifications);
+            return response()->json([
+                'data' => $notifications,
+                'message' => 'Notifications retrieved successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function unreadCount()
+    public function unreadCount(User $user)
     {
-        $count = Auth::user()->unreadNotifications()->count();
+        try {
+            $count = $user->unreadNotifications()->count();
 
-        return response()->json($count);
+            return response()->json([
+                'data' => $count,
+                'message' => 'Unread notifications count retrieved successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function markAllAsRead(User $user)
     {
-        $user->unreadNotifications->markAsRead();
+        DB::beginTransaction();
+        try {
+            $user->unreadNotifications->markAsRead();
 
-        return response()->json([
-            'message' => 'All notifications marked as read',
-        ]);
+            DB::commit();
+
+            return response()->json([
+                'message' => 'All notifications marked as read',
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -7,14 +7,65 @@ use App\Http\Requests\ImportInvitationsRequest;
 use App\Models\Invitation;
 use App\Models\User;
 use App\Models\VotingRoom;
+use App\Notifications\InvitationNotification;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use OpenSpout\Reader\CSV\Reader;
+use RuntimeException;
 
 class InvitationController extends Controller
 {
+    public static function sendInvitation(VotingRoom $room)
+    {
+        try {
+            $authUser = Auth::user();
+            $invitedUserIds = $room->invitations()->pluck('invited_user_id');
+
+            $startTime = Carbon::parse($room->start_time);
+            $endTime = Carbon::parse($room->end_time);
+            $durationInMinutes = $endTime->diffInMinutes($startTime);
+
+            foreach ($invitedUserIds as $userId) {
+                $user = User::find($userId);
+
+                if ($user) {
+                    $token = Str::random(64);
+
+                    while (Cache::has("ballot.tkn.{$token}")) {
+                        $token = Str::random(64);
+                    }
+
+                    Cache::put("ballot.tkn.{$token}", $user->id, $durationInMinutes);
+
+                    $invitationUrl = route('vote.main', ['token' => $token, 'room' => $room]);
+
+                    $user->notify(new InvitationNotification($room, $authUser, $user, $invitationUrl));
+                }
+            }
+
+            return response()->json([
+                'message' => 'Invitations sent successfully.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function importInvitationsFromCSV(VotingRoom $room, ImportInvitationsRequest $request)
     {
-        if ($request->hasFile('csv_file')) {
+        DB::beginTransaction();
+        try {
+            if (!$request->hasFile('csv_file')) {
+                throw new RuntimeException('File not found');
+            }
+
             $file = $request->file('csv_file');
 
             $reader = new Reader();
@@ -49,6 +100,10 @@ class InvitationController extends Controller
                     return response()->json(['message' => 'User with ID, username, or email ' . $iValue[0] . ', ' . $iValue[1] . ', ' . $iValue[2] . ' does not exist.'], 404);
                 }
 
+                if ($user->id === $room->user_id) {
+                    continue;
+                }
+
                 Invitation::updateOrCreate([
                     'voting_room_id' => $room->id,
                     'invited_user_id' => $user->id,
@@ -61,77 +116,98 @@ class InvitationController extends Controller
 
             unlink($file->getPathname());
 
+            DB::commit();
+
             return response()->json([
                 'data' => $invitedUsers,
                 'message' => 'Invitations imported successfully.'
             ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json(['message' => 'No CSV file uploaded.'], 400);
     }
 
-    public function getInvitations(VotingRoom $room)
+    public function index(VotingRoom $room)
     {
-        $invitations = $room->invitations;
+        try {
+            $invitations = $room->invitations;
 
-        $invitedUsers = [];
+            $invitedUsers = [];
 
-        foreach ($invitations as $invitation) {
-            $invitedUser = User::find($invitation->invited_user_id);
-            $invitedUsers[] = $invitedUser;
+            foreach ($invitations as $invitation) {
+                $invitedUser = User::find($invitation->invited_user_id);
+                $invitedUsers[] = $invitedUser;
+            }
+
+            return response()->json([
+                'data' => $invitedUsers,
+                'message' => 'Invitations fetched successfully.'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'data' => $invitedUsers,
-            'message' => 'Invitations fetched successfully.'
-        ]);
     }
 
     public function store(VotingRoom $room, Request $request)
     {
-        $existingInvitations = Invitation::where('voting_room_id', $room->id)
-            ->pluck('invited_user_id')
-            ->toArray();
+        DB::beginTransaction();
+        try {
+            $existingInvitations = Invitation::where('voting_room_id', $room->id)
+                ->pluck('invited_user_id')
+                ->toArray();
 
-        if (empty($request->user_ids)) {
-            Invitation::where('voting_room_id', $room->id)->delete();
-        } else {
-            $invitedUserIdsToDelete = array_diff($existingInvitations, array_column($request->user_ids, 'id'));
+            if (empty($request->user_ids)) {
+                Invitation::where('voting_room_id', $room->id)->delete();
+            } else {
+                $invitedUserIdsToDelete = array_diff($existingInvitations, array_column($request->user_ids, 'id'));
 
-            Invitation::where('voting_room_id', $room->id)
-                ->whereIn('invited_user_id', $invitedUserIdsToDelete)
-                ->delete();
+                Invitation::where('voting_room_id', $room->id)
+                    ->whereIn('invited_user_id', $invitedUserIdsToDelete)
+                    ->delete();
 
-            foreach ($request->user_ids as $invitationData) {
-                if ($invitationData['id'] == auth()->user()->id) {
-                    continue;
+                foreach ($request->user_ids as $invitationData) {
+                    if ($invitationData['id'] == auth()->user()->id) {
+                        continue;
+                    }
+
+                    if (Invitation::where('voting_room_id', $room->id)
+                        ->where('invited_user_id', $invitationData['id'])
+                        ->exists()) {
+                        continue;
+                    }
+
+                    Invitation::create([
+                        'voting_room_id' => $room->id,
+                        'invited_user_id' => $invitationData['id'] ?? null,
+                    ]);
                 }
-
-                if (Invitation::where('voting_room_id', $room->id)
-                    ->where('invited_user_id', $invitationData['id'])
-                    ->exists()) {
-                    continue;
-                }
-
-                Invitation::create([
-                    'voting_room_id' => $room->id,
-                    'invited_user_id' => $invitationData['id'] ?? null,
-                ]);
             }
+
+            $invitations = $room->invitations;
+
+            $invitedUsers = [];
+
+            foreach ($invitations as $invitation) {
+                $invitedUser = User::find($invitation->invited_user_id);
+                $invitedUsers[] = $invitedUser;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'data' => $invitedUsers,
+                'message' => 'Invitations updated successfully'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $invitations = $room->invitations;
-
-        $invitedUsers = [];
-
-        foreach ($invitations as $invitation) {
-            $invitedUser = User::find($invitation->invited_user_id);
-            $invitedUsers[] = $invitedUser;
-        }
-
-        return response()->json([
-            'data' => $invitedUsers,
-            'message' => 'Invitations updated successfully'
-        ]);
     }
 }

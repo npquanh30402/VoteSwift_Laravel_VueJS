@@ -1,65 +1,47 @@
 <?php
 
-use App\Http\Controllers\Api\CandidateController;
+use App\Http\Controllers\Api\FeedbackController;
 use App\Http\Controllers\Api\InvitationController;
-use App\Http\Controllers\Api\QuestionController;
+use App\Http\Controllers\Api\InvitationMailController;
 use App\Http\Controllers\Api\VotingRoomAttachmentController;
 use App\Http\Controllers\Api\VotingRoomController;
 use App\Http\Controllers\Api\VotingRoomSettingController;
 use Illuminate\Support\Facades\Route;
 
-// Routes related to voting rooms
-Route::prefix('/rooms')->group(function () {
-    Route::get('/', [VotingRoomController::class, 'index'])->name('api.rooms.index');
-    Route::post('/', [VotingRoomController::class, 'store'])->name('api.rooms.store');
-    Route::put('/{room}', [VotingRoomController::class, 'update'])->name('api.rooms.update');
-    Route::delete('/{room}', [VotingRoomController::class, 'destroy'])->name('api.rooms.destroy');
+Route::group(['middleware' => ['web', 'auth']], function () {
+    Route::get('/rooms', [VotingRoomController::class, 'index'])->name('api.rooms.index');
 
-    // Attachments related to a specific voting room
-    Route::prefix('/{room}/attachments')->group(function () {
-        Route::get('/', [VotingRoomAttachmentController::class, 'index'])->name('api.attachments.index');
-        Route::delete('/{attachment}', [VotingRoomAttachmentController::class, 'destroy'])->name('api.attachments.destroy');
-    });
+    Route::prefix('/room')->group(function () {
+        Route::get('/{room}', [VotingRoomController::class, 'show'])->name('api.room.show');
+        Route::post('/', [VotingRoomController::class, 'store'])->name('api.room.store');
+        Route::put('/{room}', [VotingRoomController::class, 'update'])->name('api.room.update');
+        Route::delete('/{room}', [VotingRoomController::class, 'delete'])->name('api.room.delete');
+        Route::get('/{room}/duplicate', [VotingRoomController::class, 'duplicate'])->name('api.room.duplicate');
+        Route::post('/{room}/publish', [VotingRoomController::class, 'publish'])->name('api.room.publish');
 
-    // Questions related to a specific voting room
-    Route::prefix('/{room}/questions')->group(function () {
-        Route::get('/', [QuestionController::class, 'index'])->name('api.questions.index');
-        Route::post('/', [QuestionController::class, 'store'])->name('api.questions.store');
-        Route::put('/{question}', [QuestionController::class, 'update'])->name('api.questions.update');
-        Route::delete('/{question}', [QuestionController::class, 'destroy'])->name('api.questions.destroy');
-        Route::get('/{question}/candidates', [CandidateController::class, 'QuestionCandidates'])->name('api.question.candidates.index');
-    });
+        // setting routes
+        Route::get('/{room}/settings', [VotingRoomSettingController::class, 'index'])->name('api.room.settings.index');
+        Route::put('/{room}/settings', [VotingRoomSettingController::class, 'update'])->name('api.room.settings.update');
 
-    // Invitations related to a specific voting room
-    Route::prefix('/{room}/invitations')->group(function () {
-        Route::get('/', [InvitationController::class, 'getInvitations'])->name('api.invitations.index');
-        Route::post('/', [InvitationController::class, 'store'])->name('api.invitations.store');
-    });
+        // attachment routes
+        Route::get('/{room}/attachments', [VotingRoomAttachmentController::class, 'index'])->name('api.room.attachments.index');
+        Route::post('/{room}/attachments', [VotingRoomAttachmentController::class, 'store'])->name('api.room.attachments.store');
+        Route::delete('/attachments/{attachment}', [VotingRoomAttachmentController::class, 'delete'])->name('api.room.attachments.delete');
 
-    // Settings related to a specific voting room
-    Route::prefix('/{room}/settings')->group(function () {
-        Route::get('/', [VotingRoomSettingController::class, 'getSettings'])->name('api.settings.index');
-        Route::put('/', [VotingRoomSettingController::class, 'updateSettings'])->name('api.settings.update');
-    });
+        // invitation routes
+        Route::get('/{room}/invitations', [InvitationController::class, 'index'])->name('api.room.invitations.index');
+        Route::post('/{room}/invitations', [InvitationController::class, 'store'])->name('api.room.invitations.store');
+//        Route::post('/{room}/invitations/send', [InvitationController::class, 'sendInvitation'])->name('api.room.invitations.send');
+        Route::post('/{room}/invitations/csv', [InvitationController::class, 'importInvitationsFromCSV'])->name('api.room.invitations.csv');
 
-    // Candidates related to a specific voting room
-    Route::prefix('/{room}/candidates')->group(function () {
-        Route::get('/', [CandidateController::class, 'RoomCandidates'])->name('api.candidates.index');
-        Route::post('/', [CandidateController::class, 'store'])->name('api.candidates.store');
+        // invitation mail routes
+        Route::get('/{room}/invitations/mail', [InvitationMailController::class, 'index'])->name('api.room.invitations.mail.index');
+        Route::post('/{room}/invitations/mail', [InvitationMailController::class, 'storeOrUpdate'])->name('api.room.invitation.mail.store');
+        Route::delete('/invitations/mail/{invitationMail}', [InvitationMailController::class, 'delete'])->name('api.invitation.mail.delete');
+
+        // feedback routes
+        Route::post('/{room}/users/{user}/feedback', [FeedbackController::class, 'store'])->name('api.room.user.feedback.store');
+
+        Route::get('/{room}/tie', [VotingRoomController::class, 'handleTieAndCreateNewVotingRound'])->name('api.rooms.tie.create');
     });
 });
-
-// Routes related to individual questions
-Route::prefix('/questions')->group(function () {
-    Route::put('/{question}', [QuestionController::class, 'update'])->name('api.question.update');
-    Route::delete('/{question}', [QuestionController::class, 'destroy'])->name('api.question.destroy');
-});
-
-// Routes related to individual candidates
-Route::prefix('/candidates')->group(function () {
-    Route::put('/{candidate}', [CandidateController::class, 'update'])->name('api.candidate.update');
-    Route::delete('/{candidate}', [CandidateController::class, 'destroy'])->name('api.candidate.destroy');
-});
-
-// Route for deleting attachments
-Route::delete('/attachments/{attachment}', [VotingRoomAttachmentController::class, 'destroy'])->name('api.attachment.destroy');

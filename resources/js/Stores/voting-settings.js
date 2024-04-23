@@ -5,6 +5,7 @@ import axios from "axios";
 import { useToast } from "vue-toast-notification";
 
 const toast = useToast();
+
 export const useVotingSettingStore = defineStore("votingSetting", () => {
     const settings = ref({});
 
@@ -13,28 +14,34 @@ export const useVotingSettingStore = defineStore("votingSetting", () => {
             return;
         }
 
-        const response = await axios.get(
-            route("api.room.setting.index", roomId),
-        );
+        try {
+            const response = await axios.get(
+                route("api.room.settings.index", roomId),
+            );
 
-        if (response.status === 200) {
-            settings.value[roomId] = response.data.data;
+            if (response.status === 200) {
+                settings.value[roomId] = response.data.data;
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const updateSettings = async (roomId, formData) => {
         formData.append("_method", "PUT");
 
-        const response = await axios.post(
-            route("api.room.setting.update", roomId),
-            formData,
-        );
+        try {
+            const response = await axios.post(
+                route("api.room.settings.update", roomId),
+                formData,
+            );
 
-        if (response.status === 200) {
-            settings.value[roomId] = response.data.data;
-            toast.success(response.data.message);
-        } else {
-            throw new Error("Update failed: " + response.statusText);
+            if (response.status === 200) {
+                settings.value[roomId] = response.data.data;
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 

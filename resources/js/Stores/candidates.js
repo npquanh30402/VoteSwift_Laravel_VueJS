@@ -13,75 +13,91 @@ export const useCandidateStore = defineStore("candidate", () => {
             return;
         }
 
-        const response = await axios.get(
-            route("api.room.candidate.index", roomId),
-        );
+        try {
+            const response = await axios.get(
+                route("api.rooms.candidates.index", roomId),
+            );
 
-        if (response.status === 200) {
-            candidates.value[roomId] = response.data.data;
+            if (response.status === 200) {
+                candidates.value[roomId] = response.data.data;
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const storeCandidate = async (roomId, questionId, formData) => {
-        const response = await axios.post(
-            route("api.question.candidate.store", questionId),
-            formData,
-        );
+        try {
+            const response = await axios.post(
+                route("api.questions.candidate.store", questionId),
+                formData,
+            );
 
-        if (!candidates.value[roomId][questionId]) {
-            candidates.value[roomId][questionId] = [];
-        }
+            if (!candidates.value[roomId][questionId]) {
+                candidates.value[roomId][questionId] = [];
+            }
 
-        if (response.status === 201) {
-            candidates.value[roomId][questionId].push(response.data.data);
-            toast.success(response.data.message);
+            if (response.status === 201) {
+                candidates.value[roomId][questionId].push(response.data.data);
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const updateCandidate = async (roomId, candidateId, formData) => {
         formData.append("_method", "PUT");
 
-        const response = await axios.post(
-            route("api.candidate.update", candidateId),
-            formData,
-        );
+        try {
+            const response = await axios.post(
+                route("api.candidate.update", candidateId),
+                formData,
+            );
 
-        if (response.status === 200) {
-            const roomCandidates = candidates.value[roomId];
-            for (const questionId in roomCandidates) {
-                const candidatesForQuestion = roomCandidates[questionId];
+            if (response.status === 200) {
+                const roomCandidates = candidates.value[roomId];
+                for (const questionId in roomCandidates) {
+                    const candidatesForQuestion = roomCandidates[questionId];
 
-                const index = candidatesForQuestion.findIndex(
-                    (candidate) => candidate.id === candidateId,
-                );
+                    const index = candidatesForQuestion.findIndex(
+                        (candidate) => candidate.id === candidateId,
+                    );
 
-                if (index !== -1) {
-                    candidatesForQuestion[index] = response.data.data;
+                    if (index !== -1) {
+                        candidatesForQuestion[index] = response.data.data;
+                    }
                 }
+                toast.success(response.data.message);
             }
-            toast.success(response.data.message);
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 
     const deleteCandidate = async (roomId, candidateId) => {
-        const response = await axios.delete(
-            route("api.candidate.destroy", candidateId),
-        );
+        try {
+            const response = await axios.delete(
+                route("api.candidate.delete", candidateId),
+            );
 
-        if (response.status === 200) {
-            const roomCandidates = candidates.value[roomId];
-            for (const questionId in roomCandidates) {
-                const candidatesForQuestion = roomCandidates[questionId];
+            if (response.status === 200) {
+                const roomCandidates = candidates.value[roomId];
+                for (const questionId in roomCandidates) {
+                    const candidatesForQuestion = roomCandidates[questionId];
 
-                const index = candidatesForQuestion.findIndex(
-                    (candidate) => candidate.id === candidateId,
-                );
+                    const index = candidatesForQuestion.findIndex(
+                        (candidate) => candidate.id === candidateId,
+                    );
 
-                if (index !== -1) {
-                    candidatesForQuestion.splice(index, 1);
+                    if (index !== -1) {
+                        candidatesForQuestion.splice(index, 1);
+                    }
                 }
+                toast.success(response.data.message);
             }
-            toast.success(response.data.message);
+        } catch (error) {
+            toast.error(error.response.data.message);
         }
     };
 

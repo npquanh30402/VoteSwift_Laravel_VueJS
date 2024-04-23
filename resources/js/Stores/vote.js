@@ -109,36 +109,6 @@ export const useVoteStore = defineStore("vote", () => {
         }
     };
 
-    const storeJoinTime = async (roomId, userId, formData) => {
-        try {
-            return await axios.post(
-                route("api.room.vote.store.join.time", {
-                    room: roomId,
-                    user: userId,
-                }),
-                formData,
-            );
-        } catch (error) {
-            console.error("Error:", error);
-            throw error;
-        }
-    };
-
-    const storeLeaveTime = async (roomId, userId, formData) => {
-        try {
-            return await axios.post(
-                route("api.room.vote.store.leave.time", {
-                    room: roomId,
-                    user: userId,
-                }),
-                formData,
-            );
-        } catch (error) {
-            console.error("Error:", error);
-            throw error;
-        }
-    };
-
     return {
         votes,
         voteCounts,
@@ -148,8 +118,6 @@ export const useVoteStore = defineStore("vote", () => {
         setupChannel,
         startVoting,
         storeVotes,
-        storeJoinTime,
-        storeLeaveTime,
         setupEchoJoinListener,
         setupEchoPrivateListener,
         setupEchoListeners,

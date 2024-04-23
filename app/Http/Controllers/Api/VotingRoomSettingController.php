@@ -16,6 +16,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -23,18 +24,25 @@ use Illuminate\Support\Str;
 
 class VotingRoomSettingController extends Controller
 {
-    public function getSettings(VotingRoom $room)
+    public function index(VotingRoom $room)
     {
-        $settings = $room->settings;
+        try {
+            $settings = $room->settings;
 
-        return response()->json([
-            'data' => $settings,
-            'message' => 'Voting room settings retrieved successfully!'
-        ]);
+            return response()->json([
+                'data' => $settings,
+                'message' => 'Voting room settings retrieved successfully!'
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    public function updateSettings(VotingRoom $room, Request $request)
+    public function update(VotingRoom $room, Request $request)
     {
+        DB::beginTransaction();
         try {
             $updates = [];
 
@@ -101,6 +109,8 @@ class VotingRoomSettingController extends Controller
 
             $room->settings()->update($updates);
 
+            DB::commit();
+
             $updatedSettings = $room->settings()->first();
 
             return response()->json([
@@ -108,7 +118,8 @@ class VotingRoomSettingController extends Controller
                 'message' => 'Settings updated successfully!'
             ]);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

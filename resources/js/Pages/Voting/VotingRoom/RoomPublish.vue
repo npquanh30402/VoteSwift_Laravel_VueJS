@@ -37,10 +37,7 @@ const roomStore = useVotingRoomStore();
 const room = computed(() => props.room);
 
 const submit = async () => {
-    const formData = new FormData();
-    formData.append("is_published", true);
-
-    await roomStore.updateRoom(props.room.id, formData);
+    await roomStore.publishRoom(props.room.id);
 };
 
 onMounted(async () => {

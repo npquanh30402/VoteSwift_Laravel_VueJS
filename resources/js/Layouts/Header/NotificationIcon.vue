@@ -27,7 +27,7 @@ import { route } from "ziggy-js";
 import { Link, usePage } from "@inertiajs/vue3";
 import NotificationList from "@/Pages/Users/Notification/NotificationList.vue";
 import { useNotificationStore } from "@/Stores/notifications.js";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useHelper } from "@/Services/helper.js";
 
 const authUser = computed(() => usePage().props.authUser.user);
@@ -39,10 +39,10 @@ const notificationCount = computed(() =>
     helper.formatWithThreshold(notificationStore.unreadCount, 9),
 );
 
-const initializeNotification = () => {
+const initializeNotification = async () => {
     notificationStore.setupEchoListeners(authUser.value.id);
-    notificationStore.fetchUnreadNotificationsCount();
-    notificationStore.fetchNotifications(null, currentPage.value);
+    await notificationStore.fetchUnreadNotificationsCount(authUser.value.id);
+    await notificationStore.fetchNotifications(null, currentPage.value);
 };
 
 onMounted(initializeNotification);

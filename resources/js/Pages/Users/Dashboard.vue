@@ -7,10 +7,7 @@
             </div>
             <div class="col-md-8">
                 <transition mode="out-in" name="fade">
-                    <component
-                        :is="tabs[currentTab]"
-                        :authUserFriends="authUserFriends"
-                    ></component>
+                    <component :is="tabs[currentTab]"></component>
                 </transition>
             </div>
         </div>
@@ -25,8 +22,6 @@ import UserSettings from "@/Pages/Users/UserSettings.vue";
 import MusicPlayerSettings from "@/Pages/Users/MusicPlayerSettings.vue";
 import Friend from "@/Pages/Users/Friend/Index.vue";
 import UserCalendar from "@/Pages/Users/UserCalendar.vue";
-
-const props = defineProps(["authUserFriends"]);
 
 const currentTab = ref("RoomList");
 

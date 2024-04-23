@@ -1,12 +1,8 @@
 <template>
     <div v-if="!isLoading">
         <div class="d-flex justify-content-end mb-3">
-            <button class="btn btn-success">
-                <i
-                    class="bi bi-arrow-clockwise"
-                    style="cursor: pointer"
-                    @click="refreshData"
-                ></i>
+            <button class="btn btn-success" @click="refreshData">
+                <i class="bi bi-arrow-clockwise" style="cursor: pointer"></i>
             </button>
         </div>
         <div v-if="room.has_ended">

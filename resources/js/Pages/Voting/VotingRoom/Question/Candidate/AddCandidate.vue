@@ -94,13 +94,13 @@
 
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { route } from "ziggy-js";
 import { reactive, ref, watch } from "vue";
 import { MdEditor } from "md-editor-v3";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
 import { useHelper } from "@/Services/helper.js";
 import Dialog from "primevue/dialog";
+import { useEtcStore } from "@/Stores/etc.js";
 
 const props = defineProps(["room", "question"]);
 const helper = useHelper();
@@ -176,6 +176,10 @@ const submit = () => {
 
     CandidateStore.storeCandidate(props.room.id, props.question.id, formData);
 
+    form.candidate_title = "";
+    form.candidate_description = "";
+    form.candidate_image = null;
+
     currentImageDisplay.value = null;
     imgSrc.value = null;
 };
@@ -202,24 +206,6 @@ function handleFileChange(event) {
     imgSrc.value = URL.createObjectURL(file);
 }
 
-const onUploadImg = async (files, callback) => {
-    const res = await Promise.all(
-        files.map((file) => {
-            return new Promise((rev, rej) => {
-                const form = new FormData();
-                form.append("image", file);
-
-                axios
-                    .post(route("api.image.upload"), form, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    })
-                    .then((res) => rev(res))
-                    .catch((error) => rej(error));
-            });
-        }),
-    );
-    callback(res.map((item) => item.data.image));
-};
+const etcStore = useEtcStore();
+const onUploadImg = etcStore.onUploadImg;
 </script>

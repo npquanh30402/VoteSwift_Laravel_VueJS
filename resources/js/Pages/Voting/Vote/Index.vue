@@ -1,21 +1,24 @@
 <template>
     <div v-if="isReady">
-        <VotingSidebar
-            :room="room"
-            :roomAttachments="roomAttachments"
-            :roomSettings="roomSettings"
-        />
-
-        <div v-if="isRealtimeEnabled || isChatEnable">
-            <VotingOnlineUser
-                :invitedUsers="invitedUsers"
-                :isUserOnline="isUserOnline"
-                :onlineUsers="onlineUsers"
-                :owner="owner"
+        <div v-if="room.has_ended === 0">
+            <VotingSidebar
                 :room="room"
+                :roomAttachments="roomAttachments"
                 :roomSettings="roomSettings"
-                style="z-index: 999"
             />
+
+            <div v-if="isRealtimeEnabled || isWaitForVoters">
+                <VotingOnlineUser
+                    :invitedUsers="invitedUsers"
+                    :isUserOnline="isUserOnline"
+                    :onlineUsers="onlineUsers"
+                    :owner="owner"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    style="z-index: 999"
+                />
+            </div>
+
             <VotingChat
                 v-if="isChatEnable"
                 :channelBroadcast="channelBroadcast"
@@ -23,35 +26,38 @@
                 :roomSettings="roomSettings"
                 style="z-index: 999"
             />
+
+            <VotingNote :room="room" :roomSettings="roomSettings" />
+
+            <div class="text-center mb-4">
+                <h3>Time remaining:</h3>
+                <VotingClock :date="room.end_time" />
+            </div>
+
+            <transition mode="out-in" name="fade">
+                <component
+                    :is="tabs[currentTab]"
+                    v-if="roomSettings.invitation_only"
+                    :channelBroadcast="channelBroadcast"
+                    :isReadyToStart="isReadyToStart"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    @switch-tab="currentTab = $event"
+                    @start-voting="startVoting"
+                ></component>
+                <component
+                    :is="tabs[currentTab]"
+                    v-else
+                    :channelBroadcast="channelBroadcast"
+                    :room="room"
+                    :roomSettings="roomSettings"
+                    @switch-tab="currentTab = $event"
+                ></component>
+            </transition>
         </div>
-
-        <VotingNote :room="room" :roomSettings="roomSettings" />
-
-        <div class="text-center mb-4">
-            <h3>Time remaining:</h3>
-            <VotingClock :date="room.end_time" />
+        <div v-else>
+            <h1 class="text-center">The voting has ended</h1>
         </div>
-
-        <transition mode="out-in" name="fade">
-            <component
-                :is="tabs[currentTab]"
-                v-if="roomSettings.invitation_only"
-                :channelBroadcast="channelBroadcast"
-                :isReadyToStart="isReadyToStart"
-                :room="room"
-                :roomSettings="roomSettings"
-                @switch-tab="currentTab = $event"
-                @start-voting="startVoting"
-            ></component>
-            <component
-                :is="tabs[currentTab]"
-                v-else
-                :channelBroadcast="channelBroadcast"
-                :room="room"
-                :roomSettings="roomSettings"
-                @switch-tab="currentTab = $event"
-            ></component>
-        </transition>
     </div>
     <BaseLoading v-else />
 </template>
@@ -73,9 +79,10 @@ import VotingSubmit from "@/Pages/Voting/Vote/VotingSubmit.vue";
 import VotingNote from "@/Pages/Voting/Vote/Note/VotingNote.vue";
 import VotingClock from "@/Pages/Voting/Vote/VotingClock.vue";
 import BaseLoading from "@/Components/BaseLoading.vue";
+import { useVotingAttendanceStore } from "@/Stores/voting-attendance.js";
 
 const props = defineProps(["room", "owner"]);
-const $toast = useToast();
+const toast = useToast();
 
 const isReady = ref(false);
 
@@ -83,15 +90,21 @@ const votingSettingStore = useVotingSettingStore();
 const invitationStore = useInvitationStore();
 const attachmentStore = useAttachmentStore();
 const voteStore = useVoteStore();
+const attendanceStore = useVotingAttendanceStore();
 
 const authUser = computed(() => usePage().props.authUser.user);
 const roomSettings = computed(() => votingSettingStore.settings[props.room.id]);
-const invitedUsers = computed(() => invitationStore.invitations[props.room.id]);
+const invitedUsers = computed(
+    () => invitationStore.invitations[props.room.id] || [],
+);
 const roomAttachments = computed(
     () => attachmentStore.attachments[props.room.id],
 );
 const isRealtimeEnabled = computed(
     () => roomSettings.value?.realtime_enabled === 1,
+);
+const isWaitForVoters = computed(
+    () => roomSettings.value?.wait_for_voters === 1,
 );
 const isChatEnable = computed(() => roomSettings.value?.chat_enabled === 1);
 const isReadyToStart = ref(false);
@@ -102,11 +115,24 @@ const tabs = {
     StartVoting,
     VotingSubmit,
 };
+
 // const currentTab = ref(props.room.vote_started === 1 ? 'StartVoting' : 'Welcome');
+
 const currentTab = ref("Welcome");
+
+function updateCurrentTab() {
+    if (roomSettings.value.wait_for_voters === 1) {
+        currentTab.value =
+            props.room.vote_started === 1 ? "StartVoting" : "Welcome";
+    } else {
+        currentTab.value = "Welcome";
+    }
+}
 
 watch(roomSettings, () => {
     isReadyToStart.value = roomSettings.value?.wait_for_voters === 0;
+
+    updateCurrentTab();
 });
 
 const isUserOnline = (user) =>
@@ -120,9 +146,9 @@ const channelBroadcast = {
 function startVoting() {
     voteStore.startVoting(props.room.id).then((response) => {
         if (response.status === 200) {
-            $toast.success(response.data.message);
+            toast.success(response.data.message);
         } else {
-            $toast.error(response.data.message);
+            toast.error(response.data.message);
         }
     });
 }
@@ -143,29 +169,29 @@ const setupRealTime = () => {
         onlineUsers.value.push(user);
         updateOnlineUsersAndReadiness();
 
-        $toast.info(user.username + " has join the room");
+        toast.info(user.username + " has join the room");
     };
 
     const handleLeaving = (user) => {
         onlineUsers.value = onlineUsers.value.filter((u) => u.id !== user.id);
         updateOnlineUsersAndReadiness();
 
-        $toast.info(user.username + " has left the room");
+        toast.info(user.username + " has left the room");
     };
 
     function handleVotingStartBroadcast(e) {
         if (e.broadcast_type === "voting_start") {
             if (e.room.vote_started) {
-                currentTab.value = tabs.StartVoting;
+                currentTab.value = "StartVoting";
 
                 if (authUser.value.id !== e.room.user_id) {
-                    $toast.success("Voting started by " + e.user.username);
+                    toast.success("Voting started by " + e.user.username);
                 }
             }
         }
     }
 
-    if (isRealtimeEnabled.value | isChatEnable.value) {
+    if (isRealtimeEnabled.value | isChatEnable.value | isWaitForVoters.value) {
         voteStore.setupEchoJoinListener(
             handleHere,
             handleJoining,
@@ -178,35 +204,32 @@ const setupRealTime = () => {
 };
 
 let joinTimeId = null;
-const joinRoom = () => {
+const joinRoom = async () => {
     const formData = new FormData();
     formData.append("user_id", authUser.value.id);
     formData.append("join_time", new Date(Date.now()));
 
-    voteStore
-        .storeJoinTime(props.room.id, authUser.value.id, formData)
-        .then((response) => {
-            if (response.status === 200) {
-                joinTimeId = response.data.id;
-                $toast.success("You have joined successfully");
-            }
-        });
+    const response = await attendanceStore.storeJoinTime(
+        props.room.id,
+        authUser.value.id,
+        formData,
+    );
+
+    joinTimeId = response.id;
 };
 
-const leaveRoom = () => {
+const leaveRoom = async () => {
     const formData = new FormData();
     formData.append("joinTimeId", joinTimeId);
     formData.append("leave_time", new Date(Date.now()));
 
-    voteStore
-        .storeLeaveTime(props.room.id, authUser.value.id, formData)
-        .then((response) => {
-            if (response.status === 200) {
-                $toast.info("You have left the room");
-                window.removeEventListener("beforeunload", leaveRoom);
-            }
-        })
-        .catch(() => $toast.error("Failed to leave the room"));
+    await attendanceStore.storeLeaveTime(
+        props.room.id,
+        authUser.value.id,
+        formData,
+    );
+
+    window.removeEventListener("beforeunload", leaveRoom);
 };
 
 onMounted(async () => {
@@ -219,14 +242,7 @@ onMounted(async () => {
         .fetchSettings(props.room.id)
         .then(() => setupRealTime());
 
-    if (
-        invitationStore.invitations[props.room.id] === undefined ||
-        invitationStore.invitations[props.room.id].length === 0
-    ) {
-        await invitationStore.fetchInvitations(props.room.id).then(() => {
-            invitedUsers.value.unshift(props.owner);
-        });
-    }
+    await invitationStore.fetchInvitations(props.room.id);
 
     await attachmentStore.fetchAttachments(props.room.id);
 

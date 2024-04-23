@@ -1,24 +1,24 @@
 <?php
 
 use App\Http\Controllers\Api\VoteController;
-use App\Http\Controllers\Api\VotingChatController;
 use Illuminate\Support\Facades\Route;
 
-// Routes related to voting chat
-Route::prefix('/voting/{room}/chat')->group(function () {
-    Route::get('/', [VotingChatController::class, 'index'])->name('api.vote.chat.index');
-    Route::post('/', [VotingChatController::class, 'store'])->name('api.vote.chat.store');
+Route::group(['middleware' => ['web', 'auth']], static function () {
+    Route::prefix('/rooms/{room}')->group(function () {
+        // Voting operations
+        Route::get('/votes/start', [VoteController::class, 'startVote'])->name('api.rooms.votes.start');
+        Route::post('/votes/vote', [VoteController::class, 'store'])->name('api.rooms.votes.store');
+
+        // Results and choices
+        Route::get('/votes/results', [VoteController::class, 'getVoteResults'])->name('api.rooms.votes.results');
+        Route::get('/votes/choices', [VoteController::class, 'getUserChoices'])->name('api.rooms.votes.choices.get');
+        Route::post('/votes/choices', [VoteController::class, 'storeUserChoices'])->name('api.rooms.votes.choices.store');
+        Route::post('/votes/choice', [VoteController::class, 'broadcastChoice'])->name('api.rooms.votes.choice.broadcast');
+        Route::delete('/votes/choices', [VoteController::class, 'deleteUserChoices'])->name('api.rooms.votes.choices.delete');
+
+        // Additional information
+        Route::get('/votes', [VoteController::class, 'index'])->name('api.rooms.votes.index');
+        Route::get('/votes/by-user', [VoteController::class, 'getVotesByUser'])->name('api.rooms.votes.byuser.get');
+    });
 });
 
-// Routes related to voting in a room
-Route::prefix('/room/{room}')->group(function () {
-    Route::get('/start', [VoteController::class, 'startVote'])->name('api.room.vote.start');
-    Route::get('/results', [VoteController::class, 'getVoteResults'])->name('api.room.vote.results');
-    Route::post('/choice', [VoteController::class, 'broadcastChoice'])->name('api.room.vote.broadcast.choice');
-    Route::get('/join', [VoteController::class, 'getJoinTimes'])->name('api.room.vote.get.join.times');
-    Route::post('/join', [VoteController::class, 'storeJoinTime'])->name('api.room.vote.store.join.time');
-    Route::delete('/user/{user}/join', [VoteController::class, 'deleteJoinTime'])->name('api.room.vote.delete.join.time');
-    Route::get('/choices', [VoteController::class, 'getUserChoices'])->name('api.room.vote.get.choices');
-    Route::post('/choices', [VoteController::class, 'storeUserChoices'])->name('api.room.vote.store.choices');
-    Route::delete('/user/{user}/choices', [VoteController::class, 'deleteUserChoices'])->name('api.room.vote.delete.choices');
-});

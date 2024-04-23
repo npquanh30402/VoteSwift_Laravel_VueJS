@@ -6,52 +6,86 @@ use App\Http\Controllers\Controller;
 use App\Models\VotingRoom;
 use App\Models\VotingRoomFiles;
 use App\Services\HelperService;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class VotingRoomAttachmentController extends Controller
 {
     public function index(VotingRoom $room)
     {
-        $attachments = $room->attachments;
+        try {
+            $attachments = $room->attachments;
 
-        return response()->json($attachments);
+            return response()->json([
+                'data' => $attachments,
+                'message' => 'Attachments retrieved successfully',
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function store(VotingRoom $room, Request $request)
     {
-        if ($request->hasFile('file')) {
-            $file = $request->file;
-            $fileName = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
+        DB::beginTransaction();
+        try {
+            if ($request->hasFile('file')) {
+                $file = $request->file;
+                $fileName = $room->id . '-' . uniqid('', true) . '.' . $file->getClientOriginalExtension();
 
-            $fileName = HelperService::sanitizeFileName($fileName);
+                $fileName = HelperService::sanitizeFileName($fileName);
 
-            $file->storeAs('uploads/rooms', $fileName, 'public');
+                $file->storeAs('uploads/rooms', $fileName, 'public');
 
-            $oriFileName = $file->getClientOriginalName();
+                $oriFileName = $file->getClientOriginalName();
 
-            $attachment = $room->attachments()->create([
-                'voting_room_id' => $room->id,
-                'file_name' => $oriFileName,
-                'file_path' => $fileName,
+                $attachment = $room->attachments()->create([
+                    'voting_room_id' => $room->id,
+                    'file_name' => $oriFileName,
+                    'file_path' => $fileName,
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'data' => $attachment,
+                    'message' => 'Attachment uploaded successfully',
+                ]);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
             ]);
-
-            return response()->json($attachment);
         }
-
-        return response()->json(null, 400);
     }
 
-    public function destroy(VotingRoomFiles $attachment)
+    public function delete(VotingRoomFiles $attachment)
     {
-        $attachment->delete();
+        DB::beginTransaction();
+        try {
+            $attachment->delete();
 
-        $oldFile = $attachment->file_path;
+            $oldFile = $attachment->file_path;
 
-        if ($oldFile) {
-            Storage::delete(str_replace('/storage/', 'public/', $oldFile));
+            if ($oldFile) {
+                Storage::delete(str_replace('/storage/', 'public/', $oldFile));
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Attachment deleted successfully',
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json(null, 204);
     }
 }

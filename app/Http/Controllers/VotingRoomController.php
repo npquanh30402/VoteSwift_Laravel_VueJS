@@ -4,41 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Vote;
 use App\Models\VotingRoom;
-use App\Notifications\RoomPublish;
 use Illuminate\Support\Facades\Crypt;
 use Inertia\Inertia;
 
 class VotingRoomController extends Controller
 {
-    public function publishRoom(VotingRoom $room)
-    {
-        if ($room->is_published) {
-            return back()->with('error', 'Voting room is already published!');
-        }
-
-        $settings = $room->settings;
-
-        if ($room->questions()->count() < 1) {
-            return back()->with('error', 'Voting room must have at least 1 question!');
-        }
-
-        if ($room->start_time == null || $room->end_time == null) {
-            return back()->with('error', 'Voting room must have start and end date!');
-        }
-
-        $room->is_published = true;
-
-        $room->save();
-
-        $room->user->notify(new RoomPublish($room));
-
-        if ($settings->invitation_only === 1) {
-            InvitationController::sendInvitation($room);
-        }
-
-        return back()->with('success', 'Voting room published successfully!');
-    }
-
     public function showPublicRoom()
     {
         $public_rooms = VotingRoom::getPublicRooms()->paginate(9);

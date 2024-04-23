@@ -91,11 +91,7 @@ const notifications = computed(() => props.notifications);
 const currentPage = computed(() => props.currentPage);
 
 const handleMarkAsRead = async (id, page) => {
-    const message = await notificationStore.markAsRead(id, page);
-
-    if (message) {
-        toast.success(message);
-    }
+    await notificationStore.markAsRead(id, page);
 };
 </script>
 
