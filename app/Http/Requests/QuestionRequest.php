@@ -6,7 +6,7 @@ use App\Services\HelperService;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CandidateRequest extends FormRequest
+class QuestionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -19,7 +19,7 @@ class CandidateRequest extends FormRequest
     public function prepareForValidation()
     {
         $this->merge([
-            'candidate_image' => HelperService::convertNullStringToNull($this->input('candidate_image'))
+            'question_image' => HelperService::convertNullStringToNull($this->input('question_image'))
         ]);
     }
 
@@ -31,9 +31,9 @@ class CandidateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'candidate_title' => 'required|string|min:10|max:100',
-            'candidate_description' => 'nullable',
-            'candidate_image' => 'nullable|image',
+            'question_title' => 'required|string|min:10|max:100',
+            'question_description' => 'nullable',
+            'question_image' => 'nullable|image',
         ];
     }
 }

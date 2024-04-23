@@ -26,6 +26,12 @@
                             placeholder="Enter Candidate Title"
                             type="text"
                         />
+                        <p
+                            v-if="errorMessages.candidate_title"
+                            class="m-0 small text-danger"
+                        >
+                            {{ errorMessages.candidate_title }}
+                        </p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="candidate_description"
@@ -71,6 +77,14 @@
                             style="cursor: pointer"
                             @click="showImage"
                         />
+                        <button
+                            v-if="imgSrc"
+                            class="btn btn-secondary mt-3 float-end"
+                            type="button"
+                            @click="clearImg"
+                        >
+                            Clear
+                        </button>
                         <teleport to="body">
                             <LightBoxHelper
                                 :currentImageDisplay="currentImageDisplay"
@@ -85,7 +99,7 @@
 
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { MdEditor } from "md-editor-v3";
 import { useCandidateStore } from "@/Stores/candidates.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
@@ -107,6 +121,39 @@ const form = useForm({
 const currentImageDisplay = ref(null);
 const imgSrc = ref(null);
 
+const errorMessages = reactive({
+    candidate_title: "",
+    candidate_description: "",
+    candidate_image: "",
+});
+
+function updateErrorMessage(fieldName, value) {
+    switch (fieldName) {
+        case "candidate_title":
+            const titleLength = value.length;
+            if (titleLength < 10) {
+                errorMessages.candidate_title =
+                    "Candidate title must be at least 10 characters.";
+            } else if (titleLength > 100) {
+                errorMessages.candidate_title =
+                    "Candidate title cannot exceed 100 characters.";
+            } else {
+                errorMessages.candidate_title = "";
+            }
+            break;
+        case "candidate_image":
+            errorMessages.candidate_image = value;
+            break;
+    }
+}
+
+watch(
+    () => form.candidate_title,
+    (newValue) => {
+        updateErrorMessage("candidate_title", newValue);
+    },
+);
+
 const showImage = (e) => {
     currentImageDisplay.value = e;
 };
@@ -125,6 +172,7 @@ const submit = () => {
         "candidate_description",
         helper.sanitizeAndTrim(form.candidate_description),
     );
+
     formData.append("candidate_image", form.candidate_image);
 
     CandidateStore.updateCandidate(props.room.id, props.candidate.id, formData);
@@ -140,6 +188,11 @@ function handleFileChange(event) {
     form.candidate_image = file;
     imgSrc.value = URL.createObjectURL(file);
 }
+
+const clearImg = () => {
+    form.candidate_image = null;
+    imgSrc.value = null;
+};
 
 const etcStore = useEtcStore();
 const onUploadImg = etcStore.onUploadImg;

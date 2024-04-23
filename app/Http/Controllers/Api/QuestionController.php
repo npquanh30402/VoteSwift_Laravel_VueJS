@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\QuestionRequest;
 use App\Models\Question;
 use App\Models\VotingRoom;
 use App\Services\HelperService;
@@ -39,7 +40,7 @@ class QuestionController extends Controller
         }
     }
 
-    public function update(Question $question, Request $request): ?JsonResponse
+    public function update(Question $question, QuestionRequest $request): ?JsonResponse
     {
         DB::beginTransaction();
         try {
@@ -67,6 +68,9 @@ class QuestionController extends Controller
                 if ($oldImage !== $question->question_image) {
                     Storage::delete(str_replace('/storage/', 'public/', $oldImage));
                 }
+            } else if (HelperService::convertNullStringToNull($request->question_image) === null) {
+                Storage::delete(str_replace('/storage/', 'public/', $question->question_image));
+                $question->question_image = null;
             }
 
             $question->save();
@@ -102,7 +106,7 @@ class QuestionController extends Controller
         }
     }
 
-    public function store(VotingRoom $room, Request $request): ?JsonResponse
+    public function store(VotingRoom $room, QuestionRequest $request): ?JsonResponse
     {
         DB::beginTransaction();
         try {

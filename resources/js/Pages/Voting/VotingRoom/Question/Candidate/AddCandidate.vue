@@ -80,6 +80,14 @@
                             style="cursor: pointer"
                             @click="showImage"
                         />
+                        <button
+                            v-if="imgSrc"
+                            class="btn btn-secondary mt-3 float-end"
+                            type="button"
+                            @click="clearImg"
+                        >
+                            Clear
+                        </button>
                         <teleport to="body">
                             <LightBoxHelper
                                 :currentImageDisplay="currentImageDisplay"
@@ -114,13 +122,14 @@ const form = useForm({
     candidate_image: null,
 });
 
+const currentImageDisplay = ref(null);
+const imgSrc = ref(null);
+
 const errorMessages = reactive({
     candidate_title: "",
     candidate_description: "",
     candidate_image: "",
 });
-const currentImageDisplay = ref(null);
-const imgSrc = ref(null);
 
 function updateErrorMessage(fieldName, value) {
     switch (fieldName) {
@@ -205,6 +214,11 @@ function handleFileChange(event) {
     form.candidate_image = file;
     imgSrc.value = URL.createObjectURL(file);
 }
+
+const clearImg = () => {
+    form.candidate_image = null;
+    imgSrc.value = null;
+};
 
 const etcStore = useEtcStore();
 const onUploadImg = etcStore.onUploadImg;

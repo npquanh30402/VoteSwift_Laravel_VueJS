@@ -22,6 +22,12 @@
                             placeholder="Enter Question Title"
                             type="text"
                         />
+                        <p
+                            v-if="errorMessages.question_title"
+                            class="m-0 small text-danger"
+                        >
+                            {{ errorMessages.question_title }}
+                        </p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="question_description"
@@ -87,11 +93,19 @@
                     <div class="form-group mb-4 text-center">
                         <img
                             :src="imgSrc"
-                            alt="Image"
+                            alt=""
                             class="img-fluid"
                             style="cursor: pointer"
                             @click="showImage"
                         />
+                        <button
+                            v-if="imgSrc"
+                            class="btn btn-secondary mt-3 float-end"
+                            type="button"
+                            @click="clearImg"
+                        >
+                            Clear
+                        </button>
                         <teleport to="body">
                             <LightBoxHelper
                                 :currentImageDisplay="currentImageDisplay"
@@ -106,7 +120,7 @@
 
 <script setup>
 import { useForm } from "@inertiajs/vue3";
-import { ref } from "vue";
+import { reactive, ref, watch } from "vue";
 import { MdEditor } from "md-editor-v3";
 import { useQuestionStore } from "@/Stores/questions.js";
 import LightBoxHelper from "@/Components/Helpers/LightBoxHelper.vue";
@@ -135,6 +149,35 @@ const form = useForm({
     allow_multiple_votes: null,
     allow_skipping: null,
 });
+
+const errorMessages = reactive({
+    question_title: "",
+});
+
+function updateErrorMessage(fieldName, value) {
+    switch (fieldName) {
+        case "question_title":
+            const titleLength = value.length;
+            if (titleLength < 10) {
+                errorMessages.question_title =
+                    "Question title must be at least 10 characters.";
+            } else if (titleLength > 100) {
+                errorMessages.question_title =
+                    "Question title cannot exceed 100 characters.";
+            } else {
+                errorMessages.question_title = "";
+            }
+            break;
+    }
+}
+
+watch(
+    () => form.question_title,
+    (newValue) => {
+        updateErrorMessage("question_title", newValue);
+    },
+);
+
 const submit = () => {
     const formData = new FormData();
     formData.append(
@@ -183,6 +226,11 @@ function handleFileChange(event) {
     form.question_image = file;
     imgSrc.value = URL.createObjectURL(file);
 }
+
+const clearImg = () => {
+    form.question_image = null;
+    imgSrc.value = null;
+};
 
 const etcStore = useEtcStore();
 const onUploadImg = etcStore.onUploadImg;
