@@ -13,6 +13,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use OpenSpout\Reader\CSV\Reader;
+use RuntimeException;
 
 class CandidateController extends Controller
 {
@@ -42,6 +44,63 @@ class CandidateController extends Controller
 //            ], 500);
 //        }
 //    }
+
+    public function importCandidatesFromCSV(Question $question, Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            if (!$request->hasFile('csv_file')) {
+                throw new RuntimeException('File not found');
+            }
+
+            $file = $request->file('csv_file');
+
+            $reader = new Reader();
+            $reader->open($file->getPathname());
+
+            $data = [];
+
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $rowData = [];
+                    foreach ($row->getCells() as $cell) {
+                        $rowData[] = $cell->getValue();
+                    }
+                    $data[] = $rowData;
+                }
+            }
+
+            $candidates = [];
+
+            foreach ($data as $iValue) {
+                $candidate = new Candidate();
+
+                $candidate->candidate_title = HelperService::encryptAndStripTags($iValue[0]);
+                $candidate->candidate_description = HelperService::encryptAndStripTags($iValue[1]);
+                $candidate->question_id = $question->id;
+
+                $candidate->save();
+
+                $candidates[] = $candidate->decryptCandidate();
+            }
+
+            $reader->close();
+
+            unlink($file->getPathname());
+
+            DB::commit();
+
+            return response()->json([
+                'data' => $candidates,
+                'message' => 'Questions imported successfully.'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function RoomCandidates(VotingRoom $room): JsonResponse
     {

@@ -1,7 +1,42 @@
 <template>
     <div v-if="isLoading">
         <div>
-            <AddQuestion v-if="!isPublish" :room="room"></AddQuestion>
+            <div class="hstack justify-content-between">
+                <AddQuestion v-if="!isPublish" :room="room"></AddQuestion>
+                <div v-if="!isPublish" class="col-md-3">
+                    <div class="hstack justify-content-between">
+                        <label class="form-label" for="csv_file"
+                            >Import Questions:</label
+                        >
+                        <VTooltip :skidding="-48">
+                            <i class="bi bi-info-circle"></i>
+
+                            <template #popper>
+                                <div>
+                                    <p>The file must be in CSV format.</p>
+                                    <code>
+                                        question_title,question_description,allow_multiple_votes,allow_skipping
+                                    </code>
+                                    <br />
+                                    <code
+                                        >Which programming language do you
+                                        like?,Which language do you enjoy
+                                        working with?,true,false</code
+                                    >
+                                    <br />
+                                    <code>...</code>
+                                </div>
+                            </template>
+                        </VTooltip>
+                    </div>
+                    <input
+                        id="csv_file"
+                        class="form-control form-control-sm"
+                        type="file"
+                        @change="importQuestions"
+                    />
+                </div>
+            </div>
             <div class="mt-3 d-flex flex-column gap-3">
                 <div
                     v-for="(question, index) in paginatedQuestions"
@@ -138,5 +173,18 @@ const onClickHandler = (page) => {
 
 const showImage = (e) => {
     currentImageDisplay.value = e;
+};
+
+const importQuestions = (event) => {
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("csv_file", file);
+
+    questionStore.importQuestions(props.room.id, formData);
 };
 </script>

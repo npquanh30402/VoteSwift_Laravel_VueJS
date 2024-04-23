@@ -2,11 +2,31 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import { route } from "ziggy-js";
 import { useToast } from "vue-toast-notification";
+import axios from "axios";
 
 const toast = useToast();
 
 export const useQuestionStore = defineStore("question", () => {
     const questions = ref([]);
+
+    const importQuestions = async (roomId, formData) => {
+        try {
+            const response = await axios.post(
+                route("api.rooms.questions.csv", roomId),
+                formData,
+            );
+
+            if (response.status === 200) {
+                questions.value[roomId] = [
+                    ...questions.value[roomId],
+                    ...response.data.data,
+                ];
+                toast.success(response.data.message);
+            }
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    };
 
     const fetchQuestions = async (roomId) => {
         if (!!questions.value[roomId]) {
@@ -121,5 +141,6 @@ export const useQuestionStore = defineStore("question", () => {
         updateQuestion,
         deleteQuestion,
         transformQuestions,
+        importQuestions,
     };
 });

@@ -12,6 +12,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use OpenSpout\Reader\CSV\Reader;
+use RuntimeException;
 
 class QuestionController extends Controller
 {
@@ -21,6 +23,65 @@ class QuestionController extends Controller
 //    {
 //        $this->questionService = $questionService;
 //    }
+
+    public function importQuestionsFromCSV(VotingRoom $room, Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            if (!$request->hasFile('csv_file')) {
+                throw new RuntimeException('File not found');
+            }
+
+            $file = $request->file('csv_file');
+
+            $reader = new Reader();
+            $reader->open($file->getPathname());
+
+            $data = [];
+
+            foreach ($reader->getSheetIterator() as $sheet) {
+                foreach ($sheet->getRowIterator() as $row) {
+                    $rowData = [];
+                    foreach ($row->getCells() as $cell) {
+                        $rowData[] = $cell->getValue();
+                    }
+                    $data[] = $rowData;
+                }
+            }
+
+            $questions = [];
+
+            foreach ($data as $iValue) {
+                $question = new Question();
+
+                $question->question_title = HelperService::encryptAndStripTags($iValue[0]);
+                $question->question_description = HelperService::encryptAndStripTags($iValue[1]);
+                $question->allow_multiple_votes = $iValue[2];
+                $question->allow_skipping = $iValue[3];
+                $question->voting_room_id = $room->id;
+
+                $question->save();
+
+                $questions[] = $question->decryptQuestion();
+            }
+
+            $reader->close();
+
+            unlink($file->getPathname());
+
+            DB::commit();
+
+            return response()->json([
+                'data' => $questions,
+                'message' => 'Questions imported successfully.'
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 
     public function index(VotingRoom $room): ?JsonResponse
     {
