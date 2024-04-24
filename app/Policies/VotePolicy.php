@@ -30,7 +30,13 @@ class VotePolicy
      */
     public function create(User $user, VotingRoom $room): bool
     {
-        return $user->id === $room->user_id || $room->invitations()->where('invited_user_id', $user->id)->exists();
+        $isOwner = $user->id === $room->user_id;
+
+        if ($isOwner || $room->settings->invitation_only === 0) {
+            return true;
+        }
+
+        return $room->invitations()->where('invited_user_id', $user->id)->exists();
     }
 
     /**
