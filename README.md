@@ -47,6 +47,7 @@ Follow these steps to get your development environment running:
    extension=pdo_mysql
    extension=pdo_sqlite
    extension=sqlite3
+   extension=zip
    ```
 
 2. **Environment Setup**
@@ -77,6 +78,13 @@ Before running the application, you need to perform some additional setup steps:
 
     ```bash
         php artisan migrate
+    ```
+
+4. Build the frontend assets:
+   To build the frontend assets for the application, use the following command:
+
+    ```bash
+        npm run build
     ```
 
 ### Running the Application
