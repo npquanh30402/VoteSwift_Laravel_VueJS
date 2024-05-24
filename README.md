@@ -3,6 +3,9 @@
 This guide will help you set up and run this project on your local environment. Please follow these steps in order to
 ensure the application runs smoothly.
 
+### Showcase
+- [Showcase (Link to Google Drive)](https://drive.google.com/drive/folders/1szGuApSjNBgnvLrRwdUEykvKj3YAgWkz?usp=drive_link)
+
 ### Prerequisites
 
 Before you begin, make sure you have the following tools installed on your system:
